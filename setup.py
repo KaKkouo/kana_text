@@ -12,6 +12,7 @@ setup(
     url = kt.__url__,
     download_url = 'https://pypi.org/project/sphinxcontrib.kana-text/',
     project_urls = {
+        'QandA': 'https://qiita.com/tags/sphinxcotrib.kana_text',
         'Code': 'https://github.com/KaKkouo/sphinxcontrib.kana_text',
         'Issue tracker': 'https://github.com/KaKkouo/sphinxcontrib.kana_text/issues',
     },
