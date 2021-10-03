@@ -129,4 +129,5 @@ dmypy.json
 .pyre/
 
 # my ignore
+.*.swp
 purge.sh

@@ -158,7 +158,7 @@ KanaTextクラス
 - かな表示を可能にする.
 - 「.. index::」「..glossary::」「:index:」「:kana:」で使用.
 
-visit_KanaText/depart_KanaTextメソッド
+visit_kana/depart_kanaメソッド
 
 - add_node()により、KanaTextクラスに紐付けてKanaHTMLBuilderクラスに登録される.
 - glossaryで記載したテキストは、 **visit_term()** メソッドでKanaTextクラスにする.
@@ -204,7 +204,7 @@ KanaTextクラス/astextメソッド
 - 現在はソート処理に使う文字列と、html表示用の文字列が用意されている.
 - これに対して、latex/erub用の文字列を作るように実装.
 
-visit_xxx_KanaText/depart_xxx_KanaTextメソッド
+visit_xxx/depart_xxxメソッド
 
 - latex/erub用のメソッドをそれぞれ用意する.
 
@@ -226,15 +226,11 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.20.1.9'
+__version__ = '0.21.0.1'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
-import re
-import pprint
+import re, pprint
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Pattern, Type, cast
-import sqlite3
-
-pretty = pprint.pprint
 
 from docutils import nodes
 from docutils.nodes import Node, Text, Element, system_message
@@ -245,14 +241,18 @@ from sphinx.config import Config
 from sphinx.domains.index import IndexDomain, IndexRole
 from sphinx.domains.std import Glossary
 from sphinx.environment.adapters.indexentries import IndexEntries
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util import logging, split_into
 from sphinx.util.nodes import process_index_entry
 from sphinx.writers import html5
 
+pretty = pprint.pprint
+
 logger = logging.getLogger(__name__)
 
 #------------------------------------------------------------
+
+_chop = re.compile(r'^\\')
 
 _dflt_separator = r'\|'
 _dflt_option_marker = r'\^'
@@ -298,171 +298,7 @@ _s2i_step_by_step = {
     'v': 6, 'w': 7, 'x': 8, 'y': 9
     }
 
-class _KanaText(Text):
-
-    def __init__(self, text: str, separator=_dflt_separator, option_marker=_dflt_option_marker):
-        """
-        :param text: 例）たなかはなこ|田中はな子^12aa1
-        :type text: str
-        """
-
-        #オブジェクト作成時は決め打ちで処理する
-        self.kana_text_separator = separator
-        self.kana_text_option_marker = option_marker
-        self.kana_text_parser = parser_for_kana_text(separator, option_marker)
-
-        #受け取った文字列を「未処理の文字列」として保持する
-        self._rawtext = text
-
-        #「かな|単語^オプション」の各要素を取り出す
-        self.has_kana = False
-        self._parse_text(text)
-
-    def force_to_parse(self, config):
-        """
-        文字列の再解析. 解析する前に必要性の判断を行う.
-        """
-        separator = config.kana_text_separator
-        option_marker = config.kana_text_option_marker
-
-        todo = False
-        if separator and separator != _dflt_separator:
-            self.kana_text_separator = separator
-            todo = True
-        if option_marker and option_marker != _dflt_option_marker:
-            self.kana_text_option_marker = option_marker
-            todo = True
-
-        #パラメータ値が同じなら再解析はしない.
-        if not todo: return
-
-        self.kana_text_parser = parser_for_kana_text(separator, option_marker)
-
-        self._parse_text(self._rawtext)
-
-    def _parse_text(self, text):
-        parser = self.kana_text_parser
-
-        rawtexts = re.split(r' *; +', text)
-        self._kanawords = []
-
-        self.has_kana = False
-        for rawtext in rawtexts:
-            match = parser.match(rawtext)
-            _, _, kana, word, _, onoff, opt = match.groups()
-
-            if not kana: onoff = 'off'
-            elif    opt: onoff = 'specific'
-            elif  onoff: onoff = 'on'
-            else:        onoff = 'off'
-
-
-            if kana:
-                self.has_kana = True
-
-                #メタ文字の抑制がある可能性を考慮する.
-                sep = re.sub(r'^\\', '', self.kana_text_separator)
-                full = kana + sep + word #「かな|単語」
-            else:
-                full = word
-            self._kanawords.append((full, word, kana, onoff, opt))
-
-    def astext(self, purpose: str ='sort', concat: Tuple[str, int]=('; ', 3)) -> str:
-        """オプションを除いた文字列を返す
-
-        :param purpose: 表示目的（sort）
-        :type purporse: str
-
-        doctest::
-
-            >>> htmlnode = KanaText('')
-            >>> htmlnode.astext()
-            ''
-            >>> textnode = _KanaText('たなかはなこ|田中はな子^12r1')
-            >>> textnode.astext()
-            'たなかはなこ|田中はな子'
-            >>> textnode = _KanaText('みかみれいこ|美上玲子; たなかはなこ|田中はな子^12b1')
-            >>> textnode.astext()
-            'みかみれいこ|美上玲子; たなかはなこ|田中はな子'
-        """
-
-        if purpose == 'sort':
-            return concat[0].join(full for full, _, _, _, _ in self._kanawords[:concat[1]])
-        elif purpose in ('word', 'term'):
-            return concat[0].join(word for _, word, _, _, _ in self._kanawords[:concat[1]])
-        elif purpose == 'kana':
-            try:
-                return concat[0].join(kana for _, _, kana, _, _ in self._kanawords[:concat[1]])
-            except TypeError as err:
-                return ''
-        else:
-            raise ValueError(f'{self.__class__.__name__}: invalid purpose: {purpose}')
-
-    def aslist(self) -> List[List[Tuple[bool, Any]]]:
-        """ルビ表示のためのデータを返す.
-
-        :return: テンプレートで扱いやすいデータ構造
-        :rtype: List[List[Tuple[bool, Any]]]
-
-        doctest::
-
-            >>> htmlnode = KanaText('')
-            >>> htmlnode.aslist()
-            [None]
-            >>> textnode = _KanaText('はなこ|はな子^b1')
-            >>> textnode.aslist()
-            [[(False, 'はな'), (True, ('子', 'こ'))]]
-            >>> textnode = _KanaText('はなこ|はな子^')
-            >>> textnode.aslist()
-            [[(True, ('はな子', 'はなこ'))]]
-            >>> textnode = _KanaText('みかみれいこ|美上玲子; はなこ|はな子^aa1')
-            >>> textnode.aslist()
-            [[(False, '美上玲子')], [(False, 'は'), (False, 'な'), (True, ('子', 'こ'))]]
-        """
-
-        rubys = []
-        for full, word, kana, onoff, option in self._kanawords:
-            ruby = None
-            if not kana or onoff == 'off':
-                if word: ruby = [(False, word)]
-            elif onoff == 'on': #ルビを付ける。文字の割当位置は気にしない。
-                ruby = [(True, (word, kana))]
-            elif onoff == 'specific': #細かくルビの表示/非表示を指定する
-                #アレコレがんばる
-                ruby, opt, s_t, end_t, s_r, end_r = [], list(option), 0, 0, 0, 0
-                for o in opt:
-                    if not word[s_t:] or not kana[s_r:]: #文字がない
-                        break
-                    elif o in _s2i_each_together: #ルビとしては使用しない
-                        end_t = s_t + _s2i_each_together[o]
-                        end_r = s_r + _s2i_each_together[o]
-                        ruby.append((False,word[s_t:end_t]))
-                    elif o in _s2i_step_by_step: #ルビとしては使用しない
-                        end_t = s_t + 1
-                        end_r = s_r + _s2i_step_by_step[o]
-                        ruby.append((False,word[s_t:end_t]))
-                    elif _a2z.match(o): #上記以外の文字は無視する
-                        continue
-                    elif o == '0': #'0'の時はかなを消費せずに、１文字処理する
-                        end_t = s_t + 1
-                        ruby.append((False,word[s_t:end_t]))
-                    else: #ルビとして表示する
-                        end_t = s_t + 1
-                        end_r = s_r + int(o)
-                        ruby.append((True, (word[s_t:end_t], kana[s_r:end_r])))
-                    s_t, s_r = end_t, end_r
-
-                if word[end_t:]: #オプションが尽きた
-                    ruby.append((False,word[end_t:]))
-            else: 
-                #ここは通らないはずだけど、念の為
-                raise ValueError(full, word, kana, onoff, option)
-
-            rubys.append(ruby)
-
-        return rubys
-
-def make_text_with_ruby(word: str, kana: str, purpose: str="html") -> str:
+def make_html_with_ruby(word: str, kana: str) -> str:
     """ルビ表示用の文字列を作成
 
     :param word: 単語
@@ -476,81 +312,366 @@ def make_text_with_ruby(word: str, kana: str, purpose: str="html") -> str:
 
     doctest::
 
-        >>> make_text_with_ruby("単語","たんご")
+        >>> make_html_with_ruby("単語","たんご")
         '<ruby><rb>単語</rb><rp>（</rp><rt>たんご</rt><rp>）</rp></ruby>'
     """
 
-    if purpose == 'html':
-        rb = f'<rb>{word}</rb>' #単語
-        rt = f'<rt>{kana}</rt>' #かな
-        rp = ('<rp>（</rp>', '<rp>）</rp>')
-        return f'<ruby>{rb}{rp[0]}{rt}{rp[1]}</ruby>'
-    else:
-        raise NotImplementedError(f'{__name__}: {purpose} is invalid.')
+    rb = f'<rb>{word}</rb>' #単語
+    rt = f'<rt>{kana}</rt>' #かな
+    rp = ('<rp>（</rp>', '<rp>）</rp>')
 
-class KanaText(_KanaText):
-    """
-    doctest::
+    return f'<ruby>{rb}{rp[0]}{rt}{rp[1]}</ruby>'
 
-        >>> htmlnode = KanaText('田中はな子')
-        >>> htmlnode.__class__.__name__
-        'KanaText'
-    """
+def get_specific_by_parsing_option(word, kana, option):
+    rtn, opt, t_s, t_end, r_s, r_end = [], list(option), 0, 0, 0, 0
+    for o in opt:
+        if not word[t_s:] or not kana[r_s:]: #文字がない
+            break
+        elif o in _s2i_each_together: #ルビとしては使用しない
+            t_end = t_s + _s2i_each_together[o]
+            r_end = r_s + _s2i_each_together[o]
+            rtn.append((False,word[t_s:t_end]))
+        elif o in _s2i_step_by_step: #ルビとしては使用しない
+            t_end = t_s + 1
+            r_end = r_s + _s2i_step_by_step[o]
+            rtn.append((False,word[t_s:t_end]))
+        elif _a2z.match(o): #上記以外の文字は無視する
+            continue
+        elif o == '0': #'0'の時はかなを消費せずに、１文字処理する
+            t_end = t_s + 1
+            rtn.append((False,word[t_s:t_end]))
+        else: #ルビとして表示する
+            t_end = t_s + 1
+            r_end = r_s + int(o)
+            rtn.append((True, (word[t_s:t_end], kana[r_s:r_end])))
 
-    def __init__(self, text: str):
+        #次のループに入る前に位置情報を更新
+        t_s, r_s = t_end, r_end
+
+    if word[t_end:]: #オプションが尽きた
+            rtn.append((False,word[t_end:]))
+
+    return rtn
+
+class KanaText(Text):
+
+    def __init__(self, rawtext, separator=_dflt_separator, option_marker=_dflt_option_marker):
         """
-        :param text: index, glossaryで指定される単語
-        :type text: str. ex.「かな|単語」「かな|単語; かな|単語」
-        :return: なし
-        """
+        doctest:
 
-        super().__init__(text)
-
-    def astext(self, purpose: str ='sort', concat: Tuple[str, int]=(', ', 3)) -> str:
-        """文字列を返す
-
-        :param purpose: sort/html の表示の指定
-        :type purpose: str
-        :param concat: 複数の単語がある時の表示の指定
-        :type concat: Tuple[単語同士の区切り文字, 最大表示単語数]
-        :return: 指定に応じた文字列（sort, html）
-        :rtype: str
-
-        doctest::
-
-            >>> htmlnode = KanaText('')
-            >>> htmlnode.aslist()
-            [None]
-            >>> htmlnode = KanaText('たなかはなこ|田中はな子')
-            >>> htmlnode.aslist()
-            [[(False, '田中はな子')]]
-            >>> htmlnode = KanaText('たなかはなこ|田中はな子^')
-            >>> htmlnode.aslist()
-            [[(True, ('田中はな子', 'たなかはなこ'))]]
-            >>> htmlnode.astext('html')
-            '<ruby><rb>田中はな子</rb><rp>（</rp><rt>たなかはなこ</rt><rp>）</rp></ruby>'
-            >>> htmlnode = KanaText('はなこ|はな子^b1')
-            >>> htmlnode.aslist()
-            [[(False, 'はな'), (True, ('子', 'こ'))]]
+            >>> kana = KanaText('はなこ|はな子^b1')
+            >>> kana
+            <KanaText: ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
         """
 
-        if purpose != 'html':
-            return super().astext(purpose)
+        self._rawtext = rawtext
+        self._separator = _chop.sub('', separator)
+        self._re_separator = separator
+        self._re_option_marker = option_marker
 
-        words = self.aslist()
-        htmls = []
+        parser = parser_for_kana_text(separator, option_marker)
+        word, kana, ruby, option = self._parse_text(rawtext.strip(), parser)
 
+        self._properties = {'word': word, 'kana': kana, 'null': not word,
+                            'ruby': ruby, 'option': option}
+
+        if kana:
+            s = self._separator
+            super().__init__(kana+s+word, kana+s+word)
+        else:
+            super().__init__(word, word)
+
+    def __len__(self):
+        if not self['word']: return 0
+        if self['kana']: return 2
+        return 1
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            return self._properties[key]
+        elif isinstance(key, int):
+            if key == 0: return self._properties['word']
+            if key == 1: return self._properties['kana']
+            raise KeyError(f"'{key}' is invalid.")
+        else:
+            raise TypeError(f"'{key}' is invalid.")
+
+    def __repr__(self):
+        return self.entity_of_repr()
+
+    def entity_of_repr(self):
+        """
+        doctest:
+            >>> kana = KanaText('はなこ|はな子^b1')
+            >>> kana
+            <KanaText: ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
+        """
+        name = self.__class__.__name__
+        rb, op = self['ruby'], self['option']
+        word, kana = self[0], self[1]
+        if kana:
+            prop = f"<{name}: "
+            if len(rb) > 0: prop += f"ruby='{rb}' "
+            if len(op) > 0: prop += f"option='{op}' "
+            prop += f"<#text: '{kana}|{word}'>>"
+
+            return prop
+        elif word:
+            return f"<{name}: <#text: '{word}'>>"
+        elif self.rawsource:
+            return f"<{name}: <#rawsource: '{self.rawsource}'>>"
+        else:
+            return f"<{name}: <#rawtext: '{self._rawtext}'>>"
+
+    def _parse_text(self, text, parser):
+        """
+        doctest:
+
+            >>> kana = KanaText('たなかひさみつ|田中ひさみつ^12d')
+            >>> kana
+            <KanaText: ruby='specific' option='12d' <#text: 'たなかひさみつ|田中ひさみつ'>>
+        """
+        match = parser.match(text)
+
+        if not match:
+            raise ValueError(rawtext)
+
+        _, _, kana, word, _, marker, opt = match.groups()
+
+        # display mode of ruby
+        if not kana:   ruby = '' #off
+        elif   opt:    ruby = 'specific'
+        elif   marker: ruby = 'on'
+        else:          ruby = '' #off
+
+        if not opt: opt = ''
+
+        return word, kana, ruby, opt
+
+    def astext(self):
+        if len(self) == 2: return self[1] + self._separator + self[0]
+        if len(self) == 1: return self[0]
+        return ''
+
+    def askana(self):
+        """
+        doctest:
+            >>> kana = KanaText('たなかはなこ|田中はな子^12b1')
+            >>> kana.askana()
+            'たなかはなこ'
+        """
+        if len(self) < 1:
+            raise ValueError(self, self.rawsource)
+
+        if len(self) < 2:
+            return ''
+        else:
+            return self[1]
+
+    def asword(self):
+        """
+        doctest:
+            >>> kana = KanaText('たなかはなこ|田中はな子^12b1')
+            >>> kana.asword()
+            '田中はな子'
+        """
+        if len(self) < 1:
+            raise ValueError(self, self.rawsource)
+
+        return self[0]
+
+    def asterm(self): #alias name
+        """
+        doctest:
+
+            >>> kana = KanaText('たなかはなこ|田中はな子^12b1')
+            >>> kana.asterm()
+            '田中はな子'
+        """
+        if len(self) < 1:
+            raise ValueError(self, self.rawsource)
+
+        return self.asword()
+
+    def asruby(self):
+        """
+        doctest:
+            >>> kana = KanaText('たなかはなこ|田中はな子^12b1')
+            >>> kana.asruby()
+            [(True, ('田', 'た')), (True, ('中', 'なか')), (False, 'はな'), (True, ('子', 'こ'))]
+            >>> kana = KanaText('たなかはなこ|田中はな子^')
+            >>> kana.asruby()
+            [(True, ('田中はな子', 'たなかはなこ'))]
+            >>> kana = KanaText('たなかはなこ|田中はな子')
+            >>> kana.asruby()
+            [(False, '田中はな子')]
+            >>> kana = KanaText('田中はな子')
+            >>> kana.asruby()
+            [(False, '田中はな子')]
+            >>> kana = KanaText('田中はな子')
+        """
+
+        if self['null']: return None
+
+        ruby, option = self['ruby'], self['option']
+
+        if len(self) < 1:
+            raw = self.rawsource
+            name = self.__class__.__name__
+            raise ValueError(f"{name}('{raw}')", self.children)
+        elif len(self) == 1:
+            word = self[0]
+            if word: data = [(False, word)]
+            else:    data = None
+        elif not ruby:
+            word = self[0]
+            data = [(False, word),]
+        elif ruby == 'specific': #細かくルビの表示/非表示を指定する
+            #アレコレがんばる
+            word, kana = self[0], self[1]
+            data = get_specific_by_parsing_option(word, kana, option)
+        elif ruby == 'on': #ルビを付ける。文字の割当位置は気にしない。
+            word, kana = self[0], self[1]
+            data = [(True, (word, kana))]
+        else:
+            #ここは通らないはずだけど、念の為
+            raise ValueError(self)
+
+        return data
+
+    def ashtml(self):
+        """
+        doctest:
+            >>> kana = KanaText('はなこ|はな子^b1')
+            >>> kana.ashtml()
+            'はな<ruby><rb>子</rb><rp>（</rp><rt>こ</rt><rp>）</rp></ruby>'
+        """
+
+        html = ""
+        for isruby, value in self.asruby():
+            if isruby:
+                html += make_html_with_ruby(value[0], value[1])
+            else:
+                html += value
+        return html
+
+#------------------------------------------------------------
+
+_each_word = re.compile(r' *; +')
+
+class KanaValue(Element):
+
+    child_text_separator = '; '
+
+    def __init__(self, value, index_type='single', target=None, main='', index_key=''):
+        """
+        doctest:
+
+            >>> ktext = KanaValue('ああ|壱壱^11; いい|弐弐', 'single', 'idx-1')
+            >>> ktext
+            <KanaValue: index_type='single' target='idx-1' <KanaText: ruby='specific' option='11' <#text: 'ああ|壱壱'>><KanaText: <#text: 'いい|弐弐'>>>
+        """
+
+        kanaones, words = [], _each_word.split(value)
         for word in words:
-            html = ""
-            for is_ruby, value in word:
-                if is_ruby:
-                    html += make_text_with_ruby(value[0], value[1])
-                else:
-                    html += value 
-            htmls.append(html)
+            kanaones.append(KanaText(word))
 
-        #指定した数だけ、指定の書式で単語を返す
-        return concat[0].join(htmls[:concat[1]])
+        super().__init__(value, *kanaones, index_type=index_type, target=target,
+                         main=main, index_key=index_key)
+
+    def __repr__(self):
+        name = self.__class__.__name__
+        itype, tid, main, ikey = self['index_type'], self['target'], self['main'], self['index_key']
+        children = ''.join([c.entity_of_repr() for c in self])
+
+        prop = f"<{name}: "
+        if itype: prop += f"index_type='{itype}' "
+        if main: prop += f"main='{main}' "
+        if tid: prop += f"target='{tid}' "
+        if ikey: prop += f"index_key='{ikey}' "
+        prop += children + ">"
+
+        return prop
+
+    def askana(self, concat=(', ', 3)):
+        """
+        doctest:
+            >>> ktext = KanaValue('壱壱')
+            >>> ktext.askana()
+            ''
+            >>> ktext = KanaValue('ああ|壱壱^11')
+            >>> ktext.askana()
+            'ああ'
+            >>> ktext = KanaValue('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext.askana()
+            'ああ, いい, うう'
+        """
+        kana = concat[0].join(k.askana() for k in self)
+        return kana
+
+    def asword(self, concat=(', ', 3)):
+        """
+        doctest:
+            >>> ktext = KanaValue('壱壱')
+            >>> ktext.asword()
+            '壱壱'
+            >>> ktext = KanaValue('ああ|壱壱^11')
+            >>> ktext.asword()
+            '壱壱'
+            >>> ktext = KanaValue('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext.asword()
+            '壱壱, 弐弐, 参参'
+        """
+        word = concat[0].join(k.asword() for k in self)
+        return word
+
+    def asterm(self, concat=(', ', 3)):
+        """
+        doctest:
+            >>> ktext = KanaValue('壱壱')
+            >>> ktext.asterm()
+            '壱壱'
+            >>> ktext = KanaValue('ああ|壱壱^11')
+            >>> ktext.asterm()
+            '壱壱'
+            >>> ktext = KanaValue('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext.asterm()
+            '壱壱, 弐弐, 参参'
+        """
+        term = concat[0].join(k.asterm() for k in self)
+        return term
+
+    def astext(self, concat=('; ', 3)):
+        """
+        doctest:
+            >>> ktext = KanaValue('壱壱')
+            >>> ktext.astext()
+            '壱壱'
+            >>> ktext = KanaValue('ああ|壱壱^11')
+            >>> ktext.astext()
+            'ああ|壱壱'
+            >>> ktext = KanaValue('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext.astext()
+            'ああ|壱壱; いい|弐弐; うう|参参'
+        """
+        text = concat[0].join(k.astext() for k in self)
+        return text
+
+    def asruby(self):
+        """
+        doctest:
+            >>> kanatext = KanaValue('ああ|壱壱; いい|弐弐^; うう|参参')
+            >>> kanatext.asruby()
+            [[(False, '壱壱')], [(True, ('弐弐', 'いい'))], [(False, '参参')]]
+        """
+        rubys = []
+        for child in self:
+            rubys.append(child.asruby())
+        return rubys
+
+    def ashtml(self, concat=('; ', 3)):
+        html = concat[0].join(h.ashtml() for h in self)
+        return html
 
 #------------------------------------------------------------
 
@@ -571,11 +692,11 @@ def KanaRole(name, rawtext, text, lineno, inliner, options={}, content=[]):
     node = KanaText(text)
     return [node], []
 
-def visit_KanaText(self, node):
+def visit_kana(self, node):
     """KanaTexttクラスで作成されたオブジェクトの表示処理"""
-    self.body.append(node.astext('html'))
+    self.body.append(node.ashtml())
 
-def depart_KanaText(self, node):
+def depart_kana(self, node):
     """KanaTextクラスで作成されたオブジェクトの表示処理"""
     pass
 
@@ -767,7 +888,7 @@ class KanaIndexer(object):
 
             #tripleのsubtermは扱えないので、termのみとする.
             node = KanaText(term)
-            t, k = node.astext('term'), node.astext('kana')
+            t, k = node.asterm(), node.askana()
 
             if not t in self._term_to_kana:
                 #データが登録されていない
@@ -829,7 +950,7 @@ class KanaIndexer(object):
             #subはtripleで複数の単語を持つので処理できない.
             node = KanaText(tm)
 
-            t, k = node.astext('term'), node.astext('kana')
+            t, k = node.asterm(), node.askana()
             sep = re.sub(r'^\\', '', self.config.kana_text_separator)
             try:
                 if self._term_to_kana[t][1]:
@@ -983,9 +1104,9 @@ class KanaHTMLBuilder(_StandaloneHTMLBuilder):
         self._kanatext_nodes = {}
         for fn, entries in domain.entries.items():
             new_entries = []
-            for type, value, tid, main, index_key in entries:
+            for entry_type, value, tid, main, index_key in entries:
 
-                textnode = KanaText(value)
+                textnode = KanaValue(value, entry_type, tid, main, index_key)
                 if self.config.html_kana_text_on_genindex:
                     key = textnode.astext(concat=("",1))
                     if key in self._kanatext_nodes:
@@ -993,7 +1114,7 @@ class KanaHTMLBuilder(_StandaloneHTMLBuilder):
                     else:
                         self._kanatext_nodes[key] = textnode 
                 value = textnode.astext()
-                new = (type, value, tid, main, index_key)
+                new = (entry_type, value, tid, main, index_key)
                 new_entries.append(new)
             domain.entries[fn] = new_entries
 
@@ -1064,7 +1185,7 @@ class KanaHTMLBuilder(_StandaloneHTMLBuilder):
         #読み仮名の対応
         if self.config.html_kana_text_on_genindex:
             if term in self._kanatext_nodes:
-                terms = self._kanatext_nodes[term].aslist()
+                terms = self._kanatext_nodes[term].asruby()
                 return terms[0]
 
         #かなと分割する
@@ -1131,7 +1252,8 @@ def setup(app) -> Dict[str, Any]:
     app.add_role('kana', KanaRole)
 
     #glossaryディレクティブ、kanaロールの表示用
-    app.add_node(KanaText, html=(visit_KanaText, depart_KanaText))
+    app.add_node(KanaText, html=(visit_kana, depart_kana))
+    app.add_node(KanaValue, html=(visit_kana, depart_kana))
     #索引の表示はKanaHTMLBuilderで行う
 
     #HTML出力

@@ -85,16 +85,16 @@ testcase2i = [
     "用語Ａ^あいうえお", ]
 
 testcase2o = [   #想定する結果
-    [[(False, '用語１')]],
-    [[(True, ('用', 'よ')), (True, ('語', 'み２')), (False, '２')]],
-    [[(True, ('用語３', 'よみ３'))]],
-    [[(True, ('用', 'よ')), (False, '語'), (False, '４')]],
-    [[(True, ('用語５', 'よみ５'))]],
-    [[(False, '用語６')]],
-    [[(False, '用語７')]],
-    [[(False, '用語８')]],
-    [[(False, '用語９')]],
-    [[(False, '用語Ａ')]], ]
+    [(False, '用語１')],
+    [(True, ('用', 'よ')), (True, ('語', 'み２')), (False, '２')],
+    [(True, ('用語３', 'よみ３'))],
+    [(True, ('用', 'よ')), (False, '語'), (False, '４')],
+    [(True, ('用語５', 'よみ５'))],
+    [(False, '用語６')],
+    [(False, '用語７')],
+    [(False, '用語８')],
+    [(False, '用語９')],
+    [(False, '用語Ａ')], ]
 
 #オプションと文字データの文字数の多少
 testcase3i = [ #テストケース
@@ -113,9 +113,9 @@ testcase3i = [ #テストケース
         ]
 
 testcase3o = [   #期待する結果
-    [[(False, '壱弐参四五六七八九')]],
-    [[(True, ('壱弐参四五六七八九', 'いろはにほへと'))]],
-    [[  (True, ('壱', 'い')),
+    [(False, '壱弐参四五六七八九')],
+    [(True, ('壱弐参四五六七八九', 'いろはにほへと'))],
+    [  (True, ('壱', 'い')),
         (True, ('弐', 'ろ')),
         (True, ('参', 'は')),
         (False, '四'),
@@ -123,50 +123,28 @@ testcase3o = [   #期待する結果
         (False, '六'),
         (True, ('七', 'ほ')),
         (True, ('八', 'へ')),
-        (True, ('九', 'と'))]],
-    [[  (True, ('壱', 'い')),
+        (True, ('九', 'と'))],
+    [  (True, ('壱', 'い')),
         (True, ('弐', 'ろは')),
         (False, '参'),
         (True, ('四', 'に')),
         (False, '五'),
         (True, ('六', 'ほ')),
         (True, ('七', 'へと')),
-        (False, '八九')]],
-    [[(True, ('壱', 'いろは')), (True, ('弐', 'にほへ')), (False, '参四五六七八九')]],
-    [[(True, ('壱', 'いろはに')), (True, ('弐', 'ほへと')), (False, '参四五六七八九')]],
-    [[(True, ('壱', 'いろはにほ')), (True, ('弐', 'へと')), (False, '参四五六七八九')]],
-    [[  (False, '壱'), (False, '弐'), (False, '参'), (False, '四'), (False, '五'),
-        (False, '六'), (False, '七'), (False, '八'), (False, '九')]],
-    [[(False, '壱弐参四五六七八九')]],
-    [[(True, ('壱', 'いろはにほへと')), (False, '弐参四五六七八九')]],
-    [[(True, ('壱', 'いろはにほへと')), (False, '弐参四五六七八九')]],
-    [[(True, ('壱', 'いろはにほ')), (True, ('弐', 'へと')), (False, '参四五六七八九')]],
-]
-
-#用語の数
-testcase4i = [
-    #テストケース
-    '',
-    r'いろはにほへと|壱弐参四五六七八九^',
-    r'いろはに|壱弐参四; ほへと|五六七八九^',
-    r'いろは|壱弐参; にほへ|四五六^; とちり|七八九',
-    r'いろ|壱弐; はに|参四^; ほへ|五六; とち|七八九^',
-    r'いろ|壱弐; はに|参四^; ほへ|五六; とち|七八^; りぬ|九拾',
-        ] 
-
-testcase4o = [   #期待する結果
-    [None],
-    [[(True, ('壱弐参四五六七八九', 'いろはにほへと'))]],
-    [[(False, '壱弐参四')], [(True, ('五六七八九', 'ほへと'))]],
-    [[(False, '壱弐参')], [(True, ('四五六', 'にほへ'))], [(False, '七八九')]],
-    [   [(False, '壱弐')], [(True, ('参四', 'はに'))],
-        [(False, '五六')], [(True, ('七八九', 'とち'))]],
-    [   [(False, '壱弐')], [(True, ('参四', 'はに'))], [(False, '五六')],
-        [(True, ('七八', 'とち'))], [(False, '九拾')]],
+        (False, '八九')],
+    [(True, ('壱', 'いろは')), (True, ('弐', 'にほへ')), (False, '参四五六七八九')],
+    [(True, ('壱', 'いろはに')), (True, ('弐', 'ほへと')), (False, '参四五六七八九')],
+    [(True, ('壱', 'いろはにほ')), (True, ('弐', 'へと')), (False, '参四五六七八九')],
+    [  (False, '壱'), (False, '弐'), (False, '参'), (False, '四'), (False, '五'),
+        (False, '六'), (False, '七'), (False, '八'), (False, '九')],
+    [(False, '壱弐参四五六七八九')],
+    [(True, ('壱', 'いろはにほへと')), (False, '弐参四五六七八九')],
+    [(True, ('壱', 'いろはにほへと')), (False, '弐参四五六七八九')],
+    [(True, ('壱', 'いろはにほ')), (True, ('弐', 'へと')), (False, '参四五六七八九')],
 ]
 
 #非表示指定の「a-i」「q-y」の動作
-testcase5i = [
+testcase4i = [
     #テストケース
     # 1 2 3 4 5 6 7 8 9101112131415
     'いろはにほへとちりぬるをわかよ|壱弐参四五六七八九拾壱弐参四五',
@@ -199,60 +177,60 @@ testcase5i = [
     'いろはにほへとちりぬるをわかよ|壱弐参四五六七八九拾壱弐参四五^1uu1', 
 ] 
 
-testcase5o = [
+testcase4o = [
     #期待する結果
-    [[(False, '壱弐参四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱弐参四五六七八九拾壱弐参四五', 'いろはにほへとちりぬるをわかよ'))]],
-    [[(True, ('壱', 'い')),(False, '弐'),(True, ('参', 'は')),
-        (False, '四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')),(False, '弐参'),(True, ('四', 'に')),
-        (False, '五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')),(False, '弐参四'),(True, ('五', 'ほ')),
-        (False, '六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')),(False, '弐参四五'),(True, ('六', 'へ')),
-        (False, '七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')),(False, '弐参四五六'),(True, ('七', 'と')),
-        (False, '八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')),(False, '弐参四五六七'),(True, ('八', 'ち')),
-        (False, '九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')),(False, '弐参四五六七八'),(True, ('九', 'り')),
-        (False, '拾壱弐参四五')]],
-    [[(True, ('壱', 'い')),(False, '弐参四五六七八九'),(True, ('拾', 'ぬ')),
-        (False, '壱弐参四五')]],
-    [[(True, ('壱', 'い')),(False, '弐参四五六七八九拾'),(True, ('壱', 'る')),
-        (False, '弐参四五')]],
-    [[(True, ('壱', 'い')), (True, ('弐', 'ろ')), (False, '参四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐'),
-        (True, ('参', 'は')), (False, '四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐'),
-        (True, ('参', 'に')), (False, '四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐'),
-        (True, ('参', 'ほ')), (False, '四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐'),
-        (True, ('参', 'へ')), (False, '四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐'),
-        (True, ('参', 'と')), (False, '四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐'),
-        (True, ('参', 'ち')), (False, '四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐'),
-        (True, ('参', 'り')), (False, '四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐'),
-        (True, ('参', 'ぬ')), (False, '四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐'),
-        (True, ('参', 'る')), (False, '四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (True, ('弐', 'ろ')), (False, '参四五六七八九拾壱弐参四五')]],
-    [[(False, '壱弐参四五六七八九'), (False, '拾壱弐参四五')]],
-    [[(False, '壱'), (False, '弐'), (False, '参四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐参四五六七八九拾'), (False, '壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐'), (False, '参'), (False, '四五六七八九拾壱弐参四五')]],
-    [[(True, ('壱', 'い')), (False, '弐参四五六七'),
-        (False, '八九拾壱弐参'), (True, ('四', 'か')), (False, '五')]],
-    [[(True, ('壱', 'い')), (False, '弐'), (False, '参'), (True, ('四', 'を')),
-        (False, '五六七八九拾壱弐参四五')]],
+    [(False, '壱弐参四五六七八九拾壱弐参四五')],
+    [(True, ('壱弐参四五六七八九拾壱弐参四五', 'いろはにほへとちりぬるをわかよ'))],
+    [(True, ('壱', 'い')),(False, '弐'),(True, ('参', 'は')),
+        (False, '四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')),(False, '弐参'),(True, ('四', 'に')),
+        (False, '五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')),(False, '弐参四'),(True, ('五', 'ほ')),
+        (False, '六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')),(False, '弐参四五'),(True, ('六', 'へ')),
+        (False, '七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')),(False, '弐参四五六'),(True, ('七', 'と')),
+        (False, '八九拾壱弐参四五')],
+    [(True, ('壱', 'い')),(False, '弐参四五六七'),(True, ('八', 'ち')),
+        (False, '九拾壱弐参四五')],
+    [(True, ('壱', 'い')),(False, '弐参四五六七八'),(True, ('九', 'り')),
+        (False, '拾壱弐参四五')],
+    [(True, ('壱', 'い')),(False, '弐参四五六七八九'),(True, ('拾', 'ぬ')),
+        (False, '壱弐参四五')],
+    [(True, ('壱', 'い')),(False, '弐参四五六七八九拾'),(True, ('壱', 'る')),
+        (False, '弐参四五')],
+    [(True, ('壱', 'い')), (True, ('弐', 'ろ')), (False, '参四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐'),
+        (True, ('参', 'は')), (False, '四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐'),
+        (True, ('参', 'に')), (False, '四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐'),
+        (True, ('参', 'ほ')), (False, '四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐'),
+        (True, ('参', 'へ')), (False, '四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐'),
+        (True, ('参', 'と')), (False, '四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐'),
+        (True, ('参', 'ち')), (False, '四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐'),
+        (True, ('参', 'り')), (False, '四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐'),
+        (True, ('参', 'ぬ')), (False, '四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐'),
+        (True, ('参', 'る')), (False, '四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (True, ('弐', 'ろ')), (False, '参四五六七八九拾壱弐参四五')],
+    [(False, '壱弐参四五六七八九'), (False, '拾壱弐参四五')],
+    [(False, '壱'), (False, '弐'), (False, '参四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐参四五六七八九拾'), (False, '壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐'), (False, '参'), (False, '四五六七八九拾壱弐参四五')],
+    [(True, ('壱', 'い')), (False, '弐参四五六七'),
+        (False, '八九拾壱弐参'), (True, ('四', 'か')), (False, '五')],
+    [(True, ('壱', 'い')), (False, '弐'), (False, '参'), (True, ('四', 'を')),
+        (False, '五六七八九拾壱弐参四五')],
 ]
 
-testcase6i = ['']
-testcase6o = []
+testcase5i = ['']
+testcase5o = []
 
 class testKanaText(unittest.TestCase):
     #正規表現による字句解析
@@ -263,38 +241,31 @@ class testKanaText(unittest.TestCase):
             self.assertEqual(e, rslt)
 
     #オプションの処理
-    def test02_aslist(self):
+    def test02_asruby(self):
         for t, e in zip(testcase2i, testcase2o):
             node = KanaText(t)
-            rslt = node.aslist()
+            rslt = node.asruby()
             self.assertEqual(e, rslt)
 
     #オプションと文字データの文字数の多少
-    def test03_aslist(self):
+    def test03_asruby(self):
         for t, e in zip(testcase3i, testcase3o):
             node = KanaText(t)
-            rslt = node.aslist()
+            rslt = node.asruby()
             self.assertEqual(e, rslt)
 
-    #用語の数
-    def test04_aslist(self):
+    #非表示指定の「a-i」「q-y」の動作
+    def test04_asruby(self):
         for t, e in zip(testcase4i, testcase4o):
             node = KanaText(t)
-            rslt = node.aslist()
+            rslt = node.asruby()
             self.assertEqual(e, rslt)
 
     #非表示指定の「a-i」「q-y」の動作
-    def test05_aslist(self):
+    def test05_asruby(self):
         for t, e in zip(testcase5i, testcase5o):
             node = KanaText(t)
-            rslt = node.aslist()
-            self.assertEqual(e, rslt)
-
-    #非表示指定の「a-i」「q-y」の動作
-    def test06_aslist(self):
-        for t, e in zip(testcase6i, testcase6o):
-            node = KanaText(t)
-            rslt = node.aslist()
+            rslt = node.asruby()
             self.assertEqual(e, rslt)
 
 if __name__ == '__main__':
