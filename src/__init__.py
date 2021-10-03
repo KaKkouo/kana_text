@@ -226,7 +226,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.21.0b13'
+__version__ = '0.21.0b18'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pprint
@@ -355,9 +355,9 @@ def get_specific_by_parsing_option(word, kana, option):
 
 class KanaOne(Element):
 
-    child_text_separator = ''
+    child_text_separator = '|'
     _1st = 0
-    _2nd = 2
+    _2nd = 1
 
     def __init__(self, rawtext, separator=_dflt_separator, option_marker=_dflt_option_marker):
         """
@@ -372,34 +372,50 @@ class KanaOne(Element):
             >>> kana['option']
             'b1'
             >>> len(kana)
-            3
+            2
         """
 
-        child_middle = Text(_chop.sub('', separator))
         self._separator = separator
         self._option_marker = option_marker
+        self._rawtext = rawtext
 
         parser = parser_for_kana_text(separator, option_marker)
         word, kana, ruby, option = self._parse_text(rawtext.strip(), parser)
 
         if kana:
-            super().__init__(rawtext, Text(kana), child_middle, Text(word),
-                             ruby=ruby, option=option)
-        else:
+            super().__init__(rawtext, Text(kana), Text(word), ruby=ruby, option=option)
+        elif word:
             super().__init__(rawtext, Text(word), ruby=ruby, option=option)
+        else:
+            super().__init__(rawtext, Text(word), ruby=ruby, option=option, null=True)
 
     def __repr__(self):
         """
         doctest:
             >>> kana = KanaOne('はなこ|はな子^b1')
             >>> kana
-            <KanaOne: <#text: 'はなこ|はな子'>>
+            <KanaOne: ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
         """
-        text = ''.join(one.astext() for one in self)
         name = self.__class__.__name__
-        return f"<{name}: <#text: '{text}'>>"
+        rb, op = self['ruby'], self['option']
+        kana, word = self.askana(), self.asword()
+        if kana:
+            return f"<{name}: ruby='{rb}' option='{op}' <#text: '{kana}|{word}'>>"
+        elif word:
+            return f"<{name}: ruby='{rb}' option='{op}' <#text: '{word}'>>"
+        elif self.rawsource:
+            return f"<{name}: <#rawsource: '{self.rawsource}'>>"
+        else:
+            return f"<{name}: <#rawtext: '{self._rawtext}'>>"
 
     def _parse_text(self, text, parser):
+        """
+        doctest:
+
+            >>> kana = KanaOne('たなかひさみつ|田中ひさみつ^12d')
+            >>> kana
+            <KanaOne: ruby='specific' option='12d' <#text: 'たなかひさみつ|田中ひさみつ'>>
+        """
         match = parser.match(text)
 
         if not match:
@@ -424,6 +440,9 @@ class KanaOne(Element):
             >>> kana.askana()
             'たなかはなこ'
         """
+        if len(self) < 1:
+            raise ValueError(self, self.rawsource)
+
         if len(self) < 2:
             return ''
         else:
@@ -436,6 +455,9 @@ class KanaOne(Element):
             >>> kana.asword()
             '田中はな子'
         """
+        if len(self) < 1:
+            raise ValueError(self, self.rawsource)
+
         if len(self) < 2:
             return self[self._1st].astext()
         else:
@@ -448,6 +470,9 @@ class KanaOne(Element):
             >>> kana.asterm()
             '田中はな子'
         """
+        if len(self) < 1:
+            raise ValueError(self, self.rawsource)
+
         return self.asword()
 
     def asruby(self):
@@ -470,7 +495,10 @@ class KanaOne(Element):
 
         ruby, option = self['ruby'], self['option']
 
-        if len(self) == 1:
+        if len(self) < 1:
+            #0.21.0b12で起こるエラーの補足
+            raise ValueError(self, self.rawsource)
+        elif len(self) == 1:
             word = self[self._1st][:]
             if word: data = [(False, word)]
             else:    data = None
@@ -483,7 +511,8 @@ class KanaOne(Element):
             kana, word = kana.astext(), word.astext()
             data = get_specific_by_parsing_option(word, kana, option)
         elif ruby == 'on': #ルビを付ける。文字の割当位置は気にしない。
-            kana, _, word = self
+            kana, word = self[self._1st], self[self._2nd]
+            kana, word = self.askana(), self.asword()
             data = [(True, (word[:], kana[:]))]
         else:
             #ここは通らないはずだけど、念の為
