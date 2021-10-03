@@ -1,28 +1,39 @@
 DEVELOPMENT
 -----------
-KanaOne(ex. 'かな|言葉^11')
+ex. KanaText('かな|言葉^11')
 
-- obj[obj.i_1st]: 'かな'
-- obj[obj.t_2nd]: '言葉’
-- obj['ruby']: 'specific'
-- obj['option']: '11'
+- object[0]: '言葉’
+- object[1]: 'かな'
+- object['ruby']: 'specific'
+- object['option']: '11'
 
-KanaText(ex. 'ああ|壱壱^11; いい|弐弐^11; うう|参参^11')
+KanaValue(ex. 'ああ|壱壱^11; いい|弐弐^11; うう|参参^11')
 
-- obj[0]: KanaOne('ああ|壱壱^11')
-- obj[1]: KanaOne('いい|弐弐^11')
-- obj[2]: KanaOne('うう|参参^11')
-- obj['index_key']: None
-- obj['index_type']: ''
-- obj['main']: ''
-- obj['target']: ''
+- object[0]: KanaText('ああ|壱壱^11')
+- object[1]: KanaText('いい|弐弐^11')
+- object[2]: KanaText('うう|参参^11')
+- object['entry_type']: 'single'
+- object['target']: ''
+- object['main']: ''
+- object['index_key']: None
 
-KanaEntry(T.B.D.)
+- object.create_IndexEntry(): return [IndexEntry(..), IndexEntry(..), ]
 
-- obj[0]: sortkey
-- obj[1]: KanaOne(classifier)
-- obj[2]: KanaOne(main term)
-- ojb[3]: '', KanaOne(sub term), or KanaText(2nd term, 3rd term)
-- obj['index_key']: index_key
-- obj['main']: emphasis
-- obj['target']: target id
+IndexEntry(T.B.D.)
+
+- object[0]: sortkey
+- object[1]: KanaText(classifier)
+- object[2]: KanaText(main term)
+- ojbect[3]: '', KanaText(only 2nd term), or KanaValue(2nd term, 3rd term)
+- object['index_key']: index_key
+- object['main']: emphasis
+- object['target']: target id
+
+IndexEntries(T.B.D.)
+
+- object[n]: IndexEntry(...)
+
+- object.append()
+- object.extend()
+- object.sort()
+- object.create_genindex_entryies()
