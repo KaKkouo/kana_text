@@ -263,38 +263,38 @@ class testKanaText(unittest.TestCase):
             self.assertEqual(e, rslt)
 
     #オプションの処理
-    def test02_aslist(self):
+    def test02_asruby(self):
         for t, e in zip(testcase2i, testcase2o):
             node = KanaText(t)
-            rslt = node.aslist()
+            rslt = node.asruby()
             self.assertEqual(e, rslt)
 
     #オプションと文字データの文字数の多少
-    def test03_aslist(self):
+    def test03_asruby(self):
         for t, e in zip(testcase3i, testcase3o):
             node = KanaText(t)
-            rslt = node.aslist()
+            rslt = node.asruby()
             self.assertEqual(e, rslt)
 
     #用語の数
-    def test04_aslist(self):
+    def test04_asruby(self):
         for t, e in zip(testcase4i, testcase4o):
             node = KanaText(t)
-            rslt = node.aslist()
+            rslt = node.asruby()
             self.assertEqual(e, rslt)
 
     #非表示指定の「a-i」「q-y」の動作
-    def test05_aslist(self):
+    def test05_asruby(self):
         for t, e in zip(testcase5i, testcase5o):
             node = KanaText(t)
-            rslt = node.aslist()
+            rslt = node.asruby()
             self.assertEqual(e, rslt)
 
     #非表示指定の「a-i」「q-y」の動作
-    def test06_aslist(self):
+    def test06_asruby(self):
         for t, e in zip(testcase6i, testcase6o):
             node = KanaText(t)
-            rslt = node.aslist()
+            rslt = node.asruby()
             self.assertEqual(e, rslt)
 
 if __name__ == '__main__':

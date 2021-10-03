@@ -1,9 +1,9 @@
 import sys
 from setuptools import setup
-import src as kt
 
-sys.path.append('./src')
-sys.path.append('./tests')
+sys.path.append('src')
+sys.path.append('tests')
+import src as kt
 
 setup(
     version = kt.__version__,
