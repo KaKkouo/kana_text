@@ -131,3 +131,5 @@ dmypy.json
 # my ignore
 .*.swp
 purge.sh
+zzz
+zzz.*
