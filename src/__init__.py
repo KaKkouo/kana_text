@@ -226,7 +226,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.21.0.1'
+__version__ = '0.21.1'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pprint
@@ -559,7 +559,7 @@ class KanaText(Text):
 
 _each_word = re.compile(r' *; +')
 
-class KanaValue(Element):
+class KanaUnit(Element):
 
     child_text_separator = '; '
 
@@ -567,9 +567,9 @@ class KanaValue(Element):
         """
         doctest:
 
-            >>> ktext = KanaValue('ああ|壱壱^11; いい|弐弐', 'single', 'idx-1')
+            >>> ktext = KanaUnit('ああ|壱壱^11; いい|弐弐', 'single', 'idx-1')
             >>> ktext
-            <KanaValue: index_type='single' target='idx-1' <KanaText: ruby='specific' option='11' <#text: 'ああ|壱壱'>><KanaText: <#text: 'いい|弐弐'>>>
+            <KanaUnit: index_type='single' target='idx-1' <KanaText: ruby='specific' option='11' <#text: 'ああ|壱壱'>><KanaText: <#text: 'いい|弐弐'>>>
         """
 
         kanaones, words = [], _each_word.split(value)
@@ -596,13 +596,13 @@ class KanaValue(Element):
     def askana(self, concat=(', ', 3)):
         """
         doctest:
-            >>> ktext = KanaValue('壱壱')
+            >>> ktext = KanaUnit('壱壱')
             >>> ktext.askana()
             ''
-            >>> ktext = KanaValue('ああ|壱壱^11')
+            >>> ktext = KanaUnit('ああ|壱壱^11')
             >>> ktext.askana()
             'ああ'
-            >>> ktext = KanaValue('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext = KanaUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
             >>> ktext.askana()
             'ああ, いい, うう'
         """
@@ -612,13 +612,13 @@ class KanaValue(Element):
     def asword(self, concat=(', ', 3)):
         """
         doctest:
-            >>> ktext = KanaValue('壱壱')
+            >>> ktext = KanaUnit('壱壱')
             >>> ktext.asword()
             '壱壱'
-            >>> ktext = KanaValue('ああ|壱壱^11')
+            >>> ktext = KanaUnit('ああ|壱壱^11')
             >>> ktext.asword()
             '壱壱'
-            >>> ktext = KanaValue('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext = KanaUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
             >>> ktext.asword()
             '壱壱, 弐弐, 参参'
         """
@@ -628,13 +628,13 @@ class KanaValue(Element):
     def asterm(self, concat=(', ', 3)):
         """
         doctest:
-            >>> ktext = KanaValue('壱壱')
+            >>> ktext = KanaUnit('壱壱')
             >>> ktext.asterm()
             '壱壱'
-            >>> ktext = KanaValue('ああ|壱壱^11')
+            >>> ktext = KanaUnit('ああ|壱壱^11')
             >>> ktext.asterm()
             '壱壱'
-            >>> ktext = KanaValue('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext = KanaUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
             >>> ktext.asterm()
             '壱壱, 弐弐, 参参'
         """
@@ -644,13 +644,13 @@ class KanaValue(Element):
     def astext(self, concat=('; ', 3)):
         """
         doctest:
-            >>> ktext = KanaValue('壱壱')
+            >>> ktext = KanaUnit('壱壱')
             >>> ktext.astext()
             '壱壱'
-            >>> ktext = KanaValue('ああ|壱壱^11')
+            >>> ktext = KanaUnit('ああ|壱壱^11')
             >>> ktext.astext()
             'ああ|壱壱'
-            >>> ktext = KanaValue('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext = KanaUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
             >>> ktext.astext()
             'ああ|壱壱; いい|弐弐; うう|参参'
         """
@@ -660,7 +660,7 @@ class KanaValue(Element):
     def asruby(self):
         """
         doctest:
-            >>> kanatext = KanaValue('ああ|壱壱; いい|弐弐^; うう|参参')
+            >>> kanatext = KanaUnit('ああ|壱壱; いい|弐弐^; うう|参参')
             >>> kanatext.asruby()
             [[(False, '壱壱')], [(True, ('弐弐', 'いい'))], [(False, '参参')]]
         """
@@ -1106,7 +1106,7 @@ class KanaHTMLBuilder(_StandaloneHTMLBuilder):
             new_entries = []
             for entry_type, value, tid, main, index_key in entries:
 
-                textnode = KanaValue(value, entry_type, tid, main, index_key)
+                textnode = KanaUnit(value, entry_type, tid, main, index_key)
                 if self.config.html_kana_text_on_genindex:
                     key = textnode.astext(concat=("",1))
                     if key in self._kanatext_nodes:
@@ -1253,7 +1253,7 @@ def setup(app) -> Dict[str, Any]:
 
     #glossaryディレクティブ、kanaロールの表示用
     app.add_node(KanaText, html=(visit_kana, depart_kana))
-    app.add_node(KanaValue, html=(visit_kana, depart_kana))
+    app.add_node(KanaUnit, html=(visit_kana, depart_kana))
     #索引の表示はKanaHTMLBuilderで行う
 
     #HTML出力
