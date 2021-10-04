@@ -226,7 +226,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.21.1'
+__version__ = '0.22.0.dev1'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pprint
@@ -365,26 +365,30 @@ class KanaText(Text):
         """
 
         self._rawtext = rawtext
-        self._separator = _chop.sub('', separator)
-        self._re_separator = separator
-        self._re_option_marker = option_marker
+        self._delimiter = _chop.sub('', separator)
+        self._separator = separator
+        self._option_marker = option_marker
 
         parser = parser_for_kana_text(separator, option_marker)
         word, kana, ruby, option = self._parse_text(rawtext.strip(), parser)
 
-        self._properties = {'word': word, 'kana': kana, 'null': not word,
-                            'ruby': ruby, 'option': option}
+        self._properties = {'word': word, 'kana': kana, 'ruby': ruby, 'option': option,
+                            'null': not word, 'separator':  self._delimiter, }
 
         if kana:
-            s = self._separator
-            super().__init__(kana+s+word, kana+s+word)
+            d = self._delimiter
+            super().__init__(kana+d+word, kana+d+word)
         else:
             super().__init__(word, word)
 
     def __len__(self):
-        if not self['word']: return 0
         if self['kana']: return 2
-        return 1
+        if self['word']: return 1
+        return 0
+
+    def length(self):
+        #return len(self['kana']) + len(self['separator'] + len(self['word'])
+        pass
 
     def __getitem__(self, key):
         if isinstance(key, str):
@@ -449,7 +453,7 @@ class KanaText(Text):
         return word, kana, ruby, opt
 
     def astext(self):
-        if len(self) == 2: return self[1] + self._separator + self[0]
+        if len(self) == 2: return self[1] + self._delimiter + self[0]
         if len(self) == 1: return self[0]
         return ''
 
@@ -561,7 +565,7 @@ _each_word = re.compile(r' *; +')
 
 class KanaUnit(Element):
 
-    child_text_separator = '; '
+    child_text_delimiter = '; '
 
     def __init__(self, value, index_type='single', target=None, main='', index_key=''):
         """
@@ -811,6 +815,86 @@ def _get_classifier_by_first_char(term, config):
         #変換表になければ基本的な処理
         return term[:1].upper()
 
+class IndexRack(object):
+    
+    def __init__(sefl, config):
+        """IndexUnitの取り込み、整理、並べ替え. データの生成.
+
+        1. self.append() IndexUnitの取り込み. self.update()の準備.
+        2. self.update() self.append()で収集した情報で更新、並び替えの準備.
+        3. self.sort() 並び替え.
+        4. self.generate genindex用データの生成.
+        """
+
+        self._config = config
+        self._rack = [] # [IndexUnit, IndexUnit, ...]
+        self._max_length = [0, 0, 0, 0] #classifier, term, subterm, emphasis
+        self._classifier_catalog = {} # {term: classifier} #用語カタログ（分類子版）
+        self._kana_catalog = {} # {term: (emphasis, kana)} #用語カタログ（読み仮名版）
+
+    def append(self, unit):
+        """このクラスの核（その１/２）
+
+        - 全unitを見て決まる処理のための情報収集
+        - 当unit内で簡潔する更新
+        """
+        #情報収集
+        self.update_max_length(unit.length()) #各データの最大長の更新
+        self.update_classifier_catalogs(unit['classifier'], unit.asterms()) #用語カタログ（分類子版）の更新
+        self.update_kana_catalogs(unit)       #用語カタログ（読み仮名版）の更新
+
+        #当unit内で簡潔する更新
+        self.set_classifier(unit) #分類子の決定/設定
+
+        #unitをrackに乗せる
+        self._rack.append(unit)
+
+    def extend(self, units):
+        for unit in units:
+            self.appned(unit)
+
+    def update_max_length(self, length):
+        for i in (0, 1, 2, 3):
+            if length[i] > self._max_length[i]:
+                self._max_length[i] = length[i]
+
+    def update_classifier_catalog(self, classifier, terms):
+        if not classifier: return
+
+        for term in terms:
+            text = term.asterm()
+            if not text in self._classifier_catalog:
+                self._classifier_catalog[text] = classifier
+
+class IndexUnit(object):
+
+    def __init__(self, term, subterm1, subterm2, emphasis, file_name, target, index_key):
+        """リンクを作成しない場合は、file_name, targetは空文字かNoneにする."""
+        sortkey = None
+
+        subterm = []
+        if subterm1: subterm.append(subterm1)
+        if subterm2: subterm.append(subterm2)
+
+        self._sortkey = None
+        self._display_data = (classifier, term, subterm)
+        self._link_data = (emphasis, file_name, target)
+        self._index_key = index_key
+
+    def length(self):
+        classfier = self._display_data[1]
+        term      = self._display_data[2]
+        subterm   = self._display_data[3]
+        emphasis  = self._display_data[4]
+
+        if subterm:
+            return (len(classifier), term.length(), subterm.length(), len(emphasis))
+        else:
+            return (len(classifier), term.length(), 0, len(emphasis))
+
+    def asterms(self):
+        pass
+
 class KanaIndexer(object):
     """Indexing用のメソッド群"""
 
@@ -951,10 +1035,10 @@ class KanaIndexer(object):
             node = KanaText(tm)
 
             t, k = node.asterm(), node.askana()
-            sep = re.sub(r'^\\', '', self.config.kana_text_separator)
+            delimiter = re.sub(r'^\\', '', self.config.kana_text_separator)
             try:
                 if self._term_to_kana[t][1]:
-                    tm = self._term_to_kana[t][1]+sep+t
+                    tm = self._term_to_kana[t][1]+delimiter+t
             except KeyError as err:
                 pass
 
