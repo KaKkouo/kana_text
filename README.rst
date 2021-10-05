@@ -44,6 +44,8 @@ And you can also use index/kana role.
 
    夜空に浮かぶ\ :index:`あまた|数多^21`\ の星々が\ :kana:`きらめいて|煌めいて^2c`\ いる。
 
+.. image:: https://i.gyazo.com/63fe4ccfaa8a57bb2d8db50c0a689cad.png
+
 build
 -----
 
