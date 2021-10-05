@@ -1,6 +1,12 @@
 DEVELOPMENT
 -----------
-ex. KanaText('かな|言葉^11')
+variable name
+
+- separator: used by re.split()
+- delimiter: used by object.astext(), etc.
+- option marker: the '^' of 'かな|言葉^11'
+
+KanaText(ex. 'かな|言葉^11')
 
 - object[0]: '言葉’
 - object[1]: 'かな'
@@ -8,35 +14,47 @@ ex. KanaText('かな|言葉^11')
 - object['ruby']: 'specific'
 - object['option']: '11'
 
-ex. KanaUnit(ex. 'ああ|壱壱^11; いい|弐弐^11; うう|参参^11')
+KanaUnit(ex. 'ああ|壱壱^11; いい|弐弐^11; うう|参参^11')
 
 - object[0]: KanaText('ああ|壱壱^11')
 - object[1]: KanaText('いい|弐弐^11')
 - object[2]: KanaText('うう|参参^11')
-- object['entry_type']: 'single'
-- object['target']: ''
-- object['main']: ''
-- object['index_key']: None
+- object['entry_type']: 'single', 'pair', 'triple', 'see' or 'seealso'
+- object['file_name']: file name
+- object['target']: target id
+- object['main']: 'main' or ''
+- object['index_key']: None or classifier
 - object.make_IndexUnit(): return [IndexUnit, IndexUnit, ...]
 
-IndexUnit(T.B.D.)
+Unit(T.B.D.)
 
-- object[0][0]: sortkey
-- object[1]: KanaText(classifier)
-- object[2]: KanaText(main term)
-- object[3]: [], [KanaText(2nd)], or [KanaText(2nd), KanaText(3rd)]
-- object[4]: emphasis code ('main': 2, '': 5, 'see': 8, 'seealso': 9)
+- object[0]: Text(term)
+- object[1]: Text(term)
+- object[2]: Text(term)
+- object['entry_type']: 'single', 'pair', 'triple', 'see' or 'seealso'
+- object['file_name']: a file name
+- object['target']: a target id
+- object['main']: 'main' or ''
+- object['index_key']: None or classifier
+- object.make_IndexUnit(): return [IndexUnit, IndexUnit, ...]
+
+IndexUnit
+
+- object._sortkey
+- object[0]: KanaText(classifier)
+- object[1]: KanaText(main term)
+- object[2]: [], [KanaText(2nd)], or [KanaText(2nd), KanaText(3rd)]
+- object[3]: emphasis code ('main': 1, '': 5, 'see': 8, 'seealso': 9)
 - object['file_name']: target file
 - object['target']: target id
 - object['main']: emphasis
-- object['index_key']: index_key
+- object['index_key']: None or classifier
 - object.delimiter: ' ' or ', '
 
-IndexRack(T.B.D.)
+IndexRack
 
 - object[n]: IndexUnit(...)
-
 - object.append()
 - object.extend()
 - object.sort()
-- object.create_genindex_entryies()
+- object.generate_genindex_data()
