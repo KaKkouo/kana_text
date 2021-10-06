@@ -1,15 +1,16 @@
 DEVELOPMENT
 -----------
-variable name
+variable name(tasks to be taken)
 
-- term: KanaText object
-- text: the full text of 'かな|言葉^11' or 'ああ|壱壱^11; いい|弐弐^11'.
-- word: the string 'かな|言葉' of 'かな|言葉^11', by object.asword() of KanaText.
+- term: KanaText OBJect. it might be ktobj.
+- rawtext: ex. 'かな|言葉^11', 'かな|言葉^11; い|壱^1' or 'かな|言葉^11; い|壱^1; ろ|弐^1`
+- rawsouce: means Elemnt.rawsource.
+- text: the string 'かな|言葉' of 'かな|言葉^11', by object.asword() of KanaText.
 - hier: the string '言葉' of 'かな|言葉^11', by object.ashier() which means hieroglyph.
 - kana: the string 'かな' of 'かな|言葉^11'. by object.askana()
 - html: ex. '<ruby><rb>言葉</by><rp></rp><rt>かな</rt><rp></rp></ruby>'
-- latex: ex. (T.B.D.)
-- epub: ex. (T.B.D.)
+- latex: (T.B.D.)
+- epub: (T.B.D.)
 - separator: used by re.split()
 - delimiter: used by object.asword(), etc.
 - option marker: the '^' of 'かな|言葉^11'
