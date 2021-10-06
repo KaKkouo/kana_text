@@ -226,7 +226,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.22.0.dev14'
+__version__ = '0.22.0.dev20'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pprint
@@ -240,6 +240,7 @@ import sphinx.builders.html as builders
 from sphinx.config import Config
 from sphinx.domains.index import IndexDomain, IndexRole
 from sphinx.domains.std import Glossary
+from sphinx.errors import NoUri
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import _, __
 from sphinx.util import logging, split_into
@@ -438,10 +439,10 @@ class KanaText(nodes.Text):
         else:
             return f"<{name}: <#empty>>"
 
-    def __eq__(self, otther):
+    def __eq__(self, other):
         return self.astext() == other.astext()
 
-    def __ne__(self, otther):
+    def __ne__(self, other):
         return self.astext() != other.astext()
 
     def __str__(self):
@@ -917,7 +918,10 @@ def _get_classifier_by_first_char(term, config):
             return term[:1].upper()
     except KeyError as err:
         #変換表になければ基本的な処理
-        return term[:1].upper()
+        try:
+            return term[:1].upper()
+        except AttributeError as err:
+            raise AttributeError(term)
 
 class IndexRack(object):
     """
@@ -942,11 +946,12 @@ class IndexRack(object):
     
     UNIT_CLSF, UNIT_TERM, UNIT_SBTM, UNIT_EMPH = 0, 1, 2, 3
 
-    def __init__(self, config, group_entries=True, _fixre=re.compile(r'(.*) ([(][^()]*[)])') ):
+    def __init__(self, builder, group_entries=True, _fixre=re.compile(r'(.*) ([(][^()]*[)])') ):
         """IndexUnitの取り込み、整理、並べ替え. データの生成."""
 
         #制御情報の保存
-        self._config = config
+        self._config = builder.config
+        self.get_relative_uri = builder.get_relative_uri
         self._group_entries = group_entries
         self._fixre = _fixre
 
@@ -1034,7 +1039,7 @@ class IndexRack(object):
 
             for kanatext in kanatexts: #KanaText
                 if kanatext.asterm() in self._kana_catalog:
-                    kanatext[1] = self._kana_catalog[kanatext.asterm()]
+                    kanatext[1] = self._kana_catalog[kanatext.asterm()][1]
                 else:
                     pass
 
@@ -1044,15 +1049,15 @@ class IndexRack(object):
             #- 複数箇所で設定していた場合は、修正すべき用語が特定できるようにする.
 
             if ikey:
-                unit[self.UNIT_CLSF] = ikey
+                unit[self.UNIT_CLSF] = unit.textclass(ikey)
             elif term in self._classifier_catalog:
-                unit[self.UNIT_CLSF] = self._classifier_catalog[term]
+                unit[self.UNIT_CLSF] = unit.textclass(self._classifier_catalog[term])
             else:
                 kana = unit[self.UNIT_TERM].askana()
                 if kana:
-                    unit[self.UNIT_CLSF] = _get_classifier_by_first_char(kana, self._config)
+                    unit[self.UNIT_CLSF] = unit.textclass(_get_classifier_by_first_char(kana, self._config))
                 else:
-                    unit[self.UNIT_CLSF] = term[:1]
+                    unit[self.UNIT_CLSF] = unit.textclass(term[:1])
 
             #sortkeyの作成
             #- 各データの最大長に足りない文を半角スペースで埋める.
@@ -1099,6 +1104,7 @@ class IndexRack(object):
             i_em  = unit[self.UNIT_EMPH]
             i_fn  = unit['file_name']
             i_tid = unit['target']
+            i_iky = unit['index_key']
 
             # fixup entries: transform
             #   func() (in module foo)
@@ -1107,28 +1113,30 @@ class IndexRack(object):
             #   func()
             #     (in module foo)
             #     (in module bar) 
-            if group_entries:
+            if self._group_entries:
                 sub = ''
-                m = _fixre.match(i_tm.astext()) #関数を想定しているので、astext()とasterm()に差異はない.
+                m = self._fixre.match(i_tm.astext()) #関数を想定しているので、astext()とasterm()に差異はない.
                 if m and self._function_catalog[m.group(1)] > 1:
                     #状況的にsubtermは空のはず.
                     assert not unit[self.UNIT_SBTM], f'{self.__class__.__name__}: subterm is not null'
                     tm = unit.textclass(m.group(1))
                     sub = unit.textclass(m.group(2))
+                else:
+                    tm, sub = i_tm, i_sub
             else:
                 tm, sub = i_tm, i_sub
             #subの情報が消えるが、このケースに該当する場合はsubにはデータがないはず.
 
             #make a uri
-            if fn:
+            if i_fn:
                 try:
-                    r_uri = self.get_relative_uri('genindex', fn) + '#' + tid
+                    r_uri = self.get_relative_uri('genindex', i_fn) + '#' + i_tid
                 except NoUri:
                     continue
 
             #see: KanaText.__ne__
-            if len(rtnlist) == 0 or rtnlist[_clf][0] != clf:
-                rtnlist.append((clf, []))
+            if len(rtnlist) == 0 or rtnlist[_clf][0] != i_clf:
+                rtnlist.append((i_clf, []))
 
                 #追加された「(clf, [])」を見るように_clfを更新する. 他はリセット.
                 _clf, _tm, _sub = _clf+1, -1, -1
@@ -1139,20 +1147,20 @@ class IndexRack(object):
 
             #see: KanaText.__ne__
             if len(r_terms) == 0 or r_terms[_tm][0] != tm:
-                terms.append((tm, [[], [], ikey]))
+                r_terms.append((tm, [[], [], i_iky]))
                 _tm, _sub = _tm+1, -1
 
-            r_term = terms[_tm]       #[term, [links, [subterm, subterm, ..], index_key]
+            r_term = r_terms[_tm]       #[term, [links, [subterm, subterm, ..], index_key]
             r_term_value = r_term[0]    #term_value is KanaText object.
             r_term_links = r_term[1][0] #[(main, uri), (main, uri), ..]
             r_subterms = r_term[1][1]   #[subterm, subterm, ..]
 
             #一文字から元の文字列に戻す
-            r_main = _char2emphasis[em]
+            r_main = _char2emphasis[i_em]
 
             #sub(class SubTerm): [], [KanaText], [KanaText, KanaText].
             if len(sub) == 0:
-                if fn: r_term_links.append((r_main, r_uri))
+                if i_fn: r_term_links.append((r_main, r_uri))
             elif len(r_subterms) == 0 or r_subterms[_sub][0] != sub: #SubTerm.__ne__
                 r_subterms.append((sub, []))
 
@@ -1160,9 +1168,9 @@ class IndexRack(object):
                 r_subterm = r_subterms[_sub]
                 r_subterm_value = r_subterm[0]
                 r_subterm_links = r_subterm[1]
-                if link: r_subterm_links.append((main, uri))
+                if i_fn: r_subterm_links.append((r_main, r_uri))
             else:
-                if link: r_subterm_links.append((main, uri))
+                if i_fn: r_subterm_links.append((r_main, r_uri))
 
         return rtnlist
 
@@ -1170,13 +1178,14 @@ class SubTerm(object):
     _delimiter = ' '
     def __init__(self):
         self._subterms = []
-    def set_delimiter(self, delimiter):
+    def set_delimiter(self, delimiter=', '):
+        #デフォルトから変更する場合は「', '」のパターンしかない.
         self._delimiter = delimiter
     def __len__(self):
         return len(self._subterms)
     def __eq__(self, otehr):
         return self.astext() == other.astext()
-    def __ne__(self, otehr):
+    def __ne__(self, other):
         return self.astext() != other.astext()
     def __iter__(self):
         self._counter = -1
@@ -1195,11 +1204,11 @@ class SubTerm(object):
             leng += subterm.length() + slen
         if leng > 0: leng -= slen
         return leng
-    def astext(self, delimiter):
+    def astext(self):
         text = ""
         for subterm in self._subterms:
-            text += subterm.astext() + delimiter
-        return text[:-len(delimiter)]
+            text += subterm.astext() + self._delimiter
+        return text[:-len(self._delimiter)]
     def asterm(self, delimiter):
         term = ""
         for subterm in self._subterms:
@@ -1329,7 +1338,7 @@ class KanaIndexer(object):
         self._homonymous_functions = {} #Dict{func name: number of func}
 
 
-        self._index_rack = IndexRack(self.config, group_entries, _fixre)
+        self._index_rack = IndexRack(self, group_entries, _fixre)
         #インデクシング（概要）
         #1. self._prepare_sortkey_and_make_entries()
         #   - ソート用文字列の下拵え（group by含む）
@@ -1337,16 +1346,18 @@ class KanaIndexer(object):
         #   - 3で必要な要素をタプルで用意する.
         #   - 2,3で必要な、全データを確認して分かることを調べておく.
         self._prepare_sortkey_and_make_entries(entries.items(), group_entries, _fixre)
-        self._index_rack.update()
         #2. self._make_sortkey_and_sort()
         #   - ソート用文字列の作成とソート.
         #   1. ソート用の各データは最大長に合わせて半角空白で埋めて固定長にする.
         #   2. 固定長になった各データを結合して一つの固定長文字列を作る.
         #   3. この固定長でソートする.
         self._make_sortkey_and_sort()
+        self._index_rack.update()
+        self._index_rack.sort()
         #3. self._create_genindex_entries()
         #   - ソート済みを前提にデータの作成
         #   - データ構造が複雑なので、混乱しないように意図の分かる変数名を逐一当てる.
+        genidx = self._index_rack.generate_genindex_data()
         return self._create_genindex_entries(group_entries, _fixre)
 
     def _prepare_sortkey_and_make_entries(self, entries_on_each_file, group_entries, _fixre):
