@@ -2,8 +2,16 @@ DEVELOPMENT
 -----------
 variable name
 
+- term: KanaText object
+- text: the full text of 'かな|言葉^11' or 'ああ|壱壱^11; いい|弐弐^11'.
+- word: the string 'かな|言葉' of 'かな|言葉^11', by object.asword() of KanaText.
+- hier: the string '言葉' of 'かな|言葉^11', by object.ashier() which means hieroglyph.
+- kana: the string 'かな' of 'かな|言葉^11'. by object.askana()
+- html: ex. '<ruby><rb>言葉</by><rp></rp><rt>かな</rt><rp></rp></ruby>'
+- latex: ex. (T.B.D.)
+- epub: ex. (T.B.D.)
 - separator: used by re.split()
-- delimiter: used by object.astext(), etc.
+- delimiter: used by object.asword(), etc.
 - option marker: the '^' of 'かな|言葉^11'
 
 KanaText(ex. 'かな|言葉^11')
@@ -36,7 +44,7 @@ Unit(T.B.D.)
 - object['target']: a target id
 - object['main']: 'main' or ''
 - object['index_key']: None or classifier
-- object.make_IndexUnit(): return [IndexUnit, IndexUnit, ...]
+- object.make_index_unit(): return [IndexUnit, IndexUnit, ...]
 
 IndexUnit
 
