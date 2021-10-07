@@ -232,43 +232,147 @@ testcase4o = [
 ]
 
 #未入力/扱えない文字列
-testcase5i = ['']
-testcase5o = []
+testcase5i = [
+    '', '  ', '　　',
+    'かな|^',
+    ]
+
+testcase5o = [None, None, None, None]
+
+#self.ashier()の基本チェック
+testcase6i = [
+    #テストパターン
+    "よみ１|用語１",
+    "よみ２|用語２^120a3",
+    "よみ３|用語３^",
+    "よみ４|用語４^10a3あいうえお",
+    "よみ５|用語５^あいうえお",
+    "用語６",
+    "用語７^120a3",
+    "用語８^",
+    "用語９^120a3あいうえお",
+    "用語Ａ^あいうえお",
+    "  よみ１|用語１",
+    "  よみ２|用語２^120a3",
+    "  よみ３|用語３^",
+    "  よみ４|用語４^10a3あいうえお",
+    "  よみ５|用語５^あいうえお",
+    "  用語６",
+    "  用語７^120a3",
+    "  用語８^",
+    "  用語９^10a3あいうえお",
+    "  用語Ａ^あいうえお",
+    " 　よみ１|用語１",
+    " 　よみ２|用語２^120a3",
+    " 　よみ３|用語３^",
+    " 　よみ４|用語４^10a3あいうえお",
+    " 　よみ５|用語５^あいうえお",
+    " 　用語６",
+    " 　用語７^120a3",
+    " 　用語８^",
+    " 　用語９^10a3あいうえお",
+    " 　用語Ａ^あいうえお",
+    "", "  ", " 　", ]
+
+testcase6o = [   #想定する結果
+    "用語１", "用語２", "用語３", "用語４", "用語５",
+    "用語６", "用語７", "用語８", "用語９", "用語Ａ",
+    "用語１", "用語２", "用語３", "用語４", "用語５",
+    "用語６", "用語７", "用語８", "用語９", "用語Ａ",
+    "用語１", "用語２", "用語３", "用語４", "用語５",
+    "用語６", "用語７", "用語８", "用語９", "用語Ａ",
+    "", "", ""]
+
+#askana()の基本チェック
+testcase7i = [
+    #テストパターン
+    "よみ１|用語１",
+    "よみ２|用語２^120a3",
+    "よみ３|用語３^",
+    "よみ４|用語４^10a3あいうえお",
+    "よみ５|用語５^あいうえお",
+    "用語６",
+    "用語７^120a3",
+    "用語８^",
+    "用語９^120a3あいうえお",
+    "用語Ａ^あいうえお",
+    "  よみ１|用語１",
+    "  よみ２|用語２^120a3",
+    "  よみ３|用語３^",
+    "  よみ４|用語４^10a3あいうえお",
+    "  よみ５|用語５^あいうえお",
+    "  用語６",
+    "  用語７^120a3",
+    "  用語８^",
+    "  用語９^10a3あいうえお",
+    "  用語Ａ^あいうえお",
+    " 　よみ１|用語１",
+    " 　よみ２|用語２^120a3",
+    " 　よみ３|用語３^",
+    " 　よみ４|用語４^10a3あいうえお",
+    " 　よみ５|用語５^あいうえお",
+    " 　用語６",
+    " 　用語７^120a3",
+    " 　用語８^",
+    " 　用語９^10a3あいうえお",
+    " 　用語Ａ^あいうえお",
+    "", "  ", " 　", ]
+
+testcase7o = [   #想定する結果
+    "よみ１", "よみ２", "よみ３", "よみ４", "よみ５", "", "", "", "", "",
+    "よみ１", "よみ２", "よみ３", "よみ４", "よみ５", "", "", "", "", "",
+    "よみ１", "よみ２", "よみ３", "よみ４", "よみ５", "", "", "", "", "",
+    "", "", ""]
+
 
 class testKanaText(unittest.TestCase):
     #正規表現による字句解析
     def test01_astext(self):
         for t, e in zip(testcase1i, testcase1o):
-            node = KanaText(t)
-            rslt = node.astext()
+            term = KanaText(t)
+            rslt = term.astext()
             self.assertEqual(e, rslt)
 
     #オプションの処理
     def test02_asruby(self):
         for t, e in zip(testcase2i, testcase2o):
-            node = KanaText(t)
-            rslt = node.asruby()
+            term = KanaText(t)
+            rslt = term.asruby()
             self.assertEqual(e, rslt)
 
     #オプションと文字データの文字数の多少
     def test03_asruby(self):
         for t, e in zip(testcase3i, testcase3o):
-            node = KanaText(t)
-            rslt = node.asruby()
+            term = KanaText(t)
+            rslt = term.asruby()
             self.assertEqual(e, rslt)
 
     #非表示指定の「a-i」「q-y」の動作
     def test04_asruby(self):
         for t, e in zip(testcase4i, testcase4o):
-            node = KanaText(t)
-            rslt = node.asruby()
+            term = KanaText(t)
+            rslt = term.asruby()
             self.assertEqual(e, rslt)
 
     #非表示指定の「a-i」「q-y」の動作
     def test05_asruby(self):
         for t, e in zip(testcase5i, testcase5o):
-            node = KanaText(t)
-            rslt = node.asruby()
+            term = KanaText(t)
+            rslt = term.asruby()
+            self.assertEqual(e, rslt)
+
+    #ashierの基本チェック
+    def test06_ashier(self):
+        for t, e in zip(testcase6i, testcase6o):
+            term = KanaText(t)
+            rslt = term.ashier()
+            self.assertEqual(e, rslt)
+
+    #askanaの基本チェック
+    def test07_askana(self):
+        for t, e in zip(testcase7i, testcase7o):
+            term = KanaText(t)
+            rslt = term.askana()
             self.assertEqual(e, rslt)
 
 def main():
