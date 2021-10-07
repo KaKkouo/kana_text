@@ -1,6 +1,6 @@
 DEVELOPMENT
 -----------
-variable name(tasks to be taken)
+variable name
 
 - term: KanaText OBJect. it might be ktobj.
 - rawtext: ex. 'かな|言葉^11', 'かな|言葉^11; い|壱^1' or 'かな|言葉^11; い|壱^1; ろ|弐^1`
