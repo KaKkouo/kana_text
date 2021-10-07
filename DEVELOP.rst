@@ -23,7 +23,7 @@ KanaText(ex. 'かな|言葉^11')
 - object['ruby']: 'specific'
 - object['option']: '11'
 
-KanaUnit(ex. 'ああ|壱壱^11; いい|弐弐^11; うう|参参^11')
+KanaTextUnit(ex. 'ああ|壱壱^11; いい|弐弐^11; うう|参参^11')
 
 - object[0]: KanaText('ああ|壱壱^11')
 - object[1]: KanaText('いい|弐弐^11')
@@ -35,7 +35,7 @@ KanaUnit(ex. 'ああ|壱壱^11; いい|弐弐^11; うう|参参^11')
 - object['index_key']: None or classifier
 - object.make_IndexUnit(): return [IndexUnit, IndexUnit, ...]
 
-Unit(T.B.D.)
+TextUnit(T.B.D.)
 
 - object[0]: Text(term)
 - object[1]: Text(term)
