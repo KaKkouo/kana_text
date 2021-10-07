@@ -3,7 +3,7 @@ import sys
 import unittest
 from pprint import pprint
 sys.path.append('sphinxcontrib')
-from src import KanaIndexer
+from src import IndexRack
 
 #-------------------------------------------------------------------
 
@@ -822,70 +822,70 @@ class _builder(object):
 env = _env()
 cfg = _config()
 bld = _builder(env, cfg)
-idx = KanaIndexer(bld)
+idx = IndexRack(bld)
 
-class testKanaIndexer(unittest.TestCase):
-    def test01_create_genindex_entries(self):
+class testIndexRack(unittest.TestCase):
+    def test01_create_genindex(self):
         self.maxDiff = None
-        gidx = idx.create_genindex_entries(testcase01in)
+        gidx = idx.create_genindex(testcase01in)
         self.assertEqual(testcase01out, gidx)
 
-    def test02_create_genindex_entries(self):
+    def test02_create_genindex(self):
         self.maxDiff = None
-        gidx = idx.create_genindex_entries(testcase02in)
+        gidx = idx.create_genindex(testcase02in)
         self.assertEqual(testcase02out, gidx)
 
-    def test03_create_genindex_entries(self):
+    def test03_create_genindex(self):
         self.maxDiff = None
-        gidx = idx.create_genindex_entries(testcase03in)
+        gidx = idx.create_genindex(testcase03in)
         self.assertEqual(testcase03out, gidx)
 
-    def test04_create_genindex_entries(self):
+    def test04_create_genindex(self):
         self.maxDiff = None
         idx.config.html_kana_text_use_own_indexer = 'large'
-        gidx = idx.create_genindex_entries(testcase04in)
+        gidx = idx.create_genindex(testcase04in)
         self.assertEqual(testcase04out, gidx)
 
-    def test05_create_genindex_entries(self):
+    def test05_create_genindex(self):
         self.maxDiff = None
         idx.config.html_kana_text_use_own_indexer = 'small'
-        gidx = idx.create_genindex_entries(testcase05in)
+        gidx = idx.create_genindex(testcase05in)
         self.assertEqual(testcase05out, gidx)
 
-    def test06_create_genindex_entries(self):
+    def test06_create_genindex(self):
         self.maxDiff = None
         idx.config.html_kana_text_use_own_indexer = 'small'
-        gidx = idx.create_genindex_entries(testcase06in)
+        gidx = idx.create_genindex(testcase06in)
         self.assertEqual(testcase06out, gidx)
 
-    def test07_create_genindex_entries(self):
+    def test07_create_genindex(self):
         self.maxDiff = None
         idx.config.html_kana_text_use_own_indexer = 'small'
-        gidx = idx.create_genindex_entries(testcase07in)
+        gidx = idx.create_genindex(testcase07in)
         self.assertEqual(testcase07out, gidx)
 
-    def test08_create_genindex_entries(self):
+    def test08_create_genindex(self):
         self.maxDiff = None
         idx.config.html_kana_text_use_own_indexer = 'small'
-        gidx = idx.create_genindex_entries(testcase08in)
+        gidx = idx.create_genindex(testcase08in)
         self.assertEqual(testcase08out, gidx)
 
-    def test09_create_genindex_entries(self):
+    def test09_create_genindex(self):
         self.maxDiff = None
         idx.config.html_kana_text_use_own_indexer = 'small'
-        gidx = idx.create_genindex_entries(testcase09in)
+        gidx = idx.create_genindex(testcase09in)
         self.assertEqual(testcase09out, gidx)
 
-    def test10_create_genindex_entries(self):
+    def test10_create_genindex(self):
         self.maxDiff = None
         idx.config.html_kana_text_use_own_indexer = 'small'
-        gidx = idx.create_genindex_entries(testcase10in)
+        gidx = idx.create_genindex(testcase10in)
         self.assertEqual(testcase10out, gidx)
 
-    def test11_create_genindex_entries(self):
+    def test11_create_genindex(self):
         self.maxDiff = None
         idx.config.html_kana_text_use_own_indexer = 'small'
-        gidx = idx.create_genindex_entries(testcase11in)
+        gidx = idx.create_genindex(testcase11in)
         self.assertEqual(testcase11out, gidx)
 
 #-------------------------------------------------------------------
@@ -894,5 +894,5 @@ if __name__ == '__main__':
     unittest.main()
 
     #bld.config.html_kana_text_use_own_indexer = 'small'
-    #gidx = bld.create_genindex_entries(testcase08in)
+    #gidx = bld.create_genindex(testcase08in)
     #pprint(gidx)
