@@ -3,7 +3,7 @@ import sys
 import unittest
 from pprint import pprint
 sys.path.append('sphinxcontrib')
-from __init__ import KanaIndexer
+from src import KanaIndexer
 
 #-------------------------------------------------------------------
 
@@ -631,6 +631,7 @@ testcase09out = [
       None])])
 ]
 
+#同じ単語なら読みを揃える
 
 testcase10in = {
 'doc01': [('single','ああ|球球球; いい|球球球','id-01','',None)],

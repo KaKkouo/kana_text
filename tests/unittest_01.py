@@ -2,7 +2,7 @@
 import sys
 import unittest
 sys.path.append('sphinxcontrib')
-from __init__ import KanaText
+from src import KanaText
 
 #正規表現による字句解析
 testcase1i = [
@@ -231,6 +231,7 @@ testcase4o = [
         (False, '五六七八九拾壱弐参四五')],
 ]
 
+#未入力/扱えない文字列
 testcase5i = ['']
 testcase5o = []
 
@@ -269,6 +270,9 @@ class testKanaText(unittest.TestCase):
             node = KanaText(t)
             rslt = node.asruby()
             self.assertEqual(e, rslt)
+
+def main():
+    unittest.main()
 
 if __name__ == '__main__':
     unittest.main()

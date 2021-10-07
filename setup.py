@@ -1,7 +1,6 @@
 import sys
 from setuptools import setup
 
-sys.path.append('src')
 sys.path.append('tests')
 import src as kt
 

@@ -2,7 +2,7 @@
 import sys
 import unittest
 sys.path.append('sphinxcontrib')
-from __init__ import KanaUnit
+from src import KanaUnit
 
 #正規表現による字句解析
 testcase1i = [
