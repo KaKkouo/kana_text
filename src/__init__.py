@@ -226,7 +226,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.22.0a3'
+__version__ = '0.22.0b7'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pprint
@@ -239,7 +239,6 @@ from sphinx import addnodes
 import sphinx.builders.html as builders
 from sphinx.config import Config
 from sphinx.domains.index import IndexDomain, IndexRole
-from sphinx.domains.std import Glossary
 from sphinx.errors import NoUri
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import _, __
@@ -371,31 +370,27 @@ class KanaText(nodes.Text):
         self._option_marker = option_marker
 
         parser = parser_for_kana_text(separator, option_marker)
-        word, kana, ruby, option = self._parse_text(rawtext.strip(), parser)
+        hier, kana, ruby, option = self._parse_text(rawtext.strip(), parser)
 
-        self._properties = {'word': word, 'kana': kana, 'ruby': ruby, 'option': option,
-                            'null': not word, 'separator':  self._delimiter, }
+        self._properties = {'hier': hier, 'kana': kana, 'ruby': ruby, 'option': option,
+                            'null': not hier, 'separator':  self._delimiter, }
 
         if kana:
             d = self._delimiter
-            super().__init__(kana+d+word, kana+d+word)
+            super().__init__(kana+d+hier, kana+d+hier)
         else:
-            super().__init__(word, word)
+            super().__init__(hier, hier)
 
     def __len__(self):
-        if self['kana']: return 2
-        if self['word']: return 1
+        if not self['kana'] is None: return 2
+        if not self['hier'] is None: return 1 #0.22.0: 'is None'を削除しても動作するように調整.
         return 0
-
-    def length(self):
-        #return len(self['kana']) + len(self['separator'] + len(self['word'])
-        pass
 
     def __getitem__(self, key):
         if isinstance(key, str):
             return self._properties[key]
         elif isinstance(key, int):
-            if key == 0: return self._properties['word']
+            if key == 0: return self._properties['hier']
             if key == 1: return self._properties['kana']
             raise KeyError(key)
         else:
@@ -425,16 +420,16 @@ class KanaText(nodes.Text):
         """
         name = self.__class__.__name__
         rb, op = self['ruby'], self['option']
-        word, kana = self[0], self[1]
+        hier, kana = self[0], self[1]
         if kana:
             prop = f"<{name}: "
             if len(rb) > 0: prop += f"ruby='{rb}' "
             if len(op) > 0: prop += f"option='{op}' "
-            prop += f"<#text: '{kana}|{word}'>>"
+            prop += f"<#text: '{kana}|{hier}'>>"
 
             return prop
-        elif word:
-            return f"<{name}: <#text: '{word}'>>"
+        elif hier:
+            return f"<{name}: <#text: '{hier}'>>"
         elif self.rawsource:
             return f"<{name}: <#rawsource: '{self.rawsource}'>>"
         elif self._rawtext:
@@ -457,9 +452,9 @@ class KanaText(nodes.Text):
         match = parser.match(text)
 
         if not match:
-            raise ValueError(rawtext)
+            raise ValueError(self._rawtext)
 
-        _, _, kana, word, _, marker, opt = match.groups()
+        _, _, kana, hier, _, marker, opt = match.groups()
 
         # display mode of ruby
         if not kana:   ruby = '' #off
@@ -469,20 +464,11 @@ class KanaText(nodes.Text):
 
         if not opt: opt = ''
 
-        return word, kana, ruby, opt
-
-    def length(self):
-        """
-        doctest:
-            >>> kana = KanaText('たなかはなこ|田中はな子^12b1')
-            >>> kana.length()
-            12
-        """
-        return len(self.astext())
+        return hier, kana, ruby, opt
 
     def astext(self):
-        if len(self) == 2: return self[1] + self._delimiter + self[0]
-        if len(self) == 1: return self[0]
+        if self[1]: return self[1] + self._delimiter + self[0]
+        if self[0]: return self[0]
         return ''
 
     def askana(self):
@@ -493,7 +479,7 @@ class KanaText(nodes.Text):
             'たなかはなこ'
         """
         if len(self) < 1:
-            raise ValueError(self, self.rawsource)
+            raise ValueError(self._rawtext, len(self), self[0], self[1], self)
 
         if len(self) < 2:
             return ''
@@ -508,7 +494,7 @@ class KanaText(nodes.Text):
             '田中はな子'
         """
         if len(self) < 1:
-            raise ValueError(self, self.rawsource)
+            raise ValueError(self._rawtext, len(self), self[0], self[1], self)
 
         return self[0]
 
@@ -539,19 +525,19 @@ class KanaText(nodes.Text):
             name = self.__class__.__name__
             raise ValueError(f"{name}('{raw}')", self.children)
         elif len(self) == 1:
-            word = self[0]
-            if word: data = [(False, word)]
+            hier = self[0]
+            if hier: data = [(False, hier)]
             else:    data = None
         elif not ruby:
-            word = self[0]
-            data = [(False, word),]
+            hier = self[0]
+            data = [(False, hier),]
         elif ruby == 'specific': #細かくルビの表示/非表示を指定する
             #アレコレがんばる
-            word, kana = self[0], self[1]
-            data = get_specific_by_parsing_option(word, kana, option)
+            hier, kana = self[0], self[1]
+            data = get_specific_by_parsing_option(hier, kana, option)
         elif ruby == 'on': #ルビを付ける。文字の割当位置は気にしない。
-            word, kana = self[0], self[1]
-            data = [(True, (word, kana))]
+            hier, kana = self[0], self[1]
+            data = [(True, (hier, kana))]
         else:
             #ここは通らないはずだけど、念の為
             raise ValueError(self)
@@ -637,24 +623,20 @@ class KanaUnit(nodes.Element):
 
         def add_entry(ent, sub1, sub2):
             if entry_type in ('see', 'seealso'):
-                emphasis = _emphasis2char['see']
-                if entry_type == 'see':
-                    sub = _('see %s') % sub1.astext()
-                if entry_type == 'seealso':
-                    sub = _('see also %s') % sub1.astext()
-                index_unit = IndexUnit(ent._rawtext, sub, '', emphasis, '', '', index_key, KanaText)
+                emphasis = _emphasis2char[entry_type]
             else:
                 emphasis = _emphasis2char[main]
-                try:
-                    text1 = sub1._rawtext
-                except AttributeError as err:
-                    text1 = ''
-                try:
-                    text2 = sub2._rawtext
-                except AttributeError as err:
-                    text2 = ''
-                index_unit = IndexUnit(ent._rawtext, text1, text2, emphasis, fn, tid, index_key, KanaText)
 
+            try:
+                text1 = sub1._rawtext
+            except AttributeError as err:
+                text1 = ''
+            try:
+                text2 = sub2._rawtext
+            except AttributeError as err:
+                text2 = ''
+
+            index_unit = IndexUnit(ent._rawtext, text1, text2, emphasis, fn, tid, index_key, KanaText)
             return index_unit
 
         try:
@@ -861,13 +843,14 @@ _first_char_large = {
 
 _emphasis2char = {
     'main': '1', #glossaryで定義した用語. indexでは「!」が先頭にあるもの.
-    '':     '5', #上記以外
-    'see':  '9', #see
+    '':     '5', #'main', 'see', 'seealso'以外.
+    'see':  '8',
+    'seealso':  '9',
 }
 
 _char2emphasis = {
     '0': '', '1': 'main', '2': '', '3': '', '4': '',
-    '5': '', '6': '', '7': '', '8': '', '9': 'see',
+    '5': '', '6': '', '7': '', '8': 'see', '9': 'seealso',
 }
 
 def _make_classifier_by_first_char(text, config):
@@ -911,7 +894,6 @@ class IndexRack(object):
 
         #入れ物の用意
         self._rack = [] # [IndexUnit, IndexUnit, ...]
-        self._max_length = [0, 0, 0, 0] #classifier, term, subterm, emphasis
         self._classifier_catalog = {} # {term: classifier} 
         self._kana_catalog = {} # {term: (emphasis, kana)} #KanaText
         self._function_catalog = {} #{function name: number of homonymous funcion}
@@ -921,7 +903,6 @@ class IndexRack(object):
         - 全unitを見て決まる処理のための情報収集
         """
         #情報収集
-        self.update_max_length(unit.length()) #各データの最大長の更新
         self.update_classifier_catalog(unit['index_key'], unit[self.UNIT_TERM].ashier())
         self.update_kana_catalog(unit[self.UNIT_EMPH], unit.askanas(), unit.ashiers()) #KanaText
 
@@ -934,11 +915,6 @@ class IndexRack(object):
     def extend(self, units):
         for unit in units:
             self.append(unit)
-
-    def update_max_length(self, length):
-        for i in (0, 1, 2, 3):
-            if length[i] > self._max_length[i]:
-                self._max_length[i] = length[i]
 
     def update_classifier_catalog(self, index_key, hier):
         """Text/KanaText共通の処理"""
@@ -1003,24 +979,11 @@ class IndexRack(object):
             if ikey:
                 unit[self.UNIT_CLSF] = unit.textclass(ikey)
             elif terms[0].ashier() in self._classifier_catalog:
-                clsf = self._classifier_catalog[terms[0].ashier()]
-                unit[self.UNIT_CLSF] = unit.textclass(clsf)
+                unit[self.UNIT_CLSF] = unit.textclass(self._classifier_catalog[terms[0].ashier()])
             else:
                 text = unit[self.UNIT_TERM].astext()
                 char = _make_classifier_by_first_char(text, self._config)
                 unit[self.UNIT_CLSF] = unit.textclass(char)
-
-            #sortkeyの作成
-            #- 各データの最大長に足りない文を半角スペースで埋める.
-            #- 半角スペースで埋めて固定長にした文字列を連結してsortkeyとする.
-            #- subtermは最大二つのKanaTextがある
-            #  - それぞれ別々に読みが補完された場合は最大長をはみ出す.
-            #  - とは言え、はみ出していない分の文字列のソートで実害はない（はず）.
-
-            clsf = unit[self.UNIT_CLSF].astext() + ' '*self._max_length[self.UNIT_CLSF] #classifier
-            term = unit[self.UNIT_TERM].astext() + ' '*self._max_length[self.UNIT_TERM] #term
-            sbtm = unit[self.UNIT_SBTM].astext() + ' '*self._max_length[self.UNIT_SBTM] #subterm
-            emph = unit[self.UNIT_EMPH] + ' '*self._max_length[self.UNIT_EMPH] #emphasis. 長さは1で固定だけど..
 
             #position 'see' and 'seealso'
             if unit[self.UNIT_EMPH] in ('7', '8', '9'):
@@ -1028,18 +991,19 @@ class IndexRack(object):
             else:
                 code = '1' #'main' or ''
 
-            sortkey  = clsf[:self._max_length[self.UNIT_CLSF]] + '|' #classifier
-            sortkey += term[:self._max_length[self.UNIT_TERM]] + '|' #term
-            sortkey += code + '|'
-            sortkey += sbtm[:self._max_length[self.UNIT_SBTM]] + '|' #subterm
-            sortkey += emph[:self._max_length[self.UNIT_EMPH]] + '|' #emphasis
-
             #sortkeyの設定
-            unit._sortkey = sortkey
+            unit._sortkey = code
 
     def sort(self):
-        self._rack.sort(key=lambda x: (x._sortkey, x['file_name'], x['target']))
+        self._rack.sort(key=lambda x: (
+            x[self.UNIT_CLSF].astext(), #classifier
+            x[self.UNIT_TERM].astext(), #term
+            x._sortkey,                 # for 'see' or 'seealso'
+            x[self.UNIT_SBTM].astext(), #subterm
+            x[self.UNIT_EMPH],          #enphasis(main)
+            x['file_name'], x['target']))
         #x['file_name'], x['target']は、0.21の動作仕様に合わせるため.
+        #逆にすると内部的な処理順に依存するため、今の「ファイル名昇順」の方がいいと思う.
 
     def generate_genindex_data(self):
         """
@@ -1074,8 +1038,12 @@ class IndexRack(object):
                     sub = m.group(2)
                 else:
                     tm, sub = i_tm.astext(), i_sub.astext()
+                    if i_em == '8': sub = _('see %s') % sub
+                    if i_em == '9': sub = _('see also %s') % sub
             else:
                 tm, sub = i_tm.astext(), i_sub.astext()
+                if i_em == '8': sub = _('see %s') % sub
+                if i_em == '9': sub = _('see also %s') % sub
             #subの情報が消えるが、このケースに該当する場合はsubにはデータがないはず.
 
             #make a uri
@@ -1150,12 +1118,6 @@ class SubTerm(object):
             raise StopIteration
     def append(self, subterm):
         self._subterms.append(subterm)
-    def length(self):
-        leng, slen = 0, len(self._delimiter)
-        for subterm in self._subterms:
-            leng += subterm.length() + slen
-        if leng > 0: leng -= slen
-        return leng
     def astext(self):
         text = ""
         for subterm in self._subterms:
@@ -1222,20 +1184,6 @@ class IndexUnit(object):
 
     def set_subterm_delimiter(self, delimiter=', '):
         self[self.SBTM].set_delimiter(delimiter)
-
-    def length(self):
-        classifier = self._index_key
-        term      = self[self.TERM]
-        subterms  = self[self.SBTM]
-        emphasis  = self[self.EMPH]
-        if not classifier: classifier = ''
-
-        if subterms:
-            length = subterms.length()
-        else:
-            length = 0
-
-        return (len(classifier), term.length(), length, len(emphasis))
 
     def astexts(self):
         texts = [self[self.TERM].astext()]

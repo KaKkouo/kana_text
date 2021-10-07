@@ -271,16 +271,6 @@ testcase8o = [   #想定する結果
     #0, 0, 0, #0.22.0/対応保留
     ]
 
-#length()の基本チェック
-testcase9i = testcase1i
-
-testcase9o = [   #想定する結果
-    7, 7, 7, 7, 7, 3, 3, 3, 3, 3,
-    7, 7, 7, 7, 7, 3, 3, 3, 3, 3,
-    7, 7, 7, 7, 7, 3, 3, 3, 3, 3,
-    0, 0, 0, 
-    ]
-
 class testKanaText(unittest.TestCase):
     #正規表現による字句解析
     def test01_astext(self):
@@ -336,13 +326,6 @@ class testKanaText(unittest.TestCase):
         for t, e in zip(testcase8i, testcase8o):
             term = KanaText(t)
             rslt = len(term)
-            self.assertEqual(e, rslt)
-
-    #lengthの基本チェック
-    def test09_length(self):
-        for t, e in zip(testcase9i, testcase9o):
-            term = KanaText(t)
-            rslt = term.length()
             self.assertEqual(e, rslt)
 
 def main():
