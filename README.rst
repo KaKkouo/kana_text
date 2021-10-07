@@ -2,7 +2,7 @@ extends the functionality of the Text class. any person, who use index/glossary 
 
 .. image:: https://i.gyazo.com/4cbf3408c162fb2bfcc493661d35a42b.png
 
-quick start
+QUICK START
 -----------
 
 conf.py:
