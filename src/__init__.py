@@ -226,7 +226,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.22.0b7'
+__version__ = '0.22.0rc1'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pprint
@@ -1235,228 +1235,19 @@ class KanaIndexer(object):
             entries = domain.entries
         #entries: Dict{ファイル名: List[Tuple(type, value, tid, main, index_key)]}
 
-        #インデクシングで共有されるデータ
-        self._now_entries: List[str, Tuple] = []
-
-        #インデクシングでgroup by的なことをやるための変数
-        self._max_len_clf  = 0 #max length of classifier  
-        self._max_len_term = 0 #max length of term
-        self._max_len_sub  = 0 #max length of subterm
-        self._term_to_classifier = {}
-        self._term_to_kana = {} #Dict{term: List[emphasis, kana]}
-        self._homonymous_functions = {} #Dict{func name: number of func}
-
-
         self._index_rack = IndexRack(self, group_entries, _fixre)
-        #インデクシング（概要）
-        #1. self._prepare_sortkey_and_make_entries()
-        #   - ソート用文字列の下拵え（group by含む）
-        #   - 2で作るsortkeyを収める場所を確保.
-        #   - 3で必要な要素をタプルで用意する.
-        #   - 2,3で必要な、全データを確認して分かることを調べておく.
-        self._prepare_sortkey_and_make_entries(entries.items(), group_entries, _fixre)
-        #2. self._make_sortkey_and_sort()
-        #   - ソート用文字列の作成とソート.
-        #   1. ソート用の各データは最大長に合わせて半角空白で埋めて固定長にする.
-        #   2. 固定長になった各データを結合して一つの固定長文字列を作る.
-        #   3. この固定長でソートする.
-        self._make_sortkey_and_sort()
-        self._index_rack.update()
-        self._index_rack.sort()
-        #3. self._create_genindex_entries()
-        #   - ソート済みを前提にデータの作成
-        #   - データ構造が複雑なので、混乱しないように意図の分かる変数名を逐一当てる.
-        genidx = self._index_rack.generate_genindex_data() 
-        return genidx
-        #return self._index_rack.generate_genindex_data()
-        #return self._create_genindex_entries(group_entries, _fixre)
 
-    def _prepare_sortkey_and_make_entries(self, entries_on_each_file, group_entries, _fixre):
-        def add_entry(term, subterm, emphasis, link=True):
-            if index_key:
-                _clf = index_key
-
-                if not term in self._term_to_classifier:
-                    self._term_to_classifier[term] = index_key
-                #indexでclassifierの指定はできないが、念の為"早い者勝ち"にしておく.
-            else:
-                _clf = _make_classifier_by_first_char(term, self.config)
-
-            #homonymous functions
-            if group_entries:
-                m = _fixre.match(term)
-                if m:
-                    try:
-                        self._homonymous_functions[m.group(1)] += 1
-                    except KeyError as err:
-                        self._homonymous_functions[m.group(1)] = 1
-
-            #ソート処理のために文字幅が揃う一文字に変換
-            _em = _emphasis2char[emphasis] 
-
-            #tripleのsubtermは扱えないので、termのみとする.
-            node = KanaText(term)
-            t, k = node.ashier(), node.askana()
-
-            if not t in self._term_to_kana:
-                #データが登録されていない
-                self._term_to_kana[t] = (_em, k)
-            elif _em < self._term_to_kana[t][0]:
-                #emphasisが強いなら上書き
-                self._term_to_kana[t] = (_em, k)
-            elif _em == self._term_to_kana[t][0] and len(k) > len(self._term_to_kana[t][1]):
-                #長さが同じ場合は上書きしない（∵make cleanでのデータ順を”正”とするため）
-                self._term_to_kana[t] = (_em, k)
-
-            #max of length
-            if len(_clf) > self._max_len_clf: self._max_len_clf = len(_clf)
-            if len(term) > self._max_len_term: self._max_len_term = len(term)
-            if len(subterm) > self._max_len_sub: self._max_len_sub = len(subterm)
-
-            #dataset
-            dataset = (_clf, term, subterm, _em, link, fn, tid, index_key)
-
-            #insert
-            entry = [None, dataset]
-            self._now_entries.append(entry)
-
-        for fn, entries in entries_on_each_file:
+        for fn, entries in entries.items():
             for entry_type, value, tid, main, index_key in entries:
                 unit = KanaUnit(value, entry_type, fn, tid, main, index_key)
                 index_units = unit.make_index_unit()
                 self._index_rack.extend(index_units) #KaKkouoDebug
-                try:
-                    if entry_type == 'single':
-                        try:
-                            entry, subentry = split_into(2, 'single', value)
-                        except ValueError:
-                            entry, = split_into(1, 'single', value)
-                            subentry = ''
-                        add_entry(entry, subentry, main)
-                    elif entry_type == 'pair':
-                        first, second = split_into(2, 'pair', value)
-                        add_entry(first, second, main)
-                        add_entry(second, first, main)
-                    elif entry_type == 'triple':
-                        first, second, third = split_into(3, 'triple', value)
-                        add_entry(first, second + ' ' + third, main)
-                        add_entry(second, third + ', ' + first, main)
-                        add_entry(third, first + ' ' + second, main)
-                    elif entry_type == 'see':
-                        first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see %s') % second, 'see', link=False)
-                    elif entry_type == 'seealso':
-                        first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see also %s') % second, 'see', link=False)
-                    else:
-                        logger.warning(__('unknown index entry type %r'), entry_type,
-                                          location=fn)
-                except ValueError as err:
-                    logger.warning(str(err), location=fn)
 
-    def _make_sortkey_and_sort(self):
-        for entry in self._now_entries:
-            clf, tm, sub, em, link, fn, tid, ikey = entry[1]
+        self._index_rack.update()
+        self._index_rack.sort()
 
-            #subはtripleで複数の単語を持つので処理できない.
-            node = KanaText(tm)
-
-            t, k = node.ashier(), node.askana()
-            delimiter = re.sub(r'^\\', '', self.config.kana_text_separator)
-            try:
-                if self._term_to_kana[t][1]:
-                    tm = self._term_to_kana[t][1]+delimiter+t
-            except KeyError as err:
-                pass
-
-            if tm in self._term_to_classifier:
-                _clf = self._term_to_classifier[tm]
-            else:
-                _clf = _make_classifier_by_first_char(tm, self.config)
-
-            entry[1] = (_clf, tm, sub, em, link, fn, tid, ikey)
-
-            classifier = _clf + ' '*self._max_len_clf
-            term       = tm   + ' '*self._max_len_term
-            subterm    = sub  + ' '*self._max_len_sub
-
-            if em == '9': #see: _emphasis2char
-                _sub_order = '9'
-            else:
-                _sub_order = '5'
-
-            sortkey  = classifier[:self._max_len_clf]+'|'
-            sortkey += term[:self._max_len_term]+'|'
-            sortkey += _sub_order+'|' #see/seealsoの表示順をここで調整.
-            sortkey += subterm[:self._max_len_sub]+'|'
-            sortkey += em+'|'
-
-            entry[0] = sortkey
-
-        self._now_entries.sort()
-
-    def _create_genindex_entries(self, group_entries, _fixre):
-        newlist = []
-
-        _clf, _tm, _sub = -1, -1, -1
-        for _, (clf, tm, sub, em, link, fn, tid, ikey) in self._now_entries:
-            # fixup entries: transform
-            #   func() (in module foo)
-            #   func() (in module bar)
-            # into
-            #   func()
-            #     (in module foo)
-            #     (in module bar) 
-            if group_entries:
-                m = _fixre.match(tm)
-                if m and self._homonymous_functions[m.group(1)] > 1:
-                    #状況的にsubtermは空のはず.
-                    assert not sub, f'{self.__class__.__name__}: subterm is not null: {sub}'
-                    tm = m.group(1)
-                    sub = m.group(2)
-            #subの情報が消えるが、このケースに該当する場合はsubにはデータがないはず.
-
-            #make a uri
-            if link:
-                try:
-                    uri = self.get_relative_uri('genindex', fn) + '#' + tid
-                except NoUri:
-                    continue
-
-            if len(newlist) == 0 or newlist[_clf][0] != clf:
-                newlist.append((clf, []))
-                _clf, _tm, _sub = _clf+1, -1, -1
-
-            classifier = newlist[_clf]
-            cname = classifier[0]
-            terms = classifier[1]
-
-            if len(terms) == 0 or terms[_tm][0] != tm:
-                terms.append((tm, [[], [], ikey]))
-                _tm, _sub = _tm+1, -1
-
-            term = terms[_tm]
-            term_value = term[0]
-            term_links = term[1][0]
-            subterms = term[1][1]
-
-            #一文字から元の文字列に戻す
-            main = _char2emphasis[em]
-
-            if not sub:
-                if link: term_links.append((main, uri))
-            elif len(subterms) == 0 or subterms[_sub][0] != sub:
-                subterms.append((sub, []))
-
-                _sub = _sub+1
-                subterm = subterms[_sub]
-                subterm_value = subterm[0]
-                subterm_links = subterm[1]
-                if link: subterm_links.append((main, uri))
-            else:
-                if link: subterm_links.append((main, uri))
-
-        return newlist
+        genidx = self._index_rack.generate_genindex_data() 
+        return genidx
 
 #------------------------------------------------------------
 
