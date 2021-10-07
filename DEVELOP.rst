@@ -37,9 +37,9 @@ KanaTextUnit(ex. 'ああ|壱壱^11; いい|弐弐^11; うう|参参^11')
 
 TextUnit(T.B.D.)
 
-- object[0]: Text(term)
-- object[1]: Text(term)
-- object[2]: Text(term)
+- object[0]: Text(rawtext)
+- object[1]: Text(rawtext)
+- object[2]: Text(rawtext)
 - object['entry_type']: 'single', 'pair', 'triple', 'see' or 'seealso'
 - object['file_name']: a file name
 - object['target']: a target id
@@ -63,7 +63,8 @@ IndexUnit
 IndexRack
 
 - object[n]: IndexUnit(...)
-- object.append()
-- object.extend()
-- object.sort()
+- object.append(): make/update classifier_catalog and kana_katalog
+- object.extend(): call the object.append() by each IndexUnit object
+- object.udpate(): update IndexUnit object with classifier_catalog and kana_catalog
+- object.sort(): to be sorted
 - object.generate_genindex_data()
