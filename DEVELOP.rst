@@ -49,7 +49,7 @@ TextUnit(T.B.D.)
 
 IndexUnit
 
-- object._sortkey
+- object._sortkey: for emphasis which means 'main'.
 - object[0]: KanaText(classifier)
 - object[1]: KanaText(main term)
 - object[2]: [], [KanaText(2nd)], or [KanaText(2nd), KanaText(3rd)]
