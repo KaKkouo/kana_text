@@ -226,7 +226,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.21.1'
+__version__ = '0.22.0'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pprint
@@ -239,7 +239,7 @@ from sphinx import addnodes
 import sphinx.builders.html as builders
 from sphinx.config import Config
 from sphinx.domains.index import IndexDomain, IndexRole
-from sphinx.domains.std import Glossary
+from sphinx.errors import NoUri
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import _, __
 from sphinx.util import logging, split_into
@@ -353,7 +353,7 @@ def get_specific_by_parsing_option(word, kana, option):
 
     return rtn
 
-class KanaText(Text):
+class KanaText(nodes.Text):
 
     def __init__(self, rawtext, separator=_dflt_separator, option_marker=_dflt_option_marker):
         """
@@ -365,36 +365,48 @@ class KanaText(Text):
         """
 
         self._rawtext = rawtext
-        self._separator = _chop.sub('', separator)
-        self._re_separator = separator
-        self._re_option_marker = option_marker
+        self._delimiter = _chop.sub('', separator)
+        self._separator = separator
+        self._option_marker = option_marker
 
         parser = parser_for_kana_text(separator, option_marker)
-        word, kana, ruby, option = self._parse_text(rawtext.strip(), parser)
+        hier, kana, ruby, option = self._parse_text(rawtext.strip(), parser)
 
-        self._properties = {'word': word, 'kana': kana, 'null': not word,
-                            'ruby': ruby, 'option': option}
+        self._properties = {'hier': hier, 'kana': kana, 'ruby': ruby, 'option': option,
+                            'null': not hier, 'separator':  self._delimiter, }
 
         if kana:
-            s = self._separator
-            super().__init__(kana+s+word, kana+s+word)
+            d = self._delimiter
+            super().__init__(kana+d+hier, kana+d+hier)
         else:
-            super().__init__(word, word)
+            super().__init__(hier, hier)
 
     def __len__(self):
-        if not self['word']: return 0
-        if self['kana']: return 2
-        return 1
+        if not self['kana'] is None: return 2
+        if not self['hier'] is None: return 1 #0.22.0: 'is None'を削除しても動作するように調整.
+        return 0
 
     def __getitem__(self, key):
         if isinstance(key, str):
             return self._properties[key]
         elif isinstance(key, int):
-            if key == 0: return self._properties['word']
+            if key == 0: return self._properties['hier']
             if key == 1: return self._properties['kana']
-            raise KeyError(f"'{key}' is invalid.")
+            raise KeyError(key)
         else:
-            raise TypeError(f"'{key}' is invalid.")
+            raise TypeError(key)
+
+    def __setitem__(self, key, value):
+        if isinstance(key, int):
+            if key == 1:
+                self._properties['kana'] = value
+            else:
+                raise KeyError(key)
+        else:
+            raise TypeError(key)
+
+    def __str__(self):
+        return self.astext()
 
     def __repr__(self):
         return self.entity_of_repr()
@@ -408,20 +420,26 @@ class KanaText(Text):
         """
         name = self.__class__.__name__
         rb, op = self['ruby'], self['option']
-        word, kana = self[0], self[1]
+        hier, kana = self[0], self[1]
         if kana:
             prop = f"<{name}: "
             if len(rb) > 0: prop += f"ruby='{rb}' "
             if len(op) > 0: prop += f"option='{op}' "
-            prop += f"<#text: '{kana}|{word}'>>"
+            prop += f"<#text: '{kana}|{hier}'>>"
 
             return prop
-        elif word:
-            return f"<{name}: <#text: '{word}'>>"
+        elif hier:
+            return f"<{name}: <#text: '{hier}'>>"
         elif self.rawsource:
             return f"<{name}: <#rawsource: '{self.rawsource}'>>"
-        else:
+        elif self._rawtext:
             return f"<{name}: <#rawtext: '{self._rawtext}'>>"
+        else:
+            return f"<{name}: <#empty>>"
+
+    def __str__(self):
+        """フォーマットを切り替える機能が必要かもしれない."""
+        return self.astext()
 
     def _parse_text(self, text, parser):
         """
@@ -434,9 +452,9 @@ class KanaText(Text):
         match = parser.match(text)
 
         if not match:
-            raise ValueError(rawtext)
+            raise ValueError(self._rawtext)
 
-        _, _, kana, word, _, marker, opt = match.groups()
+        _, _, kana, hier, _, marker, opt = match.groups()
 
         # display mode of ruby
         if not kana:   ruby = '' #off
@@ -446,11 +464,11 @@ class KanaText(Text):
 
         if not opt: opt = ''
 
-        return word, kana, ruby, opt
+        return hier, kana, ruby, opt
 
     def astext(self):
-        if len(self) == 2: return self[1] + self._separator + self[0]
-        if len(self) == 1: return self[0]
+        if self[1]: return self[1] + self._delimiter + self[0]
+        if self[0]: return self[0]
         return ''
 
     def askana(self):
@@ -461,37 +479,24 @@ class KanaText(Text):
             'たなかはなこ'
         """
         if len(self) < 1:
-            raise ValueError(self, self.rawsource)
+            raise ValueError(self._rawtext, len(self), self[0], self[1], self)
 
         if len(self) < 2:
             return ''
         else:
             return self[1]
 
-    def asword(self):
+    def ashier(self):
         """
         doctest:
             >>> kana = KanaText('たなかはなこ|田中はな子^12b1')
-            >>> kana.asword()
+            >>> kana.ashier()
             '田中はな子'
         """
         if len(self) < 1:
-            raise ValueError(self, self.rawsource)
+            raise ValueError(self._rawtext, len(self), self[0], self[1], self)
 
         return self[0]
-
-    def asterm(self): #alias name
-        """
-        doctest:
-
-            >>> kana = KanaText('たなかはなこ|田中はな子^12b1')
-            >>> kana.asterm()
-            '田中はな子'
-        """
-        if len(self) < 1:
-            raise ValueError(self, self.rawsource)
-
-        return self.asword()
 
     def asruby(self):
         """
@@ -520,19 +525,19 @@ class KanaText(Text):
             name = self.__class__.__name__
             raise ValueError(f"{name}('{raw}')", self.children)
         elif len(self) == 1:
-            word = self[0]
-            if word: data = [(False, word)]
+            hier = self[0]
+            if hier: data = [(False, hier)]
             else:    data = None
         elif not ruby:
-            word = self[0]
-            data = [(False, word),]
+            hier = self[0]
+            data = [(False, hier),]
         elif ruby == 'specific': #細かくルビの表示/非表示を指定する
             #アレコレがんばる
-            word, kana = self[0], self[1]
-            data = get_specific_by_parsing_option(word, kana, option)
+            hier, kana = self[0], self[1]
+            data = get_specific_by_parsing_option(hier, kana, option)
         elif ruby == 'on': #ルビを付ける。文字の割当位置は気にしない。
-            word, kana = self[0], self[1]
-            data = [(True, (word, kana))]
+            hier, kana = self[0], self[1]
+            data = [(True, (hier, kana))]
         else:
             #ここは通らないはずだけど、念の為
             raise ValueError(self)
@@ -557,100 +562,153 @@ class KanaText(Text):
 
 #------------------------------------------------------------
 
-_each_word = re.compile(r' *; +')
+_each_words = re.compile(r' *; +')
 
-class KanaUnit(Element):
+class KanaTextUnit(nodes.Element):
 
-    child_text_separator = '; '
+    _number_of_terms = { 'single': 2, 'pair': 2, 'triple': 3, 'see': 2, 'seealso': 2, }
 
-    def __init__(self, value, index_type='single', target=None, main='', index_key=''):
+    child_text_delimiter = '; '
+
+    def __init__(self, value, entry_type='single', file_name=None, target=None, main='', index_key=''):
         """
         doctest:
 
-            >>> ktext = KanaUnit('ああ|壱壱^11; いい|弐弐', 'single', 'idx-1')
+            >>> ktext = KanaTextUnit('壱壱; 弐弐')
             >>> ktext
-            <KanaUnit: index_type='single' target='idx-1' <KanaText: ruby='specific' option='11' <#text: 'ああ|壱壱'>><KanaText: <#text: 'いい|弐弐'>>>
+            <KanaTextUnit: entry_type='single' <KanaText: <#text: '壱壱'>><KanaText: <#text: '弐弐'>>>
+            >>> ktext = KanaTextUnit('ああ|壱壱^')
+            >>> ktext
+            <KanaTextUnit: entry_type='single' <KanaText: ruby='on' <#text: 'ああ|壱壱'>>>
+            >>> ktext = KanaTextUnit('あ|壱^1')
+            >>> ktext
+            <KanaTextUnit: entry_type='single' <KanaText: ruby='specific' option='1' <#text: 'あ|壱'>>>
         """
 
-        kanaones, words = [], _each_word.split(value)
-        for word in words:
-            kanaones.append(KanaText(word))
 
-        super().__init__(value, *kanaones, index_type=index_type, target=target,
-                         main=main, index_key=index_key)
+        kanatexts = []
+        words = _each_words.split(value)
+
+        for word in words:
+            kanatexts.append(KanaText(word))
+
+        super().__init__(value, *kanatexts, entry_type=entry_type, 
+                         file_name=file_name, target=target, main=main, index_key=index_key)
 
     def __repr__(self):
         name = self.__class__.__name__
-        itype, tid, main, ikey = self['index_type'], self['target'], self['main'], self['index_key']
-        children = ''.join([c.entity_of_repr() for c in self])
-
         prop = f"<{name}: "
-        if itype: prop += f"index_type='{itype}' "
-        if main: prop += f"main='{main}' "
-        if tid: prop += f"target='{tid}' "
-        if ikey: prop += f"index_key='{ikey}' "
+
+        etype, ikey = self['entry_type'], self['index_key']
+        main, fn, tid = self['main'], self['file_name'], self['target']
+        if etype: prop += f"entry_type='{etype}' "
+        if main:  prop += f"main='{main}' "
+        if fn:    prop += f"file_name='{fn}' "
+        if tid:   prop += f"target='{tid}' "
+        if ikey:  prop += f"index_key='{ikey}' "
+
+        children = ''.join([c.entity_of_repr() for c in self])
         prop += children + ">"
 
         return prop
 
+    def make_index_unit(self):
+        index_units = []
+
+        entry_type = self['entry_type']
+        fn = self['file_name']
+        tid = self['target']
+        main = self['main']
+        index_key = self['index_key']
+
+        def add_entry(ent, sub1, sub2):
+            if entry_type in ('see', 'seealso'):
+                emphasis = _emphasis2char[entry_type]
+            else:
+                emphasis = _emphasis2char[main]
+
+            try:
+                text1 = sub1._rawtext
+            except AttributeError as err:
+                text1 = ''
+            try:
+                text2 = sub2._rawtext
+            except AttributeError as err:
+                text2 = ''
+
+            index_unit = IndexUnit(ent._rawtext, text1, text2, emphasis, fn, tid, index_key, KanaText)
+            return index_unit
+
+        try:
+            #add_entry(term, subterm1, subterm2)
+            if entry_type == 'single':
+                try:
+                    index_units.append(add_entry(self[0], self[1], ''))
+                except IndexError as err:
+                    index_units.append(add_entry(self[0], '', ''))
+            elif entry_type == 'pair':
+                index_units.append(add_entry(self[0], self[1], ''))
+                index_units.append(add_entry(self[1], self[0], ''))
+            elif entry_type == 'triple':
+                index_units.append(add_entry(self[0], self[1], self[2]))
+                u = add_entry(self[1], self[2], self[0])
+                u.set_subterm_delimiter(', ')
+                index_units.append(u)
+                index_units.append(add_entry(self[2], self[0], self[1]))
+            elif entry_type == 'see':
+                index_units.append(add_entry(self[0], self[1], ''))
+            elif entry_type == 'seealso':
+                index_units.append(add_entry(self[0], self[1], ''))
+            else:
+                logger.warning(__('unknown index entry type %r'), entry_type,
+                                  location=fn)
+        except ValueError as err:
+            logger.warning(str(err), location=fn)
+
+        return index_units
+
     def askana(self, concat=(', ', 3)):
         """
         doctest:
-            >>> ktext = KanaUnit('壱壱')
+            >>> ktext = KanaTextUnit('壱壱')
             >>> ktext.askana()
             ''
-            >>> ktext = KanaUnit('ああ|壱壱^11')
+            >>> ktext = KanaTextUnit('ああ|壱壱^11')
             >>> ktext.askana()
             'ああ'
-            >>> ktext = KanaUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext = KanaTextUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
             >>> ktext.askana()
             'ああ, いい, うう'
         """
         kana = concat[0].join(k.askana() for k in self)
         return kana
 
-    def asword(self, concat=(', ', 3)):
+    def ashier(self, concat=(', ', 3)):
         """
         doctest:
-            >>> ktext = KanaUnit('壱壱')
-            >>> ktext.asword()
+            >>> ktext = KanaTextUnit('壱壱')
+            >>> ktext.ashier()
             '壱壱'
-            >>> ktext = KanaUnit('ああ|壱壱^11')
-            >>> ktext.asword()
+            >>> ktext = KanaTextUnit('ああ|壱壱^11')
+            >>> ktext.ashier()
             '壱壱'
-            >>> ktext = KanaUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
-            >>> ktext.asword()
+            >>> ktext = KanaTextUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext.ashier()
             '壱壱, 弐弐, 参参'
         """
-        word = concat[0].join(k.asword() for k in self)
+        word = concat[0].join(k.ashier() for k in self)
         return word
-
-    def asterm(self, concat=(', ', 3)):
-        """
-        doctest:
-            >>> ktext = KanaUnit('壱壱')
-            >>> ktext.asterm()
-            '壱壱'
-            >>> ktext = KanaUnit('ああ|壱壱^11')
-            >>> ktext.asterm()
-            '壱壱'
-            >>> ktext = KanaUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
-            >>> ktext.asterm()
-            '壱壱, 弐弐, 参参'
-        """
-        term = concat[0].join(k.asterm() for k in self)
-        return term
 
     def astext(self, concat=('; ', 3)):
         """
         doctest:
-            >>> ktext = KanaUnit('壱壱')
+            >>> ktext = KanaTextUnit('壱壱')
             >>> ktext.astext()
             '壱壱'
-            >>> ktext = KanaUnit('ああ|壱壱^11')
+            >>> ktext = KanaTextUnit('ああ|壱壱^11')
             >>> ktext.astext()
             'ああ|壱壱'
-            >>> ktext = KanaUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext = KanaTextUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
             >>> ktext.astext()
             'ああ|壱壱; いい|弐弐; うう|参参'
         """
@@ -660,7 +718,7 @@ class KanaUnit(Element):
     def asruby(self):
         """
         doctest:
-            >>> kanatext = KanaUnit('ああ|壱壱; いい|弐弐^; うう|参参')
+            >>> kanatext = KanaTextUnit('ああ|壱壱; いい|弐弐^; うう|参参')
             >>> kanatext.asruby()
             [[(False, '壱壱')], [(True, ('弐弐', 'いい'))], [(False, '参参')]]
         """
@@ -711,7 +769,7 @@ class KanaHTML5Translator(html5.HTML5Translator):
         """
 
         try:
-            textnode = KanaText(node[0])
+            textnode = KanaText(node[0].astext())
         except TypeError as e:
             pass
         else:
@@ -785,31 +843,374 @@ _first_char_large = {
 
 _emphasis2char = {
     'main': '1', #glossaryで定義した用語. indexでは「!」が先頭にあるもの.
-    'see':  '9', #see, seealso
-    '':     '5', #上記以外
+    '':     '5', #'main', 'see', 'seealso'以外.
+    'see':  '8',
+    'seealso':  '9',
 }
 
-_int2emphasis = {
+_char2emphasis = {
     '0': '', '1': 'main', '2': '', '3': '', '4': '',
-    '5': '', '6': '', '7': '', '8': '', '9': 'see',
+    '5': '', '6': '', '7': '', '8': 'see', '9': 'seealso',
 }
 
-def _get_classifier_by_first_char(term, config):
+def _make_classifier_by_first_char(text, config):
     """
     先頭の一文字を必要な加工をして分類子に使う.
     """
     try:
         #パラメータに応じて変換テーブルを使い分ける.
         if 'small' == config.html_kana_text_use_own_indexer:
-            return _first_char_small[term[:1]]
+            return _first_char_small[text[:1]]
         elif 'large' == config.html_kana_text_use_own_indexer:
-            return _first_char_large[term[:1]]
+            return _first_char_large[text[:1]]
         else:
             #想定パラメータ以外なら基本的な処理
-            return term[:1].upper()
+            return text[:1].upper()
     except KeyError as err:
         #変換表になければ基本的な処理
-        return term[:1].upper()
+        return text[:1].upper()
+
+class IndexRack(object):
+    """
+    処理概要
+
+    1. self.__init__() 初期化.
+    2. self.append() IndexUnitの取り込み. self.update()の準備.
+    3. self.update() 各unitの更新、並び替えの準備.
+    4. self.sort() 並び替え. ※3,4は分ける必要はないけど、見通しが良くなる気がするので. 
+    5. self.generate_genindex_data() genindex用データの生成.
+    """
+    
+    UNIT_CLSF, UNIT_TERM, UNIT_SBTM, UNIT_EMPH = 0, 1, 2, 3
+
+    def __init__(self, builder, group_entries=True, _fixre=re.compile(r'(.*) ([(][^()]*[)])') ):
+        """IndexUnitの取り込み、整理、並べ替え. データの生成."""
+
+        #制御情報の保存
+        self._config = builder.config
+        self.get_relative_uri = builder.get_relative_uri
+        self._group_entries = group_entries
+        self._fixre = _fixre
+
+        #入れ物の用意
+        self._rack = [] # [IndexUnit, IndexUnit, ...]
+        self._classifier_catalog = {} # {term: classifier} 
+        self._kana_catalog = {} # {term: (emphasis, kana)} #KanaText
+        self._function_catalog = {} #{function name: number of homonymous funcion}
+
+    def append(self, unit):
+        """
+        - 全unitを見て決まる処理のための情報収集
+        """
+        #情報収集
+        self.update_classifier_catalog(unit['index_key'], unit[self.UNIT_TERM].ashier())
+        self.update_kana_catalog(unit[self.UNIT_EMPH], unit.askanas(), unit.ashiers()) #KanaText
+
+        if self._group_entries:
+            self.update_function_catalog(unit.astexts(), self._fixre)
+
+        #unitをrackに乗せる
+        self._rack.append(unit)
+
+    def extend(self, units):
+        for unit in units:
+            self.append(unit)
+
+    def update_classifier_catalog(self, index_key, hier):
+        """Text/KanaText共通の処理"""
+        if not index_key: return
+        if not hier: return
+
+        if not hier in self._classifier_catalog:
+            #上書きはしない.（∵「make clean」での状況を真とするため）
+            self._classifier_catalog[hier] = index_key
+
+    def update_kana_catalog(self, emphasis, kanas, hiers): #KanaText
+        """KanaText用の処理"""
+        for kana, hier in zip(kanas, hiers):
+            if hier in self._kana_catalog:
+                if emphasis < self._kana_catalog[hier][0]:
+                    #emphasisコードが異なる場合は、数字の小さい方が優先.
+                    self._kana_catalog[hier] = (emphasis, kana)
+                elif emphasis == self._kana_catalog[hier][0] and len(kana) > len(self._kana_catalog[hier][1]):
+                    #emphasisコードが同じなら、かな文字の長いほうが優先.
+                    self._kana_catalog[hier] = (emphasis, kana)
+                else:
+                    #その他は、先に登録された方が優先. （∵「make clean」の状態で挙動が一定になるように）
+                    pass #明示しておく.
+            else:
+                self._kana_catalog[hier] = (emphasis, kana)
+
+    def update_function_catalog(self, texts, _fixre):
+        for text in texts:
+            m = _fixre.match(text)
+            if m:
+                try:
+                    self._function_catalog[m.group(1)] += 1
+                except KeyError as err:
+                    self._function_catalog[m.group(1)] = 1
+            else:
+                pass
+
+    def update(self):
+        """rack格納されている全てのunitの更新を行う."""
+        for unit in self._rack:
+            #各termの読みの設定
+            #- 「同じ単語は同じ読み」として実装.
+
+            terms = [unit[self.UNIT_TERM]] #KanaText
+            subterms = unit[self.UNIT_SBTM]
+            for subterm in subterms: #KanaText
+                terms.append(subterm)
+
+            for term in terms: #KanaText
+                if term.ashier() in self._kana_catalog:
+                    term[1] = self._kana_catalog[term.ashier()][1]
+                else:
+                    pass
+
+            #classifierの設定（［重要］if/elifの判定順）
+            #- 同じ用語が複数glossaryである場合、分類子は一箇所で設定すべき
+            #- 複数の同じ用語が別々の分類子を設定していた場合、集約されるのは一つのみ.
+            #- 複数箇所で設定していた場合は、修正すべき用語が特定できるようにする.
+
+            ikey = unit['index_key']
+
+            if ikey:
+                unit[self.UNIT_CLSF] = unit.textclass(ikey)
+            elif terms[0].ashier() in self._classifier_catalog:
+                unit[self.UNIT_CLSF] = unit.textclass(self._classifier_catalog[terms[0].ashier()])
+            else:
+                text = unit[self.UNIT_TERM].astext()
+                char = _make_classifier_by_first_char(text, self._config)
+                unit[self.UNIT_CLSF] = unit.textclass(char)
+
+            #position 'see' and 'seealso'
+            if unit[self.UNIT_EMPH] in ('7', '8', '9'):
+                code = '2' #'see' or 'seealso'
+            else:
+                code = '1' #'main' or ''
+
+            #sortkeyの設定
+            unit._sortkey = code
+
+    def sort(self):
+        self._rack.sort(key=lambda x: (
+            x[self.UNIT_CLSF].astext(), #classifier
+            x[self.UNIT_TERM].astext(), #term
+            x._sortkey,                 # for 'see' or 'seealso'
+            x[self.UNIT_SBTM].astext(), #subterm
+            x[self.UNIT_EMPH],          #enphasis(main)
+            x['file_name'], x['target']))
+        #x['file_name'], x['target']は、0.21の動作仕様に合わせるため.
+        #逆にすると内部的な処理順に依存するため、今の「ファイル名昇順」の方がいいと思う.
+
+    def generate_genindex_data(self):
+        """
+        Text/KanaTextの選択を意識して書く.
+        """
+        rtnlist = [] #判定用
+
+        _clf, _tm, _sub = -1, -1, -1
+        for unit in self._rack: #rackからunitを取り出す
+            i_clf = unit[self.UNIT_CLSF]
+            i_tm  = unit[self.UNIT_TERM]
+            i_sub = unit[self.UNIT_SBTM] #see: SubTerm
+            i_em  = unit[self.UNIT_EMPH]
+            i_fn  = unit['file_name']
+            i_tid = unit['target']
+            i_iky = unit['index_key']
+
+            # fixup entries: transform
+            #   func() (in module foo)
+            #   func() (in module bar)
+            # into
+            #   func()
+            #     (in module foo)
+            #     (in module bar) 
+            if self._group_entries:
+                sub = ''
+                m = self._fixre.match(i_tm.astext()) #関数を想定しているので、astext()とashier()に差異はない.
+                if m and self._function_catalog[m.group(1)] > 1:
+                    #状況的にsubtermは空のはず.
+                    assert not unit[self.UNIT_SBTM], f'{self.__class__.__name__}: subterm is not null'
+                    tm = m.group(1)
+                    sub = m.group(2)
+                else:
+                    tm, sub = i_tm.astext(), i_sub.astext()
+                    if i_em == '8': sub = _('see %s') % sub
+                    if i_em == '9': sub = _('see also %s') % sub
+            else:
+                tm, sub = i_tm.astext(), i_sub.astext()
+                if i_em == '8': sub = _('see %s') % sub
+                if i_em == '9': sub = _('see also %s') % sub
+            #subの情報が消えるが、このケースに該当する場合はsubにはデータがないはず.
+
+            #make a uri
+            if i_fn:
+                try:
+                    r_uri = self.get_relative_uri('genindex', i_fn) + '#' + i_tid
+                except NoUri:
+                    continue
+
+            #see: KanaText.__ne__
+            if len(rtnlist) == 0 or rtnlist[_clf][0] != i_clf.astext():
+                rtnlist.append((i_clf.astext(), []))
+
+                #追加された「(clf, [])」を見るように_clfを更新する. 他はリセット.
+                _clf, _tm, _sub = _clf+1, -1, -1
+
+            r_clsfr = rtnlist[_clf] #[classifier, [term, term, ..]]
+            r_clfnm = r_clsfr[0] #classifier is KanaText object.
+            r_terms = r_clsfr[1] #[term, term, ..]
+
+            #see: KanaText.__ne__
+            if len(r_terms) == 0 or r_terms[_tm][0] != tm:
+                r_terms.append((tm, [[], [], i_iky]))
+                _tm, _sub = _tm+1, -1
+
+            r_term = r_terms[_tm]       #[term, [links, [subterm, subterm, ..], index_key]
+            r_term_value = r_term[0]    #term_value is KanaText object.
+            r_term_links = r_term[1][0] #[(main, uri), (main, uri), ..]
+            r_subterms = r_term[1][1]   #[subterm, subterm, ..]
+
+            #一文字から元の文字列に戻す
+            r_main = _char2emphasis[i_em]
+
+            #sub(class SubTerm): [], [KanaText], [KanaText, KanaText].
+            if len(sub) == 0:
+                if i_fn: r_term_links.append((r_main, r_uri))
+            elif len(r_subterms) == 0 or r_subterms[_sub][0] != sub: #SubTerm.__ne__
+                r_subterms.append((sub, []))
+
+                _sub = _sub+1
+                r_subterm = r_subterms[_sub]
+                r_subterm_value = r_subterm[0]
+                r_subterm_links = r_subterm[1]
+                if i_fn: r_subterm_links.append((r_main, r_uri))
+            else:
+                if i_fn: r_subterm_links.append((r_main, r_uri))
+
+        return rtnlist
+
+class SubTerm(object):
+    _delimiter = ' '
+    def __init__(self):
+        self._subterms = []
+    def set_delimiter(self, delimiter=', '):
+        #デフォルトから変更する場合は「', '」のパターンしかない.
+        self._delimiter = delimiter
+    def __repr__(self):
+        rpr  = f"<{self.__class__.__name__}: "
+        rpr += repr(self._subterms[0])
+        if len(self) > 1: rpr += repr(self._subterms[1])
+        rpr += ">"
+    def __len__(self):
+        return len(self._subterms)
+    def __iter__(self):
+        self._counter = -1
+        return self
+    def __next__(self):
+        self._counter += 1
+        try:
+            return self._subterms[self._counter]
+        except IndexError as err:
+            raise StopIteration
+    def append(self, subterm):
+        self._subterms.append(subterm)
+    def astext(self):
+        text = ""
+        for subterm in self._subterms:
+            text += subterm.astext() + self._delimiter
+        return text[:-len(self._delimiter)]
+    def ashier(self, delimiter):
+        term = ""
+        for subterm in self._subterms:
+            term += subterm.ashier() + delimiter
+        return term[:-len(delimiter)]
+
+class IndexUnit(object):
+
+    CLSF, TERM, SBTM, EMPH = 0, 1, 2, 3
+
+    def __init__(self, term, subterm1, subterm2, emphasis, file_name, target, index_key, textclass=nodes.Text):
+        """
+        - リンクを作成しない場合は、file_name, targetは空文字かNoneにする.
+        - Text/KanaTextを選択できる口だけ用意しているけど、実装はKanaText用でやっている.
+        - IndexUnitを継承してKanaIndexUnitを定義するようなIndexUnitにすればイケる.
+        """
+
+        subterm = SubTerm()
+        if subterm1: subterm.append(textclass(subterm1))
+        if subterm2: subterm.append(textclass(subterm2))
+
+        self._sortkey = None
+        self._display_data = [textclass(''), textclass(term), subterm] #classifierを更新するのでタプルにはできない.
+        self._link_data = (emphasis, file_name, target)
+        self._index_key = index_key
+
+        self.textclass = textclass
+
+    def __repr__(self):
+        name = self.__class__.__name__
+        main = self['main']
+        rpr  = f"'<{name}: "
+        rpr += repr(self[0]) + repr(self[1])
+        if isinstance(self[2], str): rpr += repr(self[2])
+        rpr += ">"
+        return rpr
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            if key == 'main':      return self._link_data[0]
+            if key == 'file_name': return self._link_data[1]
+            if key == 'target':    return self._link_data[2]
+            if key == 'index_key': return self._index_key
+            raise KeyError(key)
+        elif isinstance(key, int):
+            if key == self.CLSF: return self._display_data[self.CLSF] #classifier
+            if key == self.TERM: return self._display_data[self.TERM] #term
+            if key == self.SBTM: return self._display_data[self.SBTM] #subterm
+            if key == self.EMPH: return self._link_data[0]    #emphasis(main)
+            raise KeyError(key)
+        else:
+            raise TypeError(key)
+
+    def __setitem__(self, key, value): #更新するデータだけ対応する.
+        if isinstance(key, int):
+            if key == 0: self._display_data[key] = value
+        else:
+            raise KeyError(key)
+
+    def set_subterm_delimiter(self, delimiter=', '):
+        self[self.SBTM].set_delimiter(delimiter)
+
+    def astexts(self):
+        texts = [self[self.TERM].astext()]
+
+        for subterm in self[self.SBTM]:
+            texts.append(subterm.astext())
+
+        return texts
+
+    def askanas(self):
+        kanas = [self[self.TERM].askana()]
+
+        for subterm in self[self.SBTM]:
+            kanas.append(subterm.askana())
+
+        return kanas
+
+    def ashiers(self):
+        """Textなら、astexts()になっている."""
+        terms = [self[self.TERM].ashier()]
+
+        for subterm in self[self.SBTM]:
+            terms.append(subterm.ashier())
+
+        return terms
+
+#--------------------
 
 class KanaIndexer(object):
     """Indexing用のメソッド群"""
@@ -834,218 +1235,19 @@ class KanaIndexer(object):
             entries = domain.entries
         #entries: Dict{ファイル名: List[Tuple(type, value, tid, main, index_key)]}
 
-        #インデクシングで共有されるデータ
-        self._now_entries: List[str, Tuple] = []
+        self._index_rack = IndexRack(self, group_entries, _fixre)
 
-        #インデクシングでgroup by的なことをやるための変数
-        self._max_len_clf  = 0 #max length of classifier  
-        self._max_len_term = 0 #max length of term
-        self._max_len_sub  = 0 #max length of subterm
-        self._term_to_classifier = {}
-        self._term_to_kana = {} #Dict{term: List[emphasis, kana]}
-        self._homonymous_functions = {} #Dict{func name: number of func}
-
-        #インデクシング（概要）
-        #1. self._prepare_sortkey_and_make_entries()
-        #   - ソート用文字列の下拵え（group by含む）
-        #   - 2で作るsortkeyを収める場所を確保.
-        #   - 3で必要な要素をタプルで用意する.
-        #   - 2,3で必要な、全データを確認して分かることを調べておく.
-        #2. self._make_sortkey_and_sort()
-        #   - ソート用文字列の作成とソート.
-        #   1. ソート用の各データは最大長に合わせて半角空白で埋めて固定長にする.
-        #   2. 固定長になった各データを結合して一つの固定長文字列を作る.
-        #   3. この固定長でソートする.
-        #3. self._create_genindex_entries()
-        #   - ソート済みを前提にデータの作成
-        #   - データ構造が複雑なので、混乱しないように意図の分かる変数名を逐一当てる.
-        self._prepare_sortkey_and_make_entries(entries.items(), group_entries, _fixre)
-        self._make_sortkey_and_sort()
-        return self._create_genindex_entries(group_entries, _fixre)
-
-    def _prepare_sortkey_and_make_entries(self, entries_on_each_file, group_entries, _fixre):
-        def add_entry(term, subterm, emphasis, link=True):
-            if index_key:
-                _clf = index_key
-
-                if not term in self._term_to_classifier:
-                    self._term_to_classifier[term] = index_key
-                #indexでclassifierの指定はできないが、念の為"早い者勝ち"にしておく.
-            else:
-                _clf = _get_classifier_by_first_char(term, self.config)
-
-            #homonymous functions
-            if group_entries:
-                m = _fixre.match(term)
-                if m:
-                    try:
-                        self._homonymous_functions[m.group(1)] += 1
-                    except KeyError as err:
-                        self._homonymous_functions[m.group(1)] = 1
-
-            #ソート処理のために文字幅が揃う一文字に変換
-            _em = _emphasis2char[emphasis] 
-
-            #tripleのsubtermは扱えないので、termのみとする.
-            node = KanaText(term)
-            t, k = node.asterm(), node.askana()
-
-            if not t in self._term_to_kana:
-                #データが登録されていない
-                self._term_to_kana[t] = (_em, k)
-            elif _em < self._term_to_kana[t][0]:
-                #emphasisが強いなら上書き
-                self._term_to_kana[t] = (_em, k)
-            elif _em == self._term_to_kana[t][0] and len(k) > len(self._term_to_kana[t][1]):
-                #長さが同じ場合は上書きしない（∵make cleanでのデータ順を”正”とするため）
-                self._term_to_kana[t] = (_em, k)
-
-            #max of length
-            if len(_clf) > self._max_len_clf: self._max_len_clf = len(_clf)
-            if len(term) > self._max_len_term: self._max_len_term = len(term)
-            if len(subterm) > self._max_len_sub: self._max_len_sub = len(subterm)
-
-            #dataset
-            dataset = (_clf, term, subterm, _em, link, fn, tid, index_key)
-
-            #insert
-            entry = [None, dataset]
-            self._now_entries.append(entry)
-
-        for fn, entries in entries_on_each_file:
+        for fn, entries in entries.items():
             for entry_type, value, tid, main, index_key in entries:
-                try:
-                    if entry_type == 'single':
-                        try:
-                            entry, subentry = split_into(2, 'single', value)
-                        except ValueError:
-                            entry, = split_into(1, 'single', value)
-                            subentry = ''
-                        add_entry(entry, subentry, main)
-                    elif entry_type == 'pair':
-                        first, second = split_into(2, 'pair', value)
-                        add_entry(first, second, main)
-                        add_entry(second, first, main)
-                    elif entry_type == 'triple':
-                        first, second, third = split_into(3, 'triple', value)
-                        add_entry(first, second + ' ' + third, main)
-                        add_entry(second, third + ', ' + first, main)
-                        add_entry(third, first + ' ' + second, main)
-                    elif entry_type == 'see':
-                        first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see %s') % second, 'see', link=False)
-                    elif entry_type == 'seealso':
-                        first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see also %s') % second, 'see', link=False)
-                    else:
-                        logger.warning(__('unknown index entry type %r'), entry_type,
-                                          location=fn)
-                except ValueError as err:
-                    logger.warning(str(err), location=fn)
+                unit = KanaTextUnit(value, entry_type, fn, tid, main, index_key)
+                index_units = unit.make_index_unit()
+                self._index_rack.extend(index_units) #KaKkouoDebug
 
-    def _make_sortkey_and_sort(self):
-        for entry in self._now_entries:
-            clf, tm, sub, em, link, fn, tid, ikey = entry[1]
+        self._index_rack.update()
+        self._index_rack.sort()
 
-            #subはtripleで複数の単語を持つので処理できない.
-            node = KanaText(tm)
-
-            t, k = node.asterm(), node.askana()
-            sep = re.sub(r'^\\', '', self.config.kana_text_separator)
-            try:
-                if self._term_to_kana[t][1]:
-                    tm = self._term_to_kana[t][1]+sep+t
-            except KeyError as err:
-                pass
-
-            if tm in self._term_to_classifier:
-                _clf = self._term_to_classifier[tm]
-            else:
-                _clf = _get_classifier_by_first_char(tm, self.config)
-
-            entry[1] = (_clf, tm, sub, em, link, fn, tid, ikey)
-
-            classifier = _clf + ' '*self._max_len_clf
-            term       = tm   + ' '*self._max_len_term
-            subterm    = sub  + ' '*self._max_len_sub
-
-            if em == '9': #see: _emphasis2char
-                _sub_order = '9'
-            else:
-                _sub_order = '5'
-
-            sortkey  = classifier[:self._max_len_clf]+'|'
-            sortkey += term[:self._max_len_term]+'|'
-            sortkey += _sub_order+'|' #see/seealsoの表示順をここで調整.
-            sortkey += subterm[:self._max_len_sub]+'|'
-            sortkey += em+'|'
-
-            entry[0] = sortkey
-
-        self._now_entries.sort()
-
-    def _create_genindex_entries(self, group_entries, _fixre):
-        newlist = []
-
-        _clf, _tm, _sub = -1, -1, -1
-        for _, (clf, tm, sub, em, link, fn, tid, ikey) in self._now_entries:
-            # fixup entries: transform
-            #   func() (in module foo)
-            #   func() (in module bar)
-            # into
-            #   func()
-            #     (in module foo)
-            #     (in module bar) 
-            if group_entries:
-                m = _fixre.match(tm)
-                if m and self._homonymous_functions[m.group(1)] > 1:
-                    #状況的にsubtermは空のはず.
-                    assert not sub, f'{self.__class__.__name__}: subterm is not null: {sub}'
-                    tm = m.group(1)
-                    sub = m.group(2)
-            #subの情報が消えるが、このケースに該当する場合はsubにはデータがないはず.
-
-            #make a uri
-            if link:
-                try:
-                    uri = self.get_relative_uri('genindex', fn) + '#' + tid
-                except NoUri:
-                    continue
-
-            if len(newlist) == 0 or newlist[_clf][0] != clf:
-                newlist.append((clf, []))
-                _clf, _tm, _sub = _clf+1, -1, -1
-
-            classifier = newlist[_clf]
-            cname = classifier[0]
-            terms = classifier[1]
-
-            if len(terms) == 0 or terms[_tm][0] != tm:
-                terms.append((tm, [[], [], ikey]))
-                _tm, _sub = _tm+1, -1
-
-            term = terms[_tm]
-            term_value = term[0]
-            term_links = term[1][0]
-            subterms = term[1][1]
-
-            #一文字から元の文字列に戻す
-            main = _int2emphasis[em]
-
-            if not sub:
-                if link: term_links.append((main, uri))
-            elif len(subterms) == 0 or subterms[_sub][0] != sub:
-                subterms.append((sub, []))
-
-                _sub = _sub+1
-                subterm = subterms[_sub]
-                subterm_value = subterm[0]
-                subterm_links = subterm[1]
-                if link: subterm_links.append((main, uri))
-            else:
-                if link: subterm_links.append((main, uri))
-
-        return newlist
+        genidx = self._index_rack.generate_genindex_data() 
+        return genidx
 
 #------------------------------------------------------------
 
@@ -1106,7 +1308,7 @@ class KanaHTMLBuilder(_StandaloneHTMLBuilder):
             new_entries = []
             for entry_type, value, tid, main, index_key in entries:
 
-                textnode = KanaUnit(value, entry_type, tid, main, index_key)
+                textnode = KanaTextUnit(value, entry_type, fn, tid, main, index_key)
                 if self.config.html_kana_text_on_genindex:
                     key = textnode.astext(concat=("",1))
                     if key in self._kanatext_nodes:
@@ -1155,7 +1357,6 @@ class KanaHTMLBuilder(_StandaloneHTMLBuilder):
                 #用語（副）の処理
                 if subterms:
                     new_subterms = []
-                    #print(term_info[1]) #KaKkou
                     for subterm, subterm_links in subterms:
                         #用語（副）は次の３パターンがある。
                         #- １文字（用語）
@@ -1253,7 +1454,7 @@ def setup(app) -> Dict[str, Any]:
 
     #glossaryディレクティブ、kanaロールの表示用
     app.add_node(KanaText, html=(visit_kana, depart_kana))
-    app.add_node(KanaUnit, html=(visit_kana, depart_kana))
+    app.add_node(KanaTextUnit, html=(visit_kana, depart_kana))
     #索引の表示はKanaHTMLBuilderで行う
 
     #HTML出力

@@ -1,9 +1,8 @@
 import sys
 from setuptools import setup
 
-sys.path.append('src')
-sys.path.append('tests')
 import src as kt
+sys.path.append('tests')
 
 setup(
     version = kt.__version__,
@@ -15,5 +14,5 @@ setup(
         'Knowledge': 'https://qiita.com/tags/sphinxcotrib.kana_text',
         'Code': 'https://github.com/KaKkouo/sphinxcontrib.kana_text',
         'Issue tracker': 'https://github.com/KaKkouo/sphinxcontrib.kana_text/issues',
-    },
+    }
 )

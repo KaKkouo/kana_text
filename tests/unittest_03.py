@@ -3,7 +3,7 @@ import sys
 import unittest
 from pprint import pprint
 sys.path.append('sphinxcontrib')
-from __init__ import KanaIndexer
+from src import KanaIndexer
 
 #-------------------------------------------------------------------
 
@@ -505,6 +505,68 @@ testcase07in = {
 
 testcase07out = [
 ('ま',
+  [('む|検証０３',
+    [[('main', 'doc03b.html#id-03b'),
+      ('', 'doc03a.html#id-03a'),
+      ('', 'doc03c.html#id-03c')],
+     [],
+     None]),
+   ('むむ|検証０１',
+    [[('', 'doc01a.html#id-01a'),
+      ('', 'doc01b.html#id-01b'),
+      ('', 'doc01c.html#id-01c')],
+     [],
+     None]),
+   ('むむ|検証０２',
+    [[('main', 'doc02b.html#id-02b'),
+      ('', 'doc02a.html#id-02a'),
+      ('', 'doc02c.html#id-02c')],
+     [],
+     None]),
+   ('むむ|検証０４',
+    [[('', 'doc04a.html#id-04a'),
+      ('', 'doc04b.html#id-04b'),
+      ('', 'doc04c.html#id-04c')],
+     [],
+     None]),
+   ('むむ|検証０５',
+    [[],
+     [('むむ|検証０５',
+       [('main', 'doc05b.html#id-05b'),
+        ('', 'doc05a.html#id-05a'),
+        ('', 'doc05c.html#id-05c')])],
+     None]),
+   ('むむ|検証０７',
+    [[],
+     [('むむ|検証０７',
+       [('main', 'doc07b.html#id-07b'),
+        ('main', 'doc07b.html#id-07b'),
+        ('', 'doc07a.html#id-07a'),
+        ('', 'doc07a.html#id-07a'),
+        ('', 'doc07c.html#id-07c'),
+        ('', 'doc07c.html#id-07c')])],
+     None]),
+   ('めめ|検証０６',
+    [[],
+     [('めめ|検証０６',
+       [('main', 'doc06b.html#id-06b'),
+        ('', 'doc06a.html#id-06a'),
+        ('', 'doc06c.html#id-06c')])],
+     None]),
+   ('めめ|検証０８',
+    [[],
+     [('めめ|検証０８',
+       [('main', 'doc08b.html#id-08b'),
+        ('main', 'doc08b.html#id-08b'),
+        ('', 'doc08a.html#id-08a'),
+        ('', 'doc08a.html#id-08a'),
+        ('', 'doc08c.html#id-08c'),
+        ('', 'doc08c.html#id-08c')])],
+     None])])
+]
+
+testcase07out_ = [ #0.21までの実装での挙動
+('ま',
  [('む|検証０３',
    [[('main', 'doc03b.html#id-03b'),
      ('', 'doc03a.html#id-03a'),
@@ -573,6 +635,38 @@ testcase08in = {
 
 testcase08out = [
 ('ま',
+  [('むむ|球球球',
+    [[],
+     [('むむ|球球球 むむ|球球球', #seeのデリミタ仕様
+       [('main', 'doc09b.html#id-09b'),
+        ('main', 'doc09b.html#id-09b'),
+        ('', 'doc09a.html#id-09a'),
+        ('', 'doc09a.html#id-09a'),
+        ('', 'doc09c.html#id-09c'),
+        ('', 'doc09c.html#id-09c')]),
+      ('むむ|球球球, むむ|球球球', #seealsoのデリミタ仕様
+       [('main', 'doc09b.html#id-09b'),
+        ('', 'doc09a.html#id-09a'),
+        ('', 'doc09c.html#id-09c')])],
+     None]),
+   ('めめ|拾拾拾',
+    [[],
+     [('めめ|拾拾拾 めめ|拾拾拾', #seeのデリミタ仕様
+       [('main', 'doc10b.html#id-10b'),
+        ('main', 'doc10b.html#id-10b'),
+        ('', 'doc10a.html#id-10a'),
+        ('', 'doc10a.html#id-10a'),
+        ('', 'doc10c.html#id-10c'),
+        ('', 'doc10c.html#id-10c')]),
+      ('めめ|拾拾拾, めめ|拾拾拾', #seealsoのデリミタ仕様
+       [('main', 'doc10b.html#id-10b'),
+        ('', 'doc10a.html#id-10a'),
+        ('', 'doc10c.html#id-10c')])],
+     None])])
+]
+
+testcase08out_ = [ #0.21までの挙動
+('ま',
  [('むむ|球球球',
    [[],
     [('ああ|球球球 いい|球球球', [('', 'doc09a.html#id-09a')]),
@@ -631,6 +725,7 @@ testcase09out = [
       None])])
 ]
 
+#同じ単語なら読みを揃える
 
 testcase10in = {
 'doc01': [('single','ああ|球球球; いい|球球球','id-01','',None)],
@@ -642,6 +737,21 @@ testcase10in = {
 }
 
 testcase10out = [
+('あ',
+  [('ああ|球球球',
+    [[],
+     [('ああ|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]),
+      ('see ああ|球球球', [('see', 'doc02.html#id-02')])],
+     None])]),
+ ('な',
+  [('なな|拾拾拾',
+    [[],
+     [('なな|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]),
+      ('see also なな|拾拾拾', [('seealso', 'doc04.html#id-04')])],
+     None])])
+]
+
+testcase10out_ = [ #0.21までの実装での挙動
   ('あ',
    [('ああ|球球球',
      [[],

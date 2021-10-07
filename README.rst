@@ -2,10 +2,10 @@ extends the functionality of the Text class. any person, who use index/glossary 
 
 .. image:: https://i.gyazo.com/4cbf3408c162fb2bfcc493661d35a42b.png
 
-conf.py
--------
+quick start
+-----------
 
-First of all, add **sphinxcontrib-kana_text** to sphinx extension list in conf.py
+conf.py:
 
 .. code-block:: python
 
@@ -20,12 +20,7 @@ First of all, add **sphinxcontrib-kana_text** to sphinx extension list in conf.p
 
    You need 'genindex.html' for taking True on html_kana_text_on_genindex.
 
-rst file
---------
-
-then use **index** directive, **glossary** directive, **index** role and **kana** role.
-
-You can specify the follwings:
+rst file:
 
 .. code-block:: rst
 
@@ -38,22 +33,17 @@ You can specify the follwings:
       ようごいち|用語壱^212
         用語１の説明。
 
-And you can also use index/kana role. 
-
 .. code-block:: rst
 
    夜空に浮かぶ\ :index:`あまた|数多^21`\ の星々が\ :kana:`きらめいて|煌めいて^2c`\ いる。
 
-build
------
+.. image:: https://i.gyazo.com/63fe4ccfaa8a57bb2d8db50c0a689cad.png
 
-finally, build your sphinx project:
+build:
 
 .. code-block:: sh
 
    $ make kana
-
-take a look at genindex.html.
 
 genindex.html
 -------------

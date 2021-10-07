@@ -1,5 +1,6 @@
 include LICENSE
 include AUTHORS
 include README.rst
+include DEVELOP.rst
 include CHANGES.rst
 recursive-include src *.html.sample
