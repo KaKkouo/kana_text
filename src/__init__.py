@@ -226,7 +226,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.22.0rc2'
+__version__ = '0.22.0'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pprint
@@ -769,7 +769,7 @@ class KanaHTML5Translator(html5.HTML5Translator):
         """
 
         try:
-            textnode = KanaText(node[0])
+            textnode = KanaText(node[0].astext())
         except TypeError as e:
             pass
         else:
