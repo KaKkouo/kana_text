@@ -633,8 +633,39 @@ testcase08in = {
 'doc10c': [('triple','をを|拾拾拾; んん|拾拾拾; ろろ|拾拾拾','id-10c','',None)],
 }
 
-testcase08out = []
-testcase08out_ = [
+testcase08out = [
+('ま',
+  [('むむ|球球球',
+    [[],
+     [('むむ|球球球 むむ|球球球', #seeのデリミタ仕様
+       [('main', 'doc09b.html#id-09b'),
+        ('main', 'doc09b.html#id-09b'),
+        ('', 'doc09a.html#id-09a'),
+        ('', 'doc09a.html#id-09a'),
+        ('', 'doc09c.html#id-09c'),
+        ('', 'doc09c.html#id-09c')]),
+      ('むむ|球球球, むむ|球球球', #seealsoのデリミタ仕様
+       [('main', 'doc09b.html#id-09b'),
+        ('', 'doc09a.html#id-09a'),
+        ('', 'doc09c.html#id-09c')])],
+     None]),
+   ('めめ|拾拾拾',
+    [[],
+     [('めめ|拾拾拾 めめ|拾拾拾', #seeのデリミタ仕様
+       [('main', 'doc10b.html#id-10b'),
+        ('main', 'doc10b.html#id-10b'),
+        ('', 'doc10a.html#id-10a'),
+        ('', 'doc10a.html#id-10a'),
+        ('', 'doc10c.html#id-10c'),
+        ('', 'doc10c.html#id-10c')]),
+      ('めめ|拾拾拾, めめ|拾拾拾', #seealsoのデリミタ仕様
+       [('main', 'doc10b.html#id-10b'),
+        ('', 'doc10a.html#id-10a'),
+        ('', 'doc10c.html#id-10c')])],
+     None])])
+]
+
+testcase08out_ = [ #0.21までの挙動
 ('ま',
  [('むむ|球球球',
    [[],
