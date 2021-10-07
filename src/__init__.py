@@ -226,7 +226,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.22.0a2'
+__version__ = '0.22.0a3'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pprint
@@ -999,11 +999,12 @@ class IndexRack(object):
             #- 複数箇所で設定していた場合は、修正すべき用語が特定できるようにする.
 
             ikey = unit['index_key']
-            temp = unit[self.UNIT_TERM] #KanaText
+
             if ikey:
                 unit[self.UNIT_CLSF] = unit.textclass(ikey)
-            elif term.ashier() in self._classifier_catalog:
-                unit[self.UNIT_CLSF] = unit.textclass(self._classifier_catalog[term.ashier()])
+            elif terms[0].ashier() in self._classifier_catalog:
+                clsf = self._classifier_catalog[terms[0].ashier()]
+                unit[self.UNIT_CLSF] = unit.textclass(clsf)
             else:
                 text = unit[self.UNIT_TERM].astext()
                 char = _make_classifier_by_first_char(text, self._config)
@@ -1131,6 +1132,11 @@ class SubTerm(object):
     def set_delimiter(self, delimiter=', '):
         #デフォルトから変更する場合は「', '」のパターンしかない.
         self._delimiter = delimiter
+    def __repr__(self):
+        rpr  = f"<{self.__class__.__name__}: "
+        rpr += repr(self._subterms[0])
+        if len(self) > 1: rpr += repr(self._subterms[1])
+        rpr += ">"
     def __len__(self):
         return len(self._subterms)
     def __iter__(self):
@@ -1188,6 +1194,7 @@ class IndexUnit(object):
         main = self['main']
         rpr  = f"'<{name}: "
         rpr += repr(self[0]) + repr(self[1])
+        if isinstance(self[2], str): rpr += repr(self[2])
         rpr += ">"
         return rpr
 
