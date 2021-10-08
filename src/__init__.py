@@ -363,8 +363,7 @@ class KanaText(nodes.Text):
         self._separator = separator
         self._option_marker = option_marker
 
-        #__str__で利用.
-        self.whoami = 'term' #'classifier', 'term' or 'subterm'
+        self.whatiam = 'term'
 
         parser = parser_for_kana_text(separator, option_marker)
         hier, kana, ruby, option = self._parse_text(rawtext.strip(), parser)
@@ -408,7 +407,7 @@ class KanaText(nodes.Text):
 
     def __str__(self):
         #jinja2用
-        if self.whomai == 'term':
+        if self.whatiam == 'term':
             return self.ashtml()
         else:
             return self.astext()
