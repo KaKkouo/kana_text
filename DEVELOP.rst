@@ -1,5 +1,23 @@
 DEVELOPMENT
 -----------
+structure of the data for genindex.html
+
+- genidex: [(classifier, terms)]
+
+    - classifier: Text/KanaText
+    - terms: [(term, list)]
+
+        - term: Text/KanaText
+        - list: [links, subterms, index_key]
+
+            - links: [(main, uri)]
+            - subterms: [(subterm, links)]
+
+                - subterm: Text/KanaText
+                - links: [(main, uri)]
+
+            - index_key: str
+
 variable name
 
 - term: KanaText OBJect. it might be ktobj.
@@ -12,7 +30,7 @@ variable name
 - latex: (T.B.D.)
 - epub: (T.B.D.)
 - separator: used by re.split()
-- delimiter: used by object.asword(), etc.
+- delimiter: used by object.astext(), etc.
 - option marker: the '^' of 'かな|言葉^11'
 
 KanaText(ex. 'かな|言葉^11')

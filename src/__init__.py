@@ -226,7 +226,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.22.0.1'
+__version__ = '0.22.1.1'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pprint
@@ -322,7 +322,7 @@ def make_html_with_ruby(word: str, kana: str) -> str:
 
     return f'<ruby>{rb}{rp[0]}{rt}{rp[1]}</ruby>'
 
-def get_specific_by_parsing_option(word, kana, option):
+def make_specific_by_parsing_option(word, kana, option):
     rtn, opt, t_s, t_end, r_s, r_end = [], list(option), 0, 0, 0, 0
     for o in opt:
         if not word[t_s:] or not kana[r_s:]: #文字がない
@@ -534,7 +534,7 @@ class KanaText(nodes.Text):
         elif ruby == 'specific': #細かくルビの表示/非表示を指定する
             #アレコレがんばる
             hier, kana = self[0], self[1]
-            data = get_specific_by_parsing_option(hier, kana, option)
+            data = make_specific_by_parsing_option(hier, kana, option)
         elif ruby == 'on': #ルビを付ける。文字の割当位置は気にしない。
             hier, kana = self[0], self[1]
             data = [(True, (hier, kana))]
@@ -767,19 +767,19 @@ class KanaHTML5Translator(html5.HTML5Translator):
         """
 
         try:
-            textnode = KanaText(node[0].astext())
+            term = KanaText(node[0].astext())
         except TypeError as e:
             pass
         else:
             #なくても動作しているのだけど、念の為
-            textnode.parent = node[0].parent
-            textnode.document = node[0].document
-            textnode.source = node[0].source
-            textnode.line = node[0].line
-            textnode.children = node[0].children
+            term.parent = node[0].parent
+            term.document = node[0].document
+            term.source = node[0].source
+            term.line = node[0].line
+            term.children = node[0].children
             #ここまでが念の為
 
-            node[0] = textnode
+            node[0] = term
 
         self.body.append(self.starttag(node,'dt',''))
 
@@ -881,12 +881,20 @@ class IndexRack(object):
     
     UNIT_CLSF, UNIT_TERM, UNIT_SBTM, UNIT_EMPH = 0, 1, 2, 3
 
-    def __init__(self, builder, group_entries=True, _fixre=re.compile(r'(.*) ([(][^()]*[)])') ):
+    def __init__(self, builder):
         """IndexUnitの取り込み、整理、並べ替え. データの生成."""
 
         #制御情報の保存
-        self._config = builder.config
+        self.env = builder.env
+        self.config = builder.config
         self.get_relative_uri = builder.get_relative_uri
+
+    def create_genindex(self, entries=None, group_entries: bool = True,
+                     _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
+                     ) -> List[Tuple[str, List[Tuple[str, Any]]]]:
+        """IndexEntriesクラス/create_indexメソッドを置き換える."""
+
+        #引数の保管
         self._group_entries = group_entries
         self._fixre = _fixre
 
@@ -895,6 +903,24 @@ class IndexRack(object):
         self._classifier_catalog = {} # {term: classifier} 
         self._kana_catalog = {} # {term: (emphasis, kana)} #KanaText
         self._function_catalog = {} #{function name: number of homonymous funcion}
+
+        #get entries（引数にあるentriesは単体テストからの受け取り場所）
+        if not entries:
+            domain = cast(IndexDomain, self.env.get_domain('index'))
+            entries = domain.entries
+        #entries: Dict{ファイル名: List[Tuple(type, value, tid, main, index_key)]}
+
+        for fn, entries in entries.items():
+            for entry_type, value, tid, main, index_key in entries:
+                unit = KanaTextUnit(value, entry_type, fn, tid, main, index_key)
+                index_units = unit.make_index_unit()
+                self.extend(index_units)
+
+        self.update()
+        self.sort()
+
+        genidx = self.generate_genindex_data() 
+        return genidx
 
     def append(self, unit):
         """
@@ -980,7 +1006,7 @@ class IndexRack(object):
                 unit[self.UNIT_CLSF] = unit.textclass(self._classifier_catalog[terms[0].ashier()])
             else:
                 text = unit[self.UNIT_TERM].astext()
-                char = _make_classifier_by_first_char(text, self._config)
+                char = _make_classifier_by_first_char(text, self.config)
                 unit[self.UNIT_CLSF] = unit.textclass(char)
 
             #position 'see' and 'seealso'
@@ -1208,45 +1234,6 @@ class IndexUnit(object):
 
         return terms
 
-#--------------------
-
-class KanaIndexer(object):
-    """Indexing用のメソッド群"""
-
-    def __init__(self, builder):
-        self.env = builder.env
-        self.config = builder.config
-        self.get_relative_uri = builder.get_relative_uri
-
-    def create_genindex_entries(self, entries=None, group_entries: bool = True,
-                     _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
-                     ) -> List[Tuple[str, List[Tuple[str, Any]]]]:
-        """IndexEntriesクラス/create_indexメソッドを置き換える.
-
-        group_entries, _fixreはオリジナルにあるので残しておく.
-        （このオプションを使っている場所は見当たらない.）
-        """
-
-        #get entries（引数にあるentriesは単体テストからの受け取り場所）
-        if not entries:
-            domain = cast(IndexDomain, self.env.get_domain('index'))
-            entries = domain.entries
-        #entries: Dict{ファイル名: List[Tuple(type, value, tid, main, index_key)]}
-
-        self._index_rack = IndexRack(self, group_entries, _fixre)
-
-        for fn, entries in entries.items():
-            for entry_type, value, tid, main, index_key in entries:
-                unit = KanaTextUnit(value, entry_type, fn, tid, main, index_key)
-                index_units = unit.make_index_unit()
-                self._index_rack.extend(index_units) #KaKkouoDebug
-
-        self._index_rack.update()
-        self._index_rack.sort()
-
-        genidx = self._index_rack.generate_genindex_data() 
-        return genidx
-
 #------------------------------------------------------------
 
 class _StandaloneHTMLBuilder(builders.StandaloneHTMLBuilder):
@@ -1306,14 +1293,14 @@ class KanaHTMLBuilder(_StandaloneHTMLBuilder):
             new_entries = []
             for entry_type, value, tid, main, index_key in entries:
 
-                textnode = KanaTextUnit(value, entry_type, fn, tid, main, index_key)
+                termunit = KanaTextUnit(value, entry_type, fn, tid, main, index_key)
                 if self.config.html_kana_text_on_genindex:
-                    key = textnode.astext(concat=("",1))
+                    key = termunit.astext(concat=("",1))
                     if key in self._kanatext_nodes:
                         pass
                     else:
-                        self._kanatext_nodes[key] = textnode 
-                value = textnode.astext()
+                        self._kanatext_nodes[key] = termunit 
+                value = termunit.astext()
                 new = (entry_type, value, tid, main, index_key)
                 new_entries.append(new)
             domain.entries[fn] = new_entries
@@ -1326,9 +1313,11 @@ class KanaHTMLBuilder(_StandaloneHTMLBuilder):
         #Glossaryから登録されたTermについて、末尾の「^xxx」を削除する
 
         #インデクサーの選択
+        #IndexRackに任せれるようになったから前後のコードを捨ててスッキリさせたい.
+        #IndexEntries.create_indexとの選択性を捨てる決断が必要.
         if self.config.html_kana_text_use_own_indexer:
             #自前のIndexerを使う
-            entries = KanaIndexer(self).create_genindex_entries()
+            entries = IndexRack(self).create_genindex()
         else:
             #self.write_index()にあったソート処理
             entries = IndexEntries(self.env).create_index(self)
