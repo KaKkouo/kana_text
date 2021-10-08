@@ -103,10 +103,6 @@ html_kana_text_use_own_indexer
 
 - 省略時は`small`. 索引に載る言葉が少ないうちは'small'を推奨.
 
-debug_kana_text_genindex_entries
-
-- デバッグ用.
-
 genindex.htmlの作り方
 ---------------------
 
@@ -226,10 +222,10 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.22.1.2'
+__version__ = '0.23.0.dev1'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
-import re, pprint
+import re
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Pattern, Type, cast
 
 from docutils import nodes
@@ -245,8 +241,6 @@ from sphinx.locale import _, __
 from sphinx.util import logging, split_into
 from sphinx.util.nodes import process_index_entry
 from sphinx.writers import html5
-
-pretty = pprint.pprint
 
 logger = logging.getLogger(__name__)
 
@@ -369,6 +363,9 @@ class KanaText(nodes.Text):
         self._separator = separator
         self._option_marker = option_marker
 
+        #__str__で利用.
+        self.whoami = 'term' #'classifier', 'term' or 'subterm'
+
         parser = parser_for_kana_text(separator, option_marker)
         hier, kana, ruby, option = self._parse_text(rawtext.strip(), parser)
 
@@ -405,8 +402,16 @@ class KanaText(nodes.Text):
         else:
             raise TypeError(key)
 
+    def __eq__(self, other):
+        #unittest用
+        return self.astext() == other
+
     def __str__(self):
-        return self.astext()
+        #jinja2用
+        if self.whomai == 'term':
+            return self.ashtml()
+        else:
+            return self.astext()
 
     def __repr__(self):
         return self.entity_of_repr()
@@ -436,10 +441,6 @@ class KanaText(nodes.Text):
             return f"<{name}: <#rawtext: '{self._rawtext}'>>"
         else:
             return f"<{name}: <#empty>>"
-
-    def __str__(self):
-        """フォーマットを切り替える機能が必要かもしれない."""
-        return self.astext()
 
     def _parse_text(self, text, parser):
         """
@@ -749,7 +750,7 @@ def KanaRole(name, rawtext, text, lineno, inliner, options={}, content=[]):
     return [node], []
 
 def visit_kana(self, node):
-    """KanaTexttクラスで作成されたオブジェクトの表示処理"""
+    """KanaTextクラスで作成されたオブジェクトの表示処理"""
     self.body.append(node.ashtml())
 
 def depart_kana(self, node):
@@ -1336,10 +1337,6 @@ class KanaHTMLBuilder(_StandaloneHTMLBuilder):
             #self.write_index()にあったソート処理
             entries = IndexEntries(self.env).create_index(self)
 
-        #結果の確認
-        if self.config.debug_kana_text_genindex_entries:
-            pretty(entries) #KaKkou
-
         #ソートの後処理。表示文字を加工して出力処理に渡す
         genindex = []
         for classifier, terms in entries:
@@ -1468,7 +1465,6 @@ def setup(app) -> Dict[str, Any]:
     app.add_config_value('html_change_triple', False, 'html') 
     app.add_config_value('html_kana_text_on_genindex', False, 'html') 
     app.add_config_value('html_kana_text_use_own_indexer', 'small', 'html') 
-    app.add_config_value('debug_kana_text_genindex_entries', False, 'html') 
 
     #バージョンの最後は作成日（MMDDYY）
     return {
