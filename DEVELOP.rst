@@ -4,16 +4,16 @@ structure of the data for genindex.html
 
 - genidex: [(classifier, terms)]
 
-    - classifier: Text/KanaText
+    - classifier: KanaText
     - terms: [(term, list)]
 
-        - term: Text/KanaText
+        - term: KanaText
         - list: [links, subterms, index_key]
 
             - links: [(main, uri)]
             - subterms: [(subterm, links)]
 
-                - subterm: Text/KanaText
+                - subterm: SubTerm[KanaText]
                 - links: [(main, uri)]
 
             - index_key: str
@@ -31,7 +31,7 @@ variable name
 - epub: (T.B.D.)
 - separator: used by re.split()
 - delimiter: used by object.astext(), etc.
-- option marker: the '^' of 'かな|言葉^11'
+- option_marker: the '^' of 'かな|言葉^11'
 
 KanaText(ex. 'かな|言葉^11')
 
@@ -40,6 +40,9 @@ KanaText(ex. 'かな|言葉^11')
 - object['separator']: '|'
 - object['ruby']: 'specific'
 - object['option']: '11'
+- object.whatiam: in('classifier', 'term':default, 'subterm', 'subterm/see', 'subterm/seealso')
+- object.__eq__: used for unittest, and IndexRack.generate_genindex_data
+- object.__str__: used for jinja2. use object.whatiam
 
 KanaTextUnit(ex. 'ああ|壱壱^11; いい|弐弐^11; うう|参参^11')
 
@@ -70,7 +73,7 @@ IndexUnit
 - object._sortkey: for emphasis which means 'main'.
 - object[0]: KanaText(classifier)
 - object[1]: KanaText(main term)
-- object[2]: [], [KanaText(2nd)], or [KanaText(2nd), KanaText(3rd)]
+- object[2]: SubTerm([], [KanaText(2nd)], or [KanaText(2nd), KanaText(3rd)])
 - object[3]: emphasis code ('main': 1, '': 5, 'see': 8, 'seealso': 9)
 - object['file_name']: target file
 - object['target']: target id
