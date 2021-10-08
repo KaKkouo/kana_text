@@ -226,7 +226,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.22.1.1'
+__version__ = '0.22.1.2'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pprint
@@ -1126,9 +1126,10 @@ class SubTerm(object):
         self._delimiter = delimiter
     def __repr__(self):
         rpr  = f"<{self.__class__.__name__}: "
-        rpr += repr(self._subterms[0])
-        if len(self) > 1: rpr += repr(self._subterms[1])
+        for s in self._subterms:
+            rpr += repr(s)
         rpr += ">"
+        return rpr
     def __len__(self):
         return len(self._subterms)
     def __iter__(self):
@@ -1176,11 +1177,24 @@ class IndexUnit(object):
         self.textclass = textclass
 
     def __repr__(self):
+        """
+        >>> iu = IndexUnit('', '', '', '5', 'doc1', 'id-1', '分類子', KanaText)
+        >>> iu
+        <IndexUnit: main='5' file_name='doc1' target='id-1' <KanaText: <#empty>><KanaText: <#empty>>>
+        >>> iu = IndexUnit('壱', '弐', '', '8', '', '', None, KanaText)
+        >>> iu
+        <IndexUnit: main='8' <KanaText: <#empty>><KanaText: <#text: '壱'>><SubTerm: <KanaText: <#text: '弐'>>>>
+        """
         name = self.__class__.__name__
         main = self['main']
-        rpr  = f"'<{name}: "
+        fn = self['file_name']
+        tid = self['target']
+        rpr  = f"<{name}: "
+        if main: rpr += f"main='{main}' "
+        if fn: rpr += f"file_name='{fn}' "
+        if tid: rpr += f"target='{tid}' "
         rpr += repr(self[0]) + repr(self[1])
-        if isinstance(self[2], str): rpr += repr(self[2])
+        if len(self[2]) > 0: rpr += repr(self[2])
         rpr += ">"
         return rpr
 
