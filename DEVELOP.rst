@@ -37,10 +37,10 @@ KanaText(ex. 'かな|言葉^11')
 
 - object[0]: '言葉’
 - object[1]: 'かな'
-- object['separator']: '|'
+- object['delimiter']: '|'
 - object['ruby']: 'specific'
 - object['option']: '11'
-- object.whatiam: in('classifier', 'term':default, 'subterm', 'subterm/see', 'subterm/seealso')
+- object.whatiam: in('classifier', 'term':default, 'subterm')
 - object.__eq__: used for unittest, and IndexRack.generate_genindex_data
 - object.__str__: used for jinja2. use object.whatiam
 
