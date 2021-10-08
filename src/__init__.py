@@ -222,7 +222,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.23.0.dev1'
+__version__ = '0.23.0.dev3'
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re
@@ -393,7 +393,12 @@ class KanaText(nodes.Text):
             raise TypeError(key)
 
     def __setitem__(self, key, value):
-        if isinstance(key, int):
+        if isinstance(key, str):
+            if key == 'whatiam':
+                self.whatiam = value
+            else:
+                raise KeyError(key)
+        elif isinstance(key, int):
             if key == 1:
                 self._properties['kana'] = value
             else:
@@ -540,7 +545,7 @@ class KanaText(nodes.Text):
             data = [(True, (hier, kana))]
         else:
             #ここは通らないはずだけど、念の為
-            raise ValueError(self)
+            raise ValueError(repr(self))
 
         return data
 
@@ -840,10 +845,15 @@ _first_char_large = {
     'ワ': 'わ', 'ヲ': 'を', 'ン': 'ん' }
 
 _emphasis2char = {
-    'main': '1', #glossaryで定義した用語. indexでは「!」が先頭にあるもの.
-    '':     '5', #'main', 'see', 'seealso'以外.
-    'see':  '8',
-    'seealso':  '9',
+    'main':    '1', #glossaryで定義した用語. indexでは「!」が先頭にあるもの.
+    '_rsvd2_': '2', #reserved
+    '_rsvd3_': '3', #reserved
+    '_rsvd4_': '4', #reserved
+    '':        '5', #'main', 'see', 'seealso'以外.
+    '_rsvd6_': '6', #reserved
+    '_rsvd7_': '7', #reserved
+    'see':     '8',
+    'seealso': '9',
 }
 
 _char2emphasis = {
@@ -1032,6 +1042,8 @@ class IndexRack(object):
     def generate_genindex_data(self):
         """
         Text/KanaTextの選択を意識して書く.
+
+        - Text側で__eq__,__str__が実装されることを前提とする.
         """
         rtnlist = [] #判定用
 
@@ -1058,14 +1070,14 @@ class IndexRack(object):
                 if m and self._function_catalog[m.group(1)] > 1:
                     #状況的にsubtermは空のはず.
                     assert not unit[self.UNIT_SBTM], f'{self.__class__.__name__}: subterm is not null'
-                    tm = m.group(1)
+                    tm = unit.textclass(m.group(1))
                     sub = m.group(2)
                 else:
-                    tm, sub = i_tm.astext(), i_sub.astext()
+                    tm, sub = i_tm, i_sub.astext()
                     if i_em == '8': sub = _('see %s') % sub
                     if i_em == '9': sub = _('see also %s') % sub
             else:
-                tm, sub = i_tm.astext(), i_sub.astext()
+                tm, sub = i_tm, i_sub.astext()
                 if i_em == '8': sub = _('see %s') % sub
                 if i_em == '9': sub = _('see also %s') % sub
             #subの情報が消えるが、このケースに該当する場合はsubにはデータがないはず.
@@ -1078,8 +1090,9 @@ class IndexRack(object):
                     continue
 
             #see: KanaText.__ne__
-            if len(rtnlist) == 0 or rtnlist[_clf][0] != i_clf.astext():
-                rtnlist.append((i_clf.astext(), []))
+            if len(rtnlist) == 0 or not rtnlist[_clf][0] == i_clf.astext(): #use __eq__
+                i_clf['whatiam'] = 'classifier'
+                rtnlist.append((i_clf, []))
 
                 #追加された「(clf, [])」を見るように_clfを更新する. 他はリセット.
                 _clf, _tm, _sub = _clf+1, -1, -1
@@ -1089,7 +1102,7 @@ class IndexRack(object):
             r_terms = r_clsfr[1] #[term, term, ..]
 
             #see: KanaText.__ne__
-            if len(r_terms) == 0 or r_terms[_tm][0] != tm:
+            if len(r_terms) == 0 or not r_terms[_tm][0] == tm.astext(): #use __eq__
                 r_terms.append((tm, [[], [], i_iky]))
                 _tm, _sub = _tm+1, -1
 
@@ -1104,7 +1117,7 @@ class IndexRack(object):
             #sub(class SubTerm): [], [KanaText], [KanaText, KanaText].
             if len(sub) == 0:
                 if i_fn: r_term_links.append((r_main, r_uri))
-            elif len(r_subterms) == 0 or r_subterms[_sub][0] != sub: #SubTerm.__ne__
+            elif len(r_subterms) == 0 or not r_subterms[_sub][0] == sub:
                 r_subterms.append((sub, []))
 
                 _sub = _sub+1
@@ -1119,8 +1132,9 @@ class IndexRack(object):
 
 class SubTerm(object):
     _delimiter = ' '
-    def __init__(self):
+    def __init__(self, template=None):
         self._subterms = []
+        self._template = template
     def set_delimiter(self, delimiter=', '):
         #デフォルトから変更する場合は「', '」のパターンしかない.
         self._delimiter = delimiter
@@ -1130,6 +1144,14 @@ class SubTerm(object):
             rpr += repr(s)
         rpr += ">"
         return rpr
+    def __eq__(self, other):
+        return self.astext == other
+    def __str__(self):
+        #for jinja2
+        if self._template:
+            return self._template % self.ashier()
+        else:
+            return self.astext()
     def __len__(self):
         return len(self._subterms)
     def __iter__(self):
@@ -1149,10 +1171,10 @@ class SubTerm(object):
             text += subterm.astext() + self._delimiter
         return text[:-len(self._delimiter)]
     def ashier(self, delimiter):
-        term = ""
+        hier = ""
         for subterm in self._subterms:
-            term += subterm.ashier() + delimiter
-        return term[:-len(delimiter)]
+            hier += subterm.ashier() + self._delimiter
+        return hier[:-len(self._delimiter)]
 
 class IndexUnit(object):
 
@@ -1165,7 +1187,13 @@ class IndexUnit(object):
         - IndexUnitを継承してKanaIndexUnitを定義するようなIndexUnitにすればイケる.
         """
 
-        subterm = SubTerm()
+        if emphasis == '8':
+            subterm = SubTerm(_('see %s'))
+        elif emphasis == '9':
+            subterm = SubTerm(_('see also %s'))
+        else:
+            subterm = SubTerm()
+
         if subterm1: subterm.append(textclass(subterm1))
         if subterm2: subterm.append(textclass(subterm2))
 
