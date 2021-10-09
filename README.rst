@@ -13,12 +13,12 @@ conf.py:
 
 .. code-block:: python
 
+   #kana_text_indexer_mode = 'large'
    #html_kana_text_on_genindex = False
-   #html_kana_text_use_own_indexer = 'large'
 
 .. warning::
 
-   You need 'genindex.html' for taking True on html_kana_text_on_genindex.
+   'genindex.html' is used to take html_kana_text_on_genindex = True.
 
 rst file:
 

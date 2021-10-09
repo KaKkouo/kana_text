@@ -217,7 +217,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.23.0rc14' #
+__version__ = '0.23.0.1' #
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re
@@ -876,7 +876,7 @@ class IndexRack(object):
     1. self.__init__() 初期化.
     2. self.append() IndexUnitの取り込み. self.update()の準備.
     3. self.update() 各unitの更新、並び替えの準備.
-    4. self.sort() 並び替え. ※3,4は分ける必要はないけど、見通しが良くなる気がするので. 
+    4. self.sort() 並び替え. ※3,4は分ける必要はないけど、見通しが良くなるので. 
     5. self.generate_genindex_data() genindex用データの生成.
     """
     
@@ -1034,8 +1034,7 @@ class IndexRack(object):
     def generate_genindex_data(self):
         """
         Text/KanaTextの選択を意識して書く.
-
-        - Text側で__eq__が実装されることを前提とする.
+        （Text側で__eq__が実装されることが前提）
         """
         rtnlist = [] #判定用
 
@@ -1134,11 +1133,13 @@ class IndexRack(object):
         return self.convert_genindex_data(rtnlist)
 
     def convert_genindex_data(self, entries):
-        """ソートの後処理. 各KanaTextオブジェクトをリスト/文字列に変換する."""
+        """ソートの後処理. 各KanaTextオブジェクトをリスト/文字列に変換する.
+
+        - classifier(KanaText), term(KanaText)では、__str__経由のashierの利用は問題なし.
+        - subterm(SubTerm)では、__str__経由のashierの利用はエラーになる.
+        """
         genindex = []
         for classifier, terms in entries:
-            #index_keyの処理
-            #classifier = classifier.ashier()
             assert terms
 
             new_terms = []
@@ -1146,19 +1147,14 @@ class IndexRack(object):
                 #用語（主）の処理
                 if self.config.html_kana_text_on_genindex:
                     term = term.asruby()
-                else:
-                    term = term.ashier()
-
-                subterms   = term_info[1]
 
                 #用語（副）の処理
-                if subterms:
-                    new_subterms = []
-                    for subterm, subterm_links in subterms:
-                        #see: indexentries.pyのadd_entryの実行箇所を参照
-                        subterm = subterm.ashier()
-                        new_subterms.append((subterm,subterm_links))
-                    term_info[1] = new_subterms
+                subterms   = term_info[1]
+                for i in range(len(subterms)):
+                    #see: indexentries.pyのadd_entryの実行箇所を参照
+
+                    subterms[i] = (str(subterms[i][0]), subterms[i][1])
+                    #ここを消するとエラーになる.
                 new_terms.append((term,term_info))
             genindex.append([classifier,new_terms])
         return genindex
@@ -1175,7 +1171,7 @@ class SubTerm(object):
     def __str__(self):
         return self.ashier()
     def __repr__(self):
-        rpr  = f"<{self.__class__.__name__}: "
+        rpr  = f"<{self.__class__.__name__}: len={len(self)} "
         if self._template: rpr += f"tpl='{self._template}' "
         for s in self._subterms:
             rpr += repr(s)
