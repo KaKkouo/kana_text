@@ -68,6 +68,15 @@ TextUnit(T.B.D.)
 - object['index_key']: None or classifier
 - object.make_index_unit(): return [IndexUnit, IndexUnit, ...]
 
+IndexRack
+
+- object[n]: IndexUnit(...)
+- object.append(): make/update classifier_catalog and kana_katalog
+- object.extend(): call the object.append() by each IndexUnit object
+- object.udpate(): update IndexUnit object with classifier_catalog and kana_catalog
+- object.sort(): to be sorted
+- object.generate_genindex_data()
+
 IndexUnit
 
 - object._sortkey: for emphasis which means 'main'.
@@ -80,12 +89,3 @@ IndexUnit
 - object['main']: emphasis
 - object['index_key']: None or classifier
 - object.delimiter: ' ' or ', '
-
-IndexRack
-
-- object[n]: IndexUnit(...)
-- object.append(): make/update classifier_catalog and kana_katalog
-- object.extend(): call the object.append() by each IndexUnit object
-- object.udpate(): update IndexUnit object with classifier_catalog and kana_catalog
-- object.sort(): to be sorted
-- object.generate_genindex_data()
