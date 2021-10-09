@@ -741,31 +741,14 @@ testcase10out = [
   [('ああ|球球球',
     [[],
      [('ああ|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]),
-      ('see ああ|球球球', [('see', 'doc02.html#id-02')])],
+      ('see 球球球', [])],
      None])]),
  ('な',
   [('なな|拾拾拾',
     [[],
      [('なな|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]),
-      ('see also なな|拾拾拾', [('seealso', 'doc04.html#id-04')])],
+      ('see also 拾拾拾', [])],
      None])])
-]
-
-testcase10out_ = [ #0.21までの実装での挙動
-  ('あ',
-   [('ああ|球球球',
-     [[],
-      [('いい|球球球', [('', 'doc01.html#id-01')]),
-       ('んん|球球球', [('', 'doc03.html#id-03')]),
-       ('see めめ|球球球', [])],
-      None])]),
-  ('な',
-   [('なな|拾拾拾',
-     [[],
-      [('めめ|拾拾拾', [('', 'doc05.html#id-05')]),
-       ('んん|拾拾拾', [('', 'doc06.html#id-06')]),
-       ('see also いい|拾拾拾', [])],
-      None])])
 ]
 
 #同名の関数がある場合とない場合
@@ -801,6 +784,29 @@ testcase11out = [
 ]
 
 
+#html_kana_text_on_genindex = True
+testcase12in = {
+'doc01': [('single','いい|壱壱^11; ろろ|弐弐^11','id-01','',None)],
+'doc02': [('single','いい|壱壱^11; はは|参参^11','id-02','',None)],
+'doc03': [('single','にに|四四^11; ほほ|五五^11','id-03','', '分類子')],
+'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
+}
+
+testcase12out = [
+('あ',
+  [([(True, ('壱', 'い')), (True, ('壱', 'い'))],
+    [[],
+     [('はは|参参', [('', 'doc02.html#id-02')]),
+      ('ろろ|弐弐', [('', 'doc01.html#id-01')])],
+     None])]),
+ ('分類子',
+  [([(True, ('四', 'に')), (True, ('四', 'に'))],
+    [[],
+     [('へへ|六六', [('', 'doc04.html#id-04')]),
+      ('ほほ|五五', [('', 'doc03.html#id-03')])],
+     None])])
+]
+
 #-------------------------------------------------------------------
 
 class _env(object): pass
@@ -808,8 +814,9 @@ class _env(object): pass
 class _config(object):
     def __init__(self):
         self.kana_text_separator = r'\|'
-        self.html_kana_text_use_own_indexer = 'normal'
-        self.debug_kana_text_genindex_entries = False
+        self.kana_text_indexer_mode = 'normal'
+        self.html_kana_text_on_genindex = False
+        self.html_change_triple = False
 
 class _builder(object):
     def __init__(self, env, cfg):
@@ -822,77 +829,84 @@ class _builder(object):
 env = _env()
 cfg = _config()
 bld = _builder(env, cfg)
-idx = IndexRack(bld)
+idx = IndexRack(bld, True)
 
 class testIndexRack(unittest.TestCase):
     def test01_create_genindex(self):
         self.maxDiff = None
         gidx = idx.create_genindex(testcase01in)
-        self.assertEqual(testcase01out, gidx)
+        self.assertEqual(gidx, testcase01out)
 
     def test02_create_genindex(self):
         self.maxDiff = None
         gidx = idx.create_genindex(testcase02in)
-        self.assertEqual(testcase02out, gidx)
+        self.assertEqual(gidx, testcase02out)
 
     def test03_create_genindex(self):
         self.maxDiff = None
         gidx = idx.create_genindex(testcase03in)
-        self.assertEqual(testcase03out, gidx)
+        self.assertEqual(gidx, testcase03out)
 
     def test04_create_genindex(self):
         self.maxDiff = None
-        idx.config.html_kana_text_use_own_indexer = 'large'
+        idx.config.kana_text_indexer_mode = 'large'
         gidx = idx.create_genindex(testcase04in)
-        self.assertEqual(testcase04out, gidx)
+        self.assertEqual(gidx, testcase04out)
 
     def test05_create_genindex(self):
         self.maxDiff = None
-        idx.config.html_kana_text_use_own_indexer = 'small'
+        idx.config.kana_text_indexer_mode = 'small'
         gidx = idx.create_genindex(testcase05in)
-        self.assertEqual(testcase05out, gidx)
+        self.assertEqual(gidx, testcase05out)
 
     def test06_create_genindex(self):
         self.maxDiff = None
-        idx.config.html_kana_text_use_own_indexer = 'small'
+        idx.config.kana_text_indexer_mode = 'small'
         gidx = idx.create_genindex(testcase06in)
-        self.assertEqual(testcase06out, gidx)
+        self.assertEqual(gidx, testcase06out)
 
     def test07_create_genindex(self):
         self.maxDiff = None
-        idx.config.html_kana_text_use_own_indexer = 'small'
+        idx.config.kana_text_indexer_mode = 'small'
         gidx = idx.create_genindex(testcase07in)
-        self.assertEqual(testcase07out, gidx)
+        self.assertEqual(gidx, testcase07out)
 
     def test08_create_genindex(self):
         self.maxDiff = None
-        idx.config.html_kana_text_use_own_indexer = 'small'
+        idx.config.kana_text_indexer_mode = 'small'
         gidx = idx.create_genindex(testcase08in)
-        self.assertEqual(testcase08out, gidx)
+        self.assertEqual(gidx, testcase08out)
 
     def test09_create_genindex(self):
         self.maxDiff = None
-        idx.config.html_kana_text_use_own_indexer = 'small'
+        idx.config.kana_text_indexer_mode = 'small'
         gidx = idx.create_genindex(testcase09in)
-        self.assertEqual(testcase09out, gidx)
+        self.assertEqual(gidx, testcase09out)
 
     def test10_create_genindex(self):
         self.maxDiff = None
-        idx.config.html_kana_text_use_own_indexer = 'small'
+        idx.config.kana_text_indexer_mode = 'small'
         gidx = idx.create_genindex(testcase10in)
-        self.assertEqual(testcase10out, gidx)
+        self.assertEqual(gidx, testcase10out)
 
     def test11_create_genindex(self):
         self.maxDiff = None
-        idx.config.html_kana_text_use_own_indexer = 'small'
+        idx.config.kana_text_indexer_mode = 'small'
         gidx = idx.create_genindex(testcase11in)
-        self.assertEqual(testcase11out, gidx)
+        self.assertEqual(gidx, testcase11out)
+
+    def test12_create_genindex(self):
+        self.maxDiff = None
+        idx.config.kana_text_indexer_mode = 'small'
+        idx.config.html_kana_text_on_genindex = True
+        gidx = idx.create_genindex(testcase12in)
+        self.assertEqual(gidx, testcase12out)
 
 #-------------------------------------------------------------------
 
 if __name__ == '__main__':
     unittest.main()
 
-    #bld.config.html_kana_text_use_own_indexer = 'small'
+    #bld.config.kana_text_indexer_mode = 'small'
     #gidx = bld.create_genindex(testcase08in)
     #pprint(gidx)
