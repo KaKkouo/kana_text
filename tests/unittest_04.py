@@ -978,20 +978,23 @@ class testIndexRack(unittest.TestCase):
 
     def test04_create_genindex(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'large'
-        gidx = idx.create_genindex(testcase04in)
+        idx04 = IndexRack(bld, True)
+        idx04.config.kana_text_indexer_mode = 'large'
+        gidx = idx04.create_genindex(testcase04in)
         self.assertEqual(gidx, testcase04out)
 
     def test05_create_genindex(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'small'
-        gidx = idx.create_genindex(testcase05in)
+        idx05 = IndexRack(bld, True)
+        idx05.config.kana_text_indexer_mode = 'small'
+        gidx = idx05.create_genindex(testcase05in)
         self.assertEqual(gidx, testcase05out)
 
     def test06_create_genindex(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'small'
-        gidx = idx.create_genindex(testcase06in)
+        idx06 = IndexRack(bld, True)
+        idx06.config.kana_text_indexer_mode = 'small'
+        gidx = idx06.create_genindex(testcase06in)
         self.assertEqual(gidx, testcase06out)
 
     def test07_create_genindex(self):
@@ -1014,8 +1017,9 @@ class testIndexRack(unittest.TestCase):
 
     def test10_create_genindex(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'small'
-        gidx = idx.create_genindex(testcase10in)
+        idx10 = IndexRack(bld, True)
+        idx10.config.kana_text_indexer_mode = 'small'
+        gidx = idx10.create_genindex(testcase10in)
         self.assertEqual(gidx, testcase10out)
 
     def test11_homonymous_function(self):
