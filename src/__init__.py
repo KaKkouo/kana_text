@@ -9,14 +9,14 @@ sphinxcontrib.kana_text
 機能
 ====
 文字列を「かな|単語」という書式で記載することで、「かな」に応じた表示順となる。
-表示の時は「かな」を非表示、もしくはルビ表示にする.
+「かな」は表示では非表示、もしくはルビ表示にする.
 
 対象
 ----
 - indexディレクティブ、glossaryディレクティブ
-- indexロール（索引での表示）、kanaロール（読み仮名のみ）.
+- indexロール（索引での表示）、kanaロール（かな表示のみ）.
 
-「かな|単語^オプション」と書く以外の使い方はこれまでと同じ.
+「かな|単語^オプション」と書く以外は、これまでと同じ記法.
 
 使い方
 ------
@@ -72,24 +72,20 @@ sphinxcontrib.kana_text
 ----------
 kana_text_separator
 
-- 「かな|単語」の区切りを指定する.
-- 省略時は「r'\|'」. 
+- 「かな|単語」の区切りを指定する. 省略時は「r'\|'」. 
 
 kana_text_option_marker
 
-- 「かな|単語^22」の「^」を指定する。
-- 省略時は「r'\^'」. 
+- 「かな|単語^22」の「^」を指定する. 省略時は「r'\^'」. 
 
 html_kana_text_on_genindex
 
-- 索引ページでのかな表示を有効にする.
-- 省略時は非表示. 推奨はTrue.
+- 索引ページでのかな表示を有効にする. 省略時は非表示. 推奨はTrue.
 - これに対応した「genidex.html」が必要.
 
 html_change_triple
 
-- tripleでの「3rd, 1st」の表示を「1st, 3rd」に変更する.
-- 省略時はFalse.
+- tripleでの「3rd, 1st」の表示を「1st, 3rd」に変更する. 省略時はFalse.
 
 kana_text_indexer_mode
 
@@ -100,6 +96,7 @@ kana_text_indexer_mode
 
 genindex.htmlの作り方
 ---------------------
+コマンド「sphinx-kana-genindex」の実行で、以下の内容のファイルがカレントディレクトリに作成される.
 
 1. sphinx/themes/basic/genindex.html をプロジェクトの「_templates」にコピーする.
 2. 「{{ firstname|e }}」を次のように変更し、続けて同ファイルに「macro」を記述する.
@@ -128,11 +125,6 @@ genindex.htmlの作り方
 
 開発者向け
 ==========
-変数名
-------
-- KanaText内. 未処理は「text」で解析済みは「kana/word」.
-- index/glossaryとしては「kana/term」.
-- 文言もこれに合わせる.
 
 データの優先順
 -------------- 
@@ -162,13 +154,21 @@ KanaHTML5Translatorクラス/visit_termメソッド
 
     - visit_termメソッドはglossaryで定義された単語（termクラス）が通る.
 
-KanaIndexerクラス/create_geindex_entriesメソッド
+IndexRackクラス/create_geindex_entriesメソッド
 
 - IndexEntriesクラス/create_indexメソッドを置き換える.
-- sortkeyを作って「[sortkey, databody]」のリストを作るところが肝.
-- 「早い者勝ちv.s.上書き許容」の件.
+- 可能な限り、内部的な処理順に依存しないようにした.
 - オリジナルは「func() (クラス名やモジュール名)」の集約処理が説明した通りではない.
 - 「see/seealso」の表示順がオリジナルと異なる.
+
+IndexUnitクラス
+
+- 索引ページで表示される各項目に対応したオブジェクトのクラス.
+
+SubTermクラス
+
+- IndexUnitクラス内のsubtermオブジェクトのクラス.
+- KanaTextを最大で二つ持つ.
 
 KanaHTMLBuilderクラス/create_genindexメソッド
 
@@ -176,18 +176,6 @@ KanaHTMLBuilderクラス/create_genindexメソッド
 
 備忘録
 ======
-Glossaryの検討
---------------
-Glossary側でKanaTextノード作る場合、termクラス→TextElementクラスまで遡って手を入れる必要がある.
-
-- TextElementクラス内でTextクラスでのオブジェクト化があるため、他の場所でKanaTextクラスにしても上書きされる.
-
-Glossary内でtermノードを作った後に置き換える方法
-
-- 現状のvisit_termメソッドで置き換える方法とは、入れ替えるタイミングの違いのみ.
-- Glossaryでの改良は変更するコード量に対して影響範囲が大きい.
-- KanaHTMLTranslatorなら設定で挙動を制御できる.
-
 latexやerubへの対応
 -------------------
 KanaTextクラス/astextメソッド
@@ -217,10 +205,11 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.23.0.1' #
+__version__ = '0.23.1a15' #
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re
+from pprint import pprint
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Pattern, Type, cast
 
 from docutils import nodes
@@ -350,7 +339,7 @@ class KanaText(nodes.Text):
 
             >>> kana = KanaText('はなこ|はな子^b1')
             >>> kana
-            <KanaText: ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
+            <KanaText: len=2 ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
         """
 
         self._rawtext = rawtext
@@ -416,7 +405,7 @@ class KanaText(nodes.Text):
         doctest:
             >>> kana = KanaText('はなこ|はな子^b1')
             >>> kana
-            <KanaText: ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
+            <KanaText: len=2 ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
         """
         name = self.__class__.__name__
         rb, op = self['ruby'], self['option']
@@ -443,7 +432,7 @@ class KanaText(nodes.Text):
 
             >>> kana = KanaText('たなかひさみつ|田中ひさみつ^12d')
             >>> kana
-            <KanaText: ruby='specific' option='12d' <#text: 'たなかひさみつ|田中ひさみつ'>>
+            <KanaText: len=2 ruby='specific' option='12d' <#text: 'たなかひさみつ|田中ひさみつ'>>
         """
         match = parser.match(text)
 
@@ -570,13 +559,13 @@ class KanaTextUnit(nodes.Element):
 
             >>> ktext = KanaTextUnit('壱壱; 弐弐')
             >>> ktext
-            <KanaTextUnit: entry_type='single' <KanaText: <#text: '壱壱'>><KanaText: <#text: '弐弐'>>>
+            <KanaTextUnit: entry_type='single' <KanaText: len=1 <#text: '壱壱'>><KanaText: len=1 <#text: '弐弐'>>>
             >>> ktext = KanaTextUnit('ああ|壱壱^')
             >>> ktext
-            <KanaTextUnit: entry_type='single' <KanaText: ruby='on' <#text: 'ああ|壱壱'>>>
+            <KanaTextUnit: entry_type='single' <KanaText: len=2 ruby='on' <#text: 'ああ|壱壱'>>>
             >>> ktext = KanaTextUnit('あ|壱^1')
             >>> ktext
-            <KanaTextUnit: entry_type='single' <KanaText: ruby='specific' option='1' <#text: 'あ|壱'>>>
+            <KanaTextUnit: entry_type='single' <KanaText: len=2 ruby='specific' option='1' <#text: 'あ|壱'>>>
         """
 
 
@@ -813,32 +802,43 @@ _first_char_small = {
     'わ': 'わ', 'を': 'わ', 'ワ': 'わ', 'ヲ': 'わ', 'ん': 'わ', 'ン': 'わ' }
 
 _first_char_large = {
+    'あ': 'あ', 'い': 'い', 'う': 'う', 'え': 'え', 'お': 'お',
     'ア': 'あ', 'イ': 'い', 'ウ': 'う', 'エ': 'え', 'オ': 'お', 
+    'か': 'か', 'き': 'き', 'く': 'く', 'け': 'け', 'こ': 'こ',
     'カ': 'か', 'キ': 'き', 'ク': 'く', 'ケ': 'け', 'コ': 'こ',
     'が': 'か', 'ぎ': 'き', 'ぐ': 'く', 'げ': 'け', 'ご': 'こ',
+    'さ': 'さ', 'し': 'し', 'す': 'す', 'せ': 'せ', 'そ': 'そ',
     'ガ': 'か', 'ギ': 'き', 'グ': 'く', 'ゲ': 'け', 'ゴ': 'こ', 
     'サ': 'さ', 'シ': 'し', 'ス': 'す', 'セ': 'せ', 'ソ': 'そ',
     'ざ': 'さ', 'じ': 'し', 'ず': 'す', 'ぜ': 'せ', 'ぞ': 'そ',
     'ザ': 'さ', 'ジ': 'し', 'ズ': 'す', 'ゼ': 'せ', 'ゾ': 'そ', 
+    'た': 'た', 'ち': 'ち', 'つ': 'つ', 'て': 'て', 'と': 'と',
     'タ': 'た', 'チ': 'ち', 'ツ': 'つ', 'テ': 'て', 'ト': 'と',
     'だ': 'た', 'ぢ': 'ち', 'づ': 'つ', 'で': 'て', 'ど': 'と',
     'ダ': 'た', 'ヂ': 'ち', 'ヅ': 'つ', 'デ': 'て', 'ド': 'と', 
+    'な': 'な', 'に': 'に', 'ぬ': 'ぬ', 'ね': 'ね', 'の': 'の',
     'ナ': 'な', 'ニ': 'に', 'ヌ': 'ぬ', 'ネ': 'ね', 'ノ': 'の', 
+    'は': 'は', 'ひ': 'ひ', 'ふ': 'ふ', 'へ': 'へ', 'ほ': 'ほ',
     'ハ': 'は', 'ヒ': 'ひ', 'フ': 'ふ', 'ヘ': 'へ', 'ホ': 'ほ',
     'ば': 'は', 'び': 'ひ', 'ぶ': 'ふ', 'べ': 'へ', 'ぼ': 'ほ',
     'バ': 'は', 'ビ': 'ひ', 'ブ': 'ふ', 'ベ': 'へ', 'ボ': 'ほ',
+    'ま': 'ま', 'み': 'み', 'む': 'む', 'め': 'め', 'も': 'も',
     'ぱ': 'は', 'ぴ': 'ひ', 'ぷ': 'ふ', 'ぺ': 'へ', 'ぽ': 'ほ',
     'パ': 'は', 'ピ': 'ひ', 'プ': 'ふ', 'ペ': 'へ', 'ポ': 'ほ', 
     'マ': 'ま', 'ミ': 'み', 'ム': 'む', 'メ': 'め', 'モ': 'も', 
-    'ヤ': 'や', 'ユ': 'ゆ', 'ヨ': 'よ',
+    'や': 'や', 'ゆ': 'ゆ', 'よ': 'よ', 'ヤ': 'や', 'ユ': 'ゆ', 'ヨ': 'よ',
     'ゃ': 'や', 'ゅ': 'ゆ', 'ょ': 'よ', 'ャ': 'や', 'ュ': 'ゆ', 'ョ': 'よ', 
+    'ら': 'ら', 'り': 'り', 'る': 'る', 'れ': 'れ', 'ろ': 'ろ',
     'ラ': 'ら', 'リ': 'り', 'ル': 'る', 'レ': 'れ', 'ロ': 'ろ', 
-    'ワ': 'わ', 'ヲ': 'を', 'ン': 'ん' }
+    'わ': 'わ', 'を': 'を', 'ん': 'ん', 'ワ': 'わ', 'ヲ': 'を', 'ン': 'ん' }
 
+#1-5: IndexRack.update_kana_catalogでの優先順として.
+#3,5: 同一subterm内でのリンクの表示順.
+#8,9: 同一term内でのsubtermの表示順.
 _emphasis2char = {
-    'main':    '1', #glossaryで定義した用語. indexでは「!」が先頭にあるもの.
-    '_rsvd2_': '2', #reserved
-    '_rsvd3_': '3', #reserved
+    '_cnfpy_': '1', #「conf.py」
+    '_rncmd_': '2', #「~/.kana_text/kana_catalog.py」
+    'main':    '3', #glossaryで定義した用語. indexでは「!」が先頭にあるもの.
     '_rsvd4_': '4', #reserved
     '':        '5', #'main', 'see', 'seealso'以外.
     '_rsvd6_': '6', #reserved
@@ -848,7 +848,7 @@ _emphasis2char = {
 }
 
 _char2emphasis = {
-    '0': '', '1': 'main', '2': '', '3': '', '4': '',
+    '0': '', '1': '', '2': '', '3': 'main', '4': '',
     '5': '', '6': '', '7': '', '8': 'see', '9': 'seealso',
 }
 
@@ -891,6 +891,15 @@ class IndexRack(object):
         self.get_relative_uri = builder.get_relative_uri
         self.testmode = testmode
 
+        self._kana_catalog = {} # {term: (emphasis, kana)} #KanaText
+
+        #設定で用意されたかな文字情報の登録処理
+        for rawword in self.config.kana_text_word_list:
+            unit = KanaTextUnit(rawword, 'single', '', '', '_cnfpy_', None) #_cnfpy_
+            index_units = unit.make_index_unit()
+            for iu in index_units:
+                self.update_kana_catalog(iu[self.UNIT_EMPH], iu.get_children()) #KanaText
+
     def create_genindex(self, entries=None, group_entries: bool = True,
                      _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
                      ) -> List[Tuple[str, List[Tuple[str, Any]]]]:
@@ -900,7 +909,8 @@ class IndexRack(object):
         self._group_entries = group_entries
         self._fixre = _fixre
 
-        #入れ物の用意
+        #入れ物の用意とリセット
+        self._kana_catalog_pre = self._kana_catalog
         self._rack = [] # [IndexUnit, IndexUnit, ...]
         self._classifier_catalog = {} # {term: classifier} 
         self._kana_catalog = {} # {term: (emphasis, kana)} #KanaText
@@ -930,7 +940,7 @@ class IndexRack(object):
         """
         #情報収集
         self.update_classifier_catalog(unit['index_key'], unit[self.UNIT_TERM].ashier())
-        self.update_kana_catalog(unit[self.UNIT_EMPH], unit.askanas(), unit.ashiers()) #KanaText
+        self.update_kana_catalog(unit[self.UNIT_EMPH], unit.get_children()) #KanaText
 
         if self._group_entries:
             self.update_function_catalog(unit.astexts(), self._fixre)
@@ -951,20 +961,22 @@ class IndexRack(object):
             #上書きはしない.（∵「make clean」での状況を真とするため）
             self._classifier_catalog[hier] = index_key
 
-    def update_kana_catalog(self, emphasis, kanas, hiers): #KanaText
+    def update_kana_catalog(self, emphasis, terms): #KanaText
         """KanaText用の処理"""
-        for kana, hier in zip(kanas, hiers):
-            if hier in self._kana_catalog:
-                if emphasis < self._kana_catalog[hier][0]:
+        for term in terms:
+            kana, hier = term.askana(), term.ashier()
+            if kana and hier in self._kana_catalog:
+                item = self._kana_catalog[hier]
+                if emphasis < item[0]:
                     #emphasisコードが異なる場合は、数字の小さい方が優先.
                     self._kana_catalog[hier] = (emphasis, kana)
-                elif emphasis == self._kana_catalog[hier][0] and len(kana) > len(self._kana_catalog[hier][1]):
+                elif emphasis == item[0] and len(kana) > len(item[1]):
                     #emphasisコードが同じなら、かな文字の長いほうが優先.
                     self._kana_catalog[hier] = (emphasis, kana)
                 else:
                     #その他は、先に登録された方が優先. （∵「make clean」の状態で挙動が一定になるように）
                     pass #明示しておく.
-            else:
+            elif kana:
                 self._kana_catalog[hier] = (emphasis, kana)
 
     def update_function_catalog(self, texts, _fixre):
@@ -979,8 +991,37 @@ class IndexRack(object):
                 pass
 
     def update(self):
-        """rack格納されている全てのunitの更新を行う."""
+        """rackに格納されている全てのunitの更新を行う."""
+
+        #__init__で貯めた情報を追加する.
+        #pprint(self._kana_catalog_pre)
+        #self._kana_catalog.update(self._kana_catalog_pre) #コメントを外すとテストがFAILする...
+        #pprint(self._kana_catalog)
+
+        #カタログ情報を使った更新
         for unit in self._rack:
+            # fixup entries: transform
+            #   func() (in module foo)
+            #   func() (in module bar)
+            # into
+            #   func()
+            #     (in module foo)
+            #     (in module bar) 
+            if self._group_entries:
+                i_tm = unit[self.UNIT_TERM]
+                m = self._fixre.match(i_tm.astext()) #関数を想定しているので、astext()とashier()に差異はない.
+                if m and self._function_catalog[m.group(1)] > 1:
+                    #状況的にsubtermは空のはず.
+                    assert not unit[self.UNIT_SBTM], f'{self.__class__.__name__}: subterm is not null'
+                    r_tm = unit.textclass(m.group(1))
+                    obj = unit.textclass(m.group(2))
+                    obj['whatiam'] = 'subterm'
+                    r_sub = SubTerm()
+                    r_sub.append(obj)
+                    unit[self.UNIT_TERM] = r_tm
+                    unit[self.UNIT_SBTM] = r_sub
+            #subの情報が消えるが、このケースに該当する場合はsubにはデータがないはず.
+
             #各termの読みの設定
             #- 「同じ単語は同じ読み」として実装.
 
@@ -1048,29 +1089,7 @@ class IndexRack(object):
             i_tid = unit['target']
             i_iky = unit['index_key']
 
-            # fixup entries: transform
-            #   func() (in module foo)
-            #   func() (in module bar)
-            # into
-            #   func()
-            #     (in module foo)
-            #     (in module bar) 
-            if self._group_entries:
-                sub = ''
-                m = self._fixre.match(i_tm.astext()) #関数を想定しているので、astext()とashier()に差異はない.
-                if m and self._function_catalog[m.group(1)] > 1:
-                    #状況的にsubtermは空のはず.
-                    assert not unit[self.UNIT_SBTM], f'{self.__class__.__name__}: subterm is not null'
-                    tm = unit.textclass(m.group(1))
-                    obj = unit.textclass(m.group(2))
-                    obj['whatiam'] = 'subterm'
-                    sub = SubTerm()
-                    sub.append(obj)
-                else:
-                    tm, sub = i_tm, i_sub
-            else:
-                tm, sub = i_tm, i_sub
-            #subの情報が消えるが、このケースに該当する場合はsubにはデータがないはず.
+            r_tm, r_sub = i_tm, i_sub
 
             #make a uri
             if i_fn:
@@ -1092,8 +1111,8 @@ class IndexRack(object):
             r_terms = r_clsfr[1] #[term, term, ..]
 
             #see: KanaText.__ne__
-            if len(r_terms) == 0 or not r_terms[_tm][0] == tm.astext(): #use __eq__
-                r_terms.append((tm, [[], [], i_iky]))
+            if len(r_terms) == 0 or not r_terms[_tm][0] == r_tm.astext(): #use __eq__
+                r_terms.append((r_tm, [[], [], i_iky]))
                 _tm, _sub = _tm+1, -1
 
             r_term = r_terms[_tm]       #[term, [links, [subterm, subterm, ..], index_key]
@@ -1112,12 +1131,12 @@ class IndexRack(object):
                 
 
             #sub(class SubTerm): [], [KanaText], [KanaText, KanaText].
-            if len(sub) == 0:
+            if len(r_sub) == 0:
                 if r_fn: r_term_links.append((r_main, r_uri))
-            elif len(r_subterms) == 0 or not r_subterms[_sub][0] == sub.astext():
+            elif len(r_subterms) == 0 or not r_subterms[_sub][0] == r_sub.astext():
                 if self.config.html_change_triple:
                     sub.change_triple = True
-                r_subterms.append((sub, []))
+                r_subterms.append((r_sub, []))
 
                 _sub = _sub+1
                 r_subterm = r_subterms[_sub]
@@ -1133,10 +1152,10 @@ class IndexRack(object):
         return self.convert_genindex_data(rtnlist)
 
     def convert_genindex_data(self, entries):
-        """ソートの後処理. 各KanaTextオブジェクトをリスト/文字列に変換する.
+        """ソートの後処理. 
 
-        - classifier(KanaText), term(KanaText)では、__str__経由のashierの利用は問題なし.
-        - subterm(SubTerm)では、__str__経由のashierの利用はエラーになる.
+        各KanaTextオブジェクトについて、必要なものだけ文字列に置き換える.
+        __str__メソッドの対応で事足りるオブジェクトはそのまま.
         """
         genindex = []
         for classifier, terms in entries:
@@ -1153,22 +1172,24 @@ class IndexRack(object):
                 for i in range(len(subterms)):
                     #see: indexentries.pyのadd_entryの実行箇所を参照
 
+                    #ここをpassに変えるとエラーになる. 何れ消したい.
                     subterms[i] = (str(subterms[i][0]), subterms[i][1])
-                    #ここを消するとエラーになる.
+                    #Jinja2は__str__を使うことは確認したが、何故か消すとエラーになる.
                 new_terms.append((term,term_info))
-            genindex.append([classifier,new_terms])
+            genindex.append((classifier,new_terms))
         return genindex
 
 class SubTerm(object):
-    _delimiter = ' '
     def __init__(self, template=None):
         self._subterms = []
+        self._delimiter = ' '
         self._template = template
         self.change_triple = False
     def set_delimiter(self, delimiter=', '):
         #デフォルトから変更する場合は「', '」のパターンしかない.
         self._delimiter = delimiter
     def __str__(self):
+        """IndexRack.convert_genindex_dataに関係するメソッド."""
         return self.ashier()
     def __repr__(self):
         rpr  = f"<{self.__class__.__name__}: len={len(self)} "
@@ -1193,14 +1214,17 @@ class SubTerm(object):
     def append(self, subterm):
         self._subterms.append(subterm)
     def astext(self):
-        if self._template:
-            return self._template % self.ashier()
+        if self._template and len(self) == 1:
+            return self._template % self._subterms[0].ashier()
         else:
             text = ""
             for subterm in self._subterms:
                 text += subterm.astext() + self._delimiter
             return text[:-len(self._delimiter)]
     def ashier(self):
+        if self._template and len(self) == 1:
+            return self._template % self[0].ashier()
+
         if self.change_triple and len(self) == 2:
             return self[1].ashier() + self._delimiter + self[0].ashier()
 
@@ -1227,14 +1251,11 @@ class IndexUnit(object):
         else:
             subterm = SubTerm()
 
-        if subterm1:
-            obj = textclass(subterm1)
-            obj['whatiam'] = 'subterm'
-            subterm.append(obj)
-        if subterm2:
-            obj = textclass(subterm2)
-            obj['whatiam'] = 'subterm'
-            subterm.append(obj)
+        for sbtm in (subterm1, subterm2):
+            if sbtm:
+                obj = textclass(sbtm)
+                obj['whatiam'] = 'subterm'
+                subterm.append(obj)
 
         self._sortkey = None
         self._display_data = [textclass(''), textclass(term), subterm] #classifierを更新するのでタプルにはできない.
@@ -1250,7 +1271,7 @@ class IndexUnit(object):
         <IndexUnit: main='5' file_name='doc1' target='id-1' <KanaText: <#empty>><KanaText: <#empty>>>
         >>> iu = IndexUnit('壱', '弐', '', '8', '', '', None, KanaText)
         >>> iu
-        <IndexUnit: main='8' <KanaText: <#empty>><KanaText: <#text: '壱'>><SubTerm: <KanaText: <#text: '弐'>>>>
+        <IndexUnit: main='8' <KanaText: <#empty>><KanaText: len=1 <#text: '壱'>><SubTerm: len=1 tpl='see %s' <KanaText: len=1 <#text: '弐'>>>>
         """
         name = self.__class__.__name__
         main = self['main']
@@ -1283,9 +1304,20 @@ class IndexUnit(object):
 
     def __setitem__(self, key, value): #更新するデータだけ対応する.
         if isinstance(key, int):
-            if key == 0: self._display_data[key] = value
+            if key == self.CLSF: self._display_data[self.CLSF] = value
+            elif key == self.TERM: self._display_data[self.TERM] = value
+            elif key == self.SBTM: self._display_data[self.SBTM] = value
+            elif key == self.EMPH: self._display_data[self.EMPH] = value
+            else: raise KeyError(key)
         else:
             raise KeyError(key)
+
+    def get_children(self):
+        children = [self[1]]
+        if self[2]:
+            for child in self[2]:
+                children.append(child)
+        return children
 
     def set_subterm_delimiter(self, delimiter=', '):
         self[self.SBTM].set_delimiter(delimiter)
@@ -1432,6 +1464,8 @@ def setup(app) -> Dict[str, Any]:
     #設定の登録
     app.add_config_value('kana_text_separator', r'\|', 'env') 
     app.add_config_value('kana_text_option_marker', r'\^', 'env') 
+    #app.add_config_value('kana_text_word_file', False, 'env') 
+    app.add_config_value('kana_text_word_list', (), 'env') 
     app.add_config_value('kana_text_indexer_mode', 'small', 'env') 
     app.add_config_value('html_kana_text_on_genindex', False, 'html') 
     app.add_config_value('html_change_triple', False, 'html') 
