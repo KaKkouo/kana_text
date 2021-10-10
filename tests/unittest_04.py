@@ -786,26 +786,153 @@ testcase11out = [
 
 #html_kana_text_on_genindex = True
 testcase12in = {
-'doc01': [('single','いい|壱壱^11; ろろ|弐弐^11','id-01','',None)],
-'doc02': [('single','いい|壱壱^11; はは|参参^11','id-02','',None)],
-'doc03': [('single','にに|四四^11; ほほ|五五^11','id-03','', '分類子')],
 'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
+'doc03': [('single','にに|四四^11; ほほ|五五^11','id-03','', '分類子')],
+'doc02': [('single','いい|壱壱^11; はは|参参^11','id-02','',None)],
+'doc01': [('single','いい|壱壱^11; ろろ|弐弐^11','id-01','',None)],
 }
 
 testcase12out = [
 ('あ',
   [([(True, ('壱', 'い')), (True, ('壱', 'い'))],
     [[],
-     [('はは|参参', [('', 'doc02.html#id-02')]),
-      ('ろろ|弐弐', [('', 'doc01.html#id-01')])],
+     [('参参', [('', 'doc02.html#id-02')]),
+      ('弐弐', [('', 'doc01.html#id-01')])],
      None])]),
  ('分類子',
   [([(True, ('四', 'に')), (True, ('四', 'に'))],
     [[],
-     [('へへ|六六', [('', 'doc04.html#id-04')]),
-      ('ほほ|五五', [('', 'doc03.html#id-03')])],
+     [('六六', [('', 'doc04.html#id-04')]),
+      ('五五', [('', 'doc03.html#id-03')])],
      None])])
 ]
+
+#同名の関数がある場合とない場合
+testcase13in = {
+'doc01a': [('single','function1() (aaa モジュール)','id-01a','',None)],
+}
+
+testcase13out = [
+('F',
+  [('function1() (aaa モジュール)',
+    [[('', 'doc01a.html#id-01a')], [], None])])]
+
+#同名の関数がある場合とない場合
+testcase14in = {
+'doc01a': [('single','function1() (aaa モジュール)','id-01a','',None)],
+'doc01b': [('single','function1() (bbb モジュール)','id-01b','',None)],
+}
+
+testcase14out = [
+('F',
+  [('function1()',
+    [[],
+     [('(aaa モジュール)', [('', 'doc01a.html#id-01a')]),
+      ('(bbb モジュール)', [('', 'doc01b.html#id-01b')])],
+     None])])]
+
+#同名の関数がある場合とない場合
+testcase15in = {
+'doc01a': [('single','function1() (aaa モジュール)','id-01a','',None)],
+'doc01b': [('single','function1() (bbb モジュール)','id-01b','',None)],
+'doc01c': [('single','function3() (ccc モジュール)','id-01c','',None)],
+}
+
+testcase15out = [
+('F',
+  [('function1()',
+    [[],
+     [('(aaa モジュール)', [('', 'doc01a.html#id-01a')]),
+      ('(bbb モジュール)', [('', 'doc01b.html#id-01b')])],
+     None]),
+   ('function3() (ccc モジュール)',
+    [[('', 'doc01c.html#id-01c')], [], None])
+  ])
+]
+
+#同名の関数がある場合とない場合
+testcase16in = {
+'doc01a': [('single','function1() (aaa モジュール)','id-01a','',None)],
+'doc01b': [('single','function1() (bbb モジュール)','id-01b','',None)],
+'doc01c': [('single','function3() (ccc モジュール)','id-01c','',None)],
+'doc01d': [('single','function4() (ddd モジュール)','id-01d','',None)],
+}
+
+testcase16out = [
+('F',
+  [('function1()',
+    [[],
+     [('(aaa モジュール)', [('', 'doc01a.html#id-01a')]),
+      ('(bbb モジュール)', [('', 'doc01b.html#id-01b')])],
+     None]),
+   ('function3() (ccc モジュール)', [[('', 'doc01c.html#id-01c')], [], None]),
+   ('function4() (ddd モジュール)', [[('', 'doc01d.html#id-01d')], [], None])
+  ])
+]
+
+#html_kana_text_on_genindex = True
+testcase17in = {
+'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
+}
+
+testcase17out = [
+('な',
+  [([(True, ('四', 'に')), (True, ('四', 'に'))],
+    [[], [('六六', [('', 'doc04.html#id-04')])], None])])]
+
+#html_kana_text_on_genindex = True
+testcase18in = {
+'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
+'doc03': [('single','にに|四四^11; ほほ|五五^11','id-03','', '分類子')],
+}
+
+testcase18out = [
+('分類子',
+  [([(True, ('四', 'に')), (True, ('四', 'に'))],
+    [[],
+     [('六六', [('', 'doc04.html#id-04')]),
+      ('五五', [('', 'doc03.html#id-03')])],
+     None])])]
+
+#html_kana_text_on_genindex = True
+testcase19in = {
+'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
+'doc03': [('single','にに|四四^11; ほほ|五五^11','id-03','', '分類子')],
+'doc02': [('single','いい|壱壱^11; はは|参参^11','id-02','',None)],
+}
+
+testcase19out = [
+('あ',
+  [([(True, ('壱', 'い')), (True, ('壱', 'い'))],
+    [[], [('参参', [('', 'doc02.html#id-02')])], None])]),
+ ('分類子',
+  [([(True, ('四', 'に')), (True, ('四', 'に'))],
+    [[],
+     [('六六', [('', 'doc04.html#id-04')]),
+      ('五五', [('', 'doc03.html#id-03')])],
+     None])])]
+
+#html_kana_text_on_genindex = True
+testcase20in = {
+'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
+'doc03': [('single','にに|四四^11; ほほ|五五^11','id-03','', '分類子')],
+'doc02': [('single','いい|壱壱^11; はは|参参^11','id-02','',None)],
+'doc01': [('single','いい|壱壱^11; ろろ|弐弐^11','id-01','',None)],
+}
+
+testcase20out = [
+('あ',
+  [([(True, ('壱', 'い')), (True, ('壱', 'い'))],
+    [[],
+     [('参参', [('', 'doc02.html#id-02')]),
+      ('弐弐', [('', 'doc01.html#id-01')])],
+     None])]),
+ ('分類子',
+  [([(True, ('四', 'に')), (True, ('四', 'に'))],
+    [[],
+     [('六六', [('', 'doc04.html#id-04')]),
+      ('五五', [('', 'doc03.html#id-03')])],
+     None])])]
 
 #-------------------------------------------------------------------
 
@@ -815,6 +942,7 @@ class _config(object):
     def __init__(self):
         self.kana_text_separator = r'\|'
         self.kana_text_indexer_mode = 'normal'
+        self.kana_text_word_list = ()
         self.html_kana_text_on_genindex = False
         self.html_change_triple = False
 
@@ -830,6 +958,7 @@ env = _env()
 cfg = _config()
 bld = _builder(env, cfg)
 idx = IndexRack(bld, True)
+idx0 = IndexRack(bld)
 
 class testIndexRack(unittest.TestCase):
     def test01_create_genindex(self):
@@ -889,18 +1018,70 @@ class testIndexRack(unittest.TestCase):
         gidx = idx.create_genindex(testcase10in)
         self.assertEqual(gidx, testcase10out)
 
-    def test11_create_genindex(self):
+    def test11_homonymous_function(self):
         self.maxDiff = None
         idx.config.kana_text_indexer_mode = 'small'
         gidx = idx.create_genindex(testcase11in)
         self.assertEqual(gidx, testcase11out)
 
-    def test12_create_genindex(self):
+    def test12_kana_text_on_genindex(self):
+        self.maxDiff = None
+        idx0.config.kana_text_indexer_mode = 'small'
+        idx0.config.html_kana_text_on_genindex = True
+        gidx = idx0.create_genindex(testcase12in)
+        self.assertEqual(gidx, testcase12out)
+
+    def test13_homonymous_function(self):
         self.maxDiff = None
         idx.config.kana_text_indexer_mode = 'small'
-        idx.config.html_kana_text_on_genindex = True
-        gidx = idx.create_genindex(testcase12in)
-        self.assertEqual(gidx, testcase12out)
+        gidx = idx.create_genindex(testcase13in)
+        self.assertEqual(gidx, testcase13out)
+
+    def test14_homonymous_function(self):
+        self.maxDiff = None
+        idx.config.kana_text_indexer_mode = 'small'
+        gidx = idx.create_genindex(testcase14in)
+        self.assertEqual(gidx, testcase14out)
+
+    def test15_homonymous_function(self):
+        self.maxDiff = None
+        idx.config.kana_text_indexer_mode = 'small'
+        gidx = idx.create_genindex(testcase15in)
+        self.assertEqual(gidx, testcase15out)
+
+    def test16_homonymous_function(self):
+        self.maxDiff = None
+        idx.config.kana_text_indexer_mode = 'small'
+        gidx = idx.create_genindex(testcase16in)
+        self.assertEqual(gidx, testcase16out)
+
+    def test17_kana_text_on_genindex(self):
+        self.maxDiff = None
+        idx0.config.kana_text_indexer_mode = 'small'
+        idx0.config.html_kana_text_on_genindex = True
+        gidx = idx0.create_genindex(testcase17in)
+        self.assertEqual(gidx, testcase17out)
+
+    def test18_kana_text_on_genindex(self):
+        self.maxDiff = None
+        idx0.config.kana_text_indexer_mode = 'small'
+        idx0.config.html_kana_text_on_genindex = True
+        gidx = idx0.create_genindex(testcase18in)
+        self.assertEqual(gidx, testcase18out)
+
+    def test19_kana_text_on_genindex(self):
+        self.maxDiff = None
+        idx0.config.kana_text_indexer_mode = 'small'
+        idx0.config.html_kana_text_on_genindex = True
+        gidx = idx0.create_genindex(testcase19in)
+        self.assertEqual(gidx, testcase19out)
+
+    #def test20_kana_text_on_genindex(self):
+    #   self.maxDiff = None
+    #   idx0.config.kana_text_indexer_mode = 'small'
+    #   idx0.config.html_kana_text_on_genindex = True
+    #   gidx = idx0.create_genindex(testcase20in)
+    #   self.assertEqual(gidx, testcase20out)
 
 #-------------------------------------------------------------------
 
