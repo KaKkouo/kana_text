@@ -20,12 +20,14 @@ structure of the data for genindex.html
 
 variable name
 
-- term: KanaText OBJect. it might be ktobj.
-- rawtext: ex. 'かな|言葉^11', 'かな|言葉^11; い|壱^1' or 'かな|言葉^11; い|壱^1; ろ|弐^1`
-- rawsouce: means Elemnt.rawsource.
-- text: the string 'かな|言葉' of 'かな|言葉^11', by object.asword() of KanaText.
+- term: KanaText OBJect. it had better to be 'ktobj' vaiable name.
+- rawword: ex. 'かな|言葉^11'
+- rawtext: ex. 'かな|言葉^11', 'かな|言葉^11; いい|壱壱^11' or 'かな|言葉^11; ...; ...'
+- rawsouce: means Element.rawsource.
+- text: the string 'かな|言葉' of 'かな|言葉^11', by object.astext() of KanaText.
 - hier: the string '言葉' of 'かな|言葉^11', by object.ashier() which means hieroglyph.
 - kana: the string 'かな' of 'かな|言葉^11'. by object.askana()
+- ruby: ex. [(True, ('田', 'た')), (True, ('中', 'なか'))]
 - html: ex. '<ruby><rb>言葉</by><rp></rp><rt>かな</rt><rp></rp></ruby>'
 - latex: (T.B.D.)
 - epub: (T.B.D.)
@@ -41,8 +43,8 @@ KanaText(ex. 'かな|言葉^11')
 - object['ruby']: 'specific'
 - object['option']: '11'
 - object.whatiam: in('classifier', 'term':default, 'subterm')
-- object.__eq__: used for unittest, and IndexRack.generate_genindex_data
-- object.__str__: used for jinja2. use object.whatiam
+- object.__eq__: used by unittest and IndexRack.generate_genindex_data
+- object.__str__: used by jinja2. use object.whatiam
 
 KanaTextUnit(ex. 'ああ|壱壱^11; いい|弐弐^11; うう|参参^11')
 
@@ -89,3 +91,4 @@ IndexUnit
 - object['main']: emphasis
 - object['index_key']: None or classifier
 - object.delimiter: ' ' or ', '
+- object.get_children: [object[1], object[2][0], object[2][1]]
