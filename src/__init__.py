@@ -205,7 +205,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.23.1a15' #
+__version__ = '0.23.1.1' #
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re
@@ -1135,7 +1135,7 @@ class IndexRack(object):
                 if r_fn: r_term_links.append((r_main, r_uri))
             elif len(r_subterms) == 0 or not r_subterms[_sub][0] == r_sub.astext():
                 if self.config.html_change_triple:
-                    sub.change_triple = True
+                    r_sub.change_triple = True
                 r_subterms.append((r_sub, []))
 
                 _sub = _sub+1
