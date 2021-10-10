@@ -85,7 +85,7 @@ IndexUnit
 - object[0]: KanaText(classifier)
 - object[1]: KanaText(main term)
 - object[2]: SubTerm([], [KanaText(2nd)], or [KanaText(2nd), KanaText(3rd)])
-- object[3]: emphasis code ('main': 1, '': 5, 'see': 8, 'seealso': 9)
+- object[3]: emphasis code ('main': 3, '': 5, 'see': 8, 'seealso': 9)
 - object['file_name']: target file
 - object['target']: target id
 - object['main']: emphasis
