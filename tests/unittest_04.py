@@ -768,14 +768,14 @@ testcase12out = [
 ('あ',
   [([(True, ('壱', 'い')), (True, ('壱', 'い'))],
     [[],
-     [('参参', [('', 'doc02.html#id-02')]),
-      ('弐弐', [('', 'doc01.html#id-01')])],
+     [('はは|参参', [('', 'doc02.html#id-02')]),
+      ('ろろ|弐弐', [('', 'doc01.html#id-01')])],
      None])]),
  ('分類子',
   [([(True, ('四', 'に')), (True, ('四', 'に'))],
     [[],
-     [('六六', [('', 'doc04.html#id-04')]),
-      ('五五', [('', 'doc03.html#id-03')])],
+     [('へへ|六六', [('', 'doc04.html#id-04')]),
+      ('ほほ|五五', [('', 'doc03.html#id-03')])],
      None])])
 ]
 
@@ -850,7 +850,7 @@ testcase17in = {
 testcase17out = [
 ('な',
   [([(True, ('四', 'に')), (True, ('四', 'に'))],
-    [[], [('六六', [('', 'doc04.html#id-04')])], None])])]
+    [[], [('へへ|六六', [('', 'doc04.html#id-04')])], None])])]
 
 #html_kana_text_on_genindex = True
 testcase18in = {
@@ -862,8 +862,8 @@ testcase18out = [
 ('分類子',
   [([(True, ('四', 'に')), (True, ('四', 'に'))],
     [[],
-     [('六六', [('', 'doc04.html#id-04')]),
-      ('五五', [('', 'doc03.html#id-03')])],
+     [('へへ|六六', [('', 'doc04.html#id-04')]),
+      ('ほほ|五五', [('', 'doc03.html#id-03')])],
      None])])]
 
 #html_kana_text_on_genindex = True
@@ -876,34 +876,36 @@ testcase19in = {
 testcase19out = [
 ('あ',
   [([(True, ('壱', 'い')), (True, ('壱', 'い'))],
-    [[], [('参参', [('', 'doc02.html#id-02')])], None])]),
+    [[], [('はは|参参', [('', 'doc02.html#id-02')])], None])]),
  ('分類子',
   [([(True, ('四', 'に')), (True, ('四', 'に'))],
     [[],
-     [('六六', [('', 'doc04.html#id-04')]),
-      ('五五', [('', 'doc03.html#id-03')])],
+     [('へへ|六六', [('', 'doc04.html#id-04')]),
+      ('ほほ|五五', [('', 'doc03.html#id-03')])],
      None])])]
 
-#html_kana_text_on_genindex = True
+#kana_text_word_listの上書き
 testcase20in = {
-'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
-'doc03': [('single','にに|四四^11; ほほ|五五^11','id-03','', '分類子')],
-'doc02': [('single','いい|壱壱^11; はは|参参^11','id-02','',None)],
-'doc01': [('single','いい|壱壱^11; ろろ|弐弐^11','id-01','',None)],
+'doc01': [('single','ああ|球球球; いい|球球球','id-01','',None)],
+'doc02': [('see','かか|球球球; めめ|球球球','id-02','',None)],
+'doc03': [('single','ささ|球球球; んん|球球球','id-03','',None)],
+'doc04': [('seealso','たた|拾拾拾; いい|拾拾拾','id-04','',None)],
+'doc05': [('single','なな|拾拾拾; めめ|拾拾拾','id-05','',None)],
+'doc06': [('single','おお|拾拾拾; んん|拾拾拾','id-06','',None)],
 }
 
 testcase20out = [
-('あ',
-  [([(True, ('壱', 'い')), (True, ('壱', 'い'))],
+('な',
+  [([(True, ('球球球', 'ののの'))],
     [[],
-     [('参参', [('', 'doc02.html#id-02')]),
-      ('弐弐', [('', 'doc01.html#id-01')])],
+     [('ののの|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]),
+      ('see 球球球', [])],
      None])]),
- ('分類子',
-  [([(True, ('四', 'に')), (True, ('四', 'に'))],
+ ('ら',
+  [([(True, ('拾拾拾', 'れれれ'))],
     [[],
-     [('六六', [('', 'doc04.html#id-04')]),
-      ('五五', [('', 'doc03.html#id-03')])],
+     [('れれれ|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]),
+      ('see also 拾拾拾', [])],
      None])])]
 
 #kana_text_word_listの上書き
@@ -918,39 +920,15 @@ testcase21in = {
 
 testcase21out = [
 ('な',
-  [([(True, ('球球球', 'ののの'))],
-    [[],
-     [('球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]),
-      ('see 球球球', [])],
-     None])]),
- ('ら',
-  [([(True, ('拾拾拾', 'れれれ'))],
-    [[],
-     [('拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]),
-      ('see also 拾拾拾', [])],
-     None])])]
-
-#kana_text_word_listの上書き
-testcase22in = {
-'doc01': [('single','ああ|球球球; いい|球球球','id-01','',None)],
-'doc02': [('see','かか|球球球; めめ|球球球','id-02','',None)],
-'doc03': [('single','ささ|球球球; んん|球球球','id-03','',None)],
-'doc04': [('seealso','たた|拾拾拾; いい|拾拾拾','id-04','',None)],
-'doc05': [('single','なな|拾拾拾; めめ|拾拾拾','id-05','',None)],
-'doc06': [('single','おお|拾拾拾; んん|拾拾拾','id-06','',None)],
-}
-
-testcase22out = [
-('な',
   [([(True, ('拾拾拾', 'ねねね'))],
     [[],
-     [('拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]),
+     [('ねねね|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]),
       ('see also 拾拾拾', [])],
      None])]),
  ('ら',
   [([(True, ('球球球', 'るるる'))],
     [[],
-     [('球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]),
+     [('るるる|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]),
       ('see 球球球', [])],
      None])])
  ]
@@ -1058,9 +1036,12 @@ class testIndexRack(unittest.TestCase):
 
     def test12_kana_text_on_genindex(self):
         self.maxDiff = None
-        idx0.config.kana_text_indexer_mode = 'small'
-        idx0.config.html_kana_text_on_genindex = True
-        gidx = idx0.create_genindex(testcase12in)
+        cfg = _config()
+        cfg.kana_text_indexer_mode = 'small'
+        cfg.html_kana_text_on_genindex = True
+        bld = _builder(env, cfg)
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex(testcase12in)
         self.assertEqual(gidx, testcase12out)
 
     def test13_homonymous_function(self):
@@ -1108,14 +1089,7 @@ class testIndexRack(unittest.TestCase):
         gidx = idx0.create_genindex(testcase19in)
         self.assertEqual(gidx, testcase19out)
 
-    #def test20_kana_text_on_genindex(self):
-    #   self.maxDiff = None
-    #   idx0.config.kana_text_indexer_mode = 'small'
-    #   idx0.config.html_kana_text_on_genindex = True
-    #   gidx = idx0.create_genindex(testcase20in)
-    #   self.assertEqual(gidx, testcase20out)
-
-    def test21_kana_catalog(self):
+    def test20_kana_catalog(self):
         self.maxDiff = None
         cfg21 = _config()
         bld21 = _builder(env, cfg21)
@@ -1123,10 +1097,10 @@ class testIndexRack(unittest.TestCase):
         bld21.config.html_kana_text_on_genindex = True
         bld21.config.kana_text_indexer_mode = 'small'
         idx21 = IndexRack(bld21)
-        gidx = idx21.create_genindex(testcase21in)
-        self.assertEqual(gidx, testcase21out)
+        gidx = idx21.create_genindex(testcase20in)
+        self.assertEqual(gidx, testcase20out)
 
-    def test22_kana_catalog(self):
+    def test21_kana_catalog(self):
         self.maxDiff = None
         cfg = _config()
         cfg.kana_text_word_list = []
@@ -1135,8 +1109,8 @@ class testIndexRack(unittest.TestCase):
         cfg.kana_text_indexer_mode = 'small'
         bld = _builder(env, cfg)
         idx = IndexRack(bld)
-        gidx = idx.create_genindex(testcase22in)
-        self.assertEqual(gidx, testcase22out)
+        gidx = idx.create_genindex(testcase21in)
+        self.assertEqual(gidx, testcase21out)
 
 #-------------------------------------------------------------------
 
