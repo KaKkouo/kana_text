@@ -207,10 +207,10 @@ latexの関連情報
 ==================
 """
 
-__copyright__ = 'Copyright (C) 2021 @koKkekoh'
+__copyright__ = 'Copyright (C) 2021 @koKkekoh/Qiita'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.23.2' #2021-10-11
+__version__ = '0.23.3.1' #2021-10-12
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -1063,8 +1063,8 @@ class IndexRack(object):
             #- 「同じ単語は同じ読み」として実装.
 
             terms = [unit[self.UNIT_TERM]] #KanaText
-            subterms = unit[self.UNIT_SBTM]
-            for subterm in subterms: #KanaText
+            subterm = unit[self.UNIT_SBTM]
+            for subterm in subterm._subterms: #KanaText
                 terms.append(subterm)
 
             for term in terms: #KanaText
@@ -1204,21 +1204,18 @@ class IndexRack(object):
             for term, term_info in terms:
                 #用語（主）の処理
                 if self.config.html_kana_text_on_genindex:
+                    #__str__ 経由ではリスト型を受け取れないので、入れ替える.
                     term = term.asruby()
+                    #文字列型を渡す時は、__str__に任せる.
 
-                #用語（副）の処理
-                subterms   = term_info[1]
-                for i in range(len(subterms)):
-                    #see: indexentries.pyのadd_entryの実行箇所を参照
-
-                    #ここをpassに変えるとエラーになる. 何れ消したい.
-                    subterms[i] = (str(subterms[i][0]), subterms[i][1])
-                    #Jinja2は__str__を使うことは確認したが、何故か消すとエラーになる.
                 new_terms.append((term,term_info))
             genindex.append((classifier,new_terms))
         return genindex
 
-class SubTerm(object):
+class SubTerm(nodes.reprunicode):
+    """
+    Jinja2に「文字列」と思わせるには「node.repruniocde」の継承が必要.
+    """
     def __init__(self, template=None):
         self._subterms = []
         self._delimiter = ' '
@@ -1227,9 +1224,6 @@ class SubTerm(object):
     def set_delimiter(self, delimiter=', '):
         #デフォルトから変更する場合は「', '」のパターンしかない.
         self._delimiter = delimiter
-    def __str__(self):
-        """IndexRack.convert_genindex_dataに関係するメソッド."""
-        return self.ashier()
     def __repr__(self):
         rpr  = f"<{self.__class__.__name__}: len={len(self)} "
         if self._template: rpr += f"tpl='{self._template}' "
@@ -1237,29 +1231,24 @@ class SubTerm(object):
             rpr += repr(s)
         rpr += ">"
         return rpr
+    def __str__(self):
+        """IndexRack.convert_genindex_dataに関係するメソッド."""
+        return self.astext()
     def __eq__(self, other):
         return self.astext() == other
     def __len__(self):
         return len(self._subterms)
-    def __iter__(self):
-        self._counter = -1
-        return self
-    def __next__(self):
-        self._counter += 1
-        try:
-            return self._subterms[self._counter]
-        except IndexError as err:
-            raise StopIteration
     def append(self, subterm):
+        subterm['whatiam'] = 'subterm'
         self._subterms.append(subterm)
     def astext(self):
         if self._template and len(self) == 1:
             return self._template % self._subterms[0].ashier()
-        else:
-            text = ""
-            for subterm in self._subterms:
-                text += subterm.astext() + self._delimiter
-            return text[:-len(self._delimiter)]
+
+        text = ""
+        for subterm in self._subterms:
+            text += subterm.astext() + self._delimiter
+        return text[:-len(self._delimiter)]
     def ashier(self):
         if self._template and len(self) == 1:
             return self._template % self._subterms[0].ashier()
@@ -1352,9 +1341,9 @@ class IndexUnit(object):
             raise KeyError(key)
 
     def get_children(self):
-        children = [self[1]]
+        children = [self[self.TERM]]
         if self[2]:
-            for child in self[2]:
+            for child in self[self.SBTM]._subterms:
                 children.append(child)
         return children
 
@@ -1364,7 +1353,7 @@ class IndexUnit(object):
     def astexts(self):
         texts = [self[self.TERM].astext()]
 
-        for subterm in self[self.SBTM]:
+        for subterm in self[self.SBTM]._subterms:
             texts.append(subterm.astext())
 
         return texts
@@ -1372,7 +1361,7 @@ class IndexUnit(object):
     def askanas(self):
         kanas = [self[self.TERM].askana()]
 
-        for subterm in self[self.SBTM]:
+        for subterm in self[self.SBTM]._subterms:
             kanas.append(subterm.askana())
 
         return kanas
@@ -1381,7 +1370,7 @@ class IndexUnit(object):
         """Textなら、astexts()になっている."""
         terms = [self[self.TERM].ashier()]
 
-        for subterm in self[self.SBTM]:
+        for subterm in self[self.SBTM]._subterms:
             terms.append(subterm.ashier())
 
         return terms
