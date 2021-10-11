@@ -435,7 +435,7 @@ testcase05out = [
     ('ハハハ|狸と狐', [[], [('ヌヌヌ|手紙', [('', 'doc1.html#id-321')])], None])])
 ]
 
-#同じ単語なら同じ読み
+#「ぱ」が「は」の項目に表示される.
 testcase06in = { #テストパターン
 'doc1': [ ('single','ナナナ|太郎','id-311','',None), ],
 'doc2': [ ('single','ニニニ|はな子; フフフ|森の熊','id-343','main',None), ], #KaKkou
@@ -663,34 +663,6 @@ testcase08out = [
         ('', 'doc10a.html#id-10a'),
         ('', 'doc10c.html#id-10c')])],
      None])])
-]
-
-testcase08out_ = [ #0.21までの挙動
-('ま',
- [('むむ|球球球',
-   [[],
-    [('ああ|球球球 いい|球球球', [('', 'doc09a.html#id-09a')]),
-     ('いい|球球球 そそ|球球球', [('', 'doc09a.html#id-09a')]),
-     ('そそ|球球球, ああ|球球球', [('', 'doc09a.html#id-09a')]),
-     ('むむ|球球球 めめ|球球球', [('main', 'doc09b.html#id-09b')]),
-     ('めめ|球球球 もも|球球球', [('main', 'doc09b.html#id-09b')]),
-     ('もも|球球球, むむ|球球球', [('main', 'doc09b.html#id-09b')]),
-     ('ろろ|球球球, をを|球球球', [('', 'doc09c.html#id-09c')]),
-     ('をを|球球球 んん|球球球', [('', 'doc09c.html#id-09c')]),
-     ('んん|球球球 ろろ|球球球', [('', 'doc09c.html#id-09c')])],
-    None]),
-  ('めめ|拾拾拾',
-   [[],
-    [('ああ|拾拾拾 いい|拾拾拾', [('', 'doc10a.html#id-10a')]),
-     ('いい|拾拾拾 そそ|拾拾拾', [('', 'doc10a.html#id-10a')]),
-     ('そそ|拾拾拾, ああ|拾拾拾', [('', 'doc10a.html#id-10a')]),
-     ('む|拾拾拾 めめ|拾拾拾', [('main', 'doc10b.html#id-10b')]),
-     ('めめ|拾拾拾 もも|拾拾拾', [('main', 'doc10b.html#id-10b')]),
-     ('もも|拾拾拾, む|拾拾拾', [('main', 'doc10b.html#id-10b')]),
-     ('ろろ|拾拾拾, をを|拾拾拾', [('', 'doc10c.html#id-10c')]),
-     ('をを|拾拾拾 んん|拾拾拾', [('', 'doc10c.html#id-10c')]),
-     ('んん|拾拾拾 ろろ|拾拾拾', [('', 'doc10c.html#id-10c')])],
-    None])])
 ]
 
 #同名の関数が複数のモジュールにある
@@ -934,6 +906,55 @@ testcase20out = [
       ('五五', [('', 'doc03.html#id-03')])],
      None])])]
 
+#kana_text_word_listの上書き
+testcase21in = {
+'doc01': [('single','ああ|球球球; いい|球球球','id-01','',None)],
+'doc02': [('see','かか|球球球; めめ|球球球','id-02','',None)],
+'doc03': [('single','ささ|球球球; んん|球球球','id-03','',None)],
+'doc04': [('seealso','たた|拾拾拾; いい|拾拾拾','id-04','',None)],
+'doc05': [('single','なな|拾拾拾; めめ|拾拾拾','id-05','',None)],
+'doc06': [('single','おお|拾拾拾; んん|拾拾拾','id-06','',None)],
+}
+
+testcase21out = [
+('な',
+  [([(True, ('球球球', 'ののの'))],
+    [[],
+     [('球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]),
+      ('see 球球球', [])],
+     None])]),
+ ('ら',
+  [([(True, ('拾拾拾', 'れれれ'))],
+    [[],
+     [('拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]),
+      ('see also 拾拾拾', [])],
+     None])])]
+
+#kana_text_word_listの上書き
+testcase22in = {
+'doc01': [('single','ああ|球球球; いい|球球球','id-01','',None)],
+'doc02': [('see','かか|球球球; めめ|球球球','id-02','',None)],
+'doc03': [('single','ささ|球球球; んん|球球球','id-03','',None)],
+'doc04': [('seealso','たた|拾拾拾; いい|拾拾拾','id-04','',None)],
+'doc05': [('single','なな|拾拾拾; めめ|拾拾拾','id-05','',None)],
+'doc06': [('single','おお|拾拾拾; んん|拾拾拾','id-06','',None)],
+}
+
+testcase22out = [
+('な',
+  [([(True, ('拾拾拾', 'ねねね'))],
+    [[],
+     [('拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]),
+      ('see also 拾拾拾', [])],
+     None])]),
+ ('ら',
+  [([(True, ('球球球', 'るるる'))],
+    [[],
+     [('球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]),
+      ('see 球球球', [])],
+     None])])
+ ]
+
 #-------------------------------------------------------------------
 
 class _env(object): pass
@@ -942,6 +963,7 @@ class _config(object):
     def __init__(self):
         self.kana_text_separator = r'\|'
         self.kana_text_indexer_mode = 'normal'
+        self.kana_text_word_file = '~/.config/sphinx/kana_word_list.txt'
         self.kana_text_word_list = ()
         self.html_kana_text_on_genindex = False
         self.html_change_triple = False
@@ -976,50 +998,56 @@ class testIndexRack(unittest.TestCase):
         gidx = idx.create_genindex(testcase03in)
         self.assertEqual(gidx, testcase03out)
 
-    def test04_create_genindex(self):
+    def test04_first_letter_of_term(self):
         self.maxDiff = None
         idx04 = IndexRack(bld, True)
         idx04.config.kana_text_indexer_mode = 'large'
         gidx = idx04.create_genindex(testcase04in)
         self.assertEqual(gidx, testcase04out)
 
-    def test05_create_genindex(self):
+    def test05_first_letter_of_term(self):
         self.maxDiff = None
         idx05 = IndexRack(bld, True)
         idx05.config.kana_text_indexer_mode = 'small'
         gidx = idx05.create_genindex(testcase05in)
         self.assertEqual(gidx, testcase05out)
 
-    def test06_create_genindex(self):
+    def test06_first_letter_of_term(self):
         self.maxDiff = None
         idx06 = IndexRack(bld, True)
         idx06.config.kana_text_indexer_mode = 'small'
         gidx = idx06.create_genindex(testcase06in)
         self.assertEqual(gidx, testcase06out)
 
-    def test07_create_genindex(self):
+    def test07_kana_catalog(self):
         self.maxDiff = None
         idx.config.kana_text_indexer_mode = 'small'
         gidx = idx.create_genindex(testcase07in)
         self.assertEqual(gidx, testcase07out)
 
-    def test08_create_genindex(self):
+    def test08_kana_catalog(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'small'
+        cfg = _config()
+        cfg.kana_text_word_file = False
+        cfg.kana_text_indexer_mode = 'small'
+        bld = _builder(env, cfg)
         gidx = idx.create_genindex(testcase08in)
         self.assertEqual(gidx, testcase08out)
 
-    def test09_create_genindex(self):
+    def test09_homonymous_function(self):
         self.maxDiff = None
         idx.config.kana_text_indexer_mode = 'small'
         gidx = idx.create_genindex(testcase09in)
         self.assertEqual(gidx, testcase09out)
 
-    def test10_create_genindex(self):
+    def test10_kana_catalog(self):
         self.maxDiff = None
-        idx10 = IndexRack(bld, True)
-        idx10.config.kana_text_indexer_mode = 'small'
-        gidx = idx10.create_genindex(testcase10in)
+        cfg = _config()
+        cfg.kana_text_word_file = False
+        bld = _builder(env, cfg)
+        idx = IndexRack(bld, True)
+        idx.config.kana_text_indexer_mode = 'small'
+        gidx = idx.create_genindex(testcase10in)
         self.assertEqual(gidx, testcase10out)
 
     def test11_homonymous_function(self):
@@ -1086,6 +1114,29 @@ class testIndexRack(unittest.TestCase):
     #   idx0.config.html_kana_text_on_genindex = True
     #   gidx = idx0.create_genindex(testcase20in)
     #   self.assertEqual(gidx, testcase20out)
+
+    def test21_kana_catalog(self):
+        self.maxDiff = None
+        cfg21 = _config()
+        bld21 = _builder(env, cfg21)
+        bld21.config.kana_text_word_list = ['ののの|球球球^', 'れれれ|拾拾拾^']
+        bld21.config.html_kana_text_on_genindex = True
+        bld21.config.kana_text_indexer_mode = 'small'
+        idx21 = IndexRack(bld21)
+        gidx = idx21.create_genindex(testcase21in)
+        self.assertEqual(gidx, testcase21out)
+
+    def test22_kana_catalog(self):
+        self.maxDiff = None
+        cfg = _config()
+        cfg.kana_text_word_list = []
+        cfg.kana_text_word_file = 'tests/word_list.txt'
+        cfg.html_kana_text_on_genindex = True
+        cfg.kana_text_indexer_mode = 'small'
+        bld = _builder(env, cfg)
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex(testcase22in)
+        self.assertEqual(gidx, testcase22out)
 
 #-------------------------------------------------------------------
 
