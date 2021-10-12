@@ -941,7 +941,7 @@ class _config(object):
     def __init__(self):
         self.kana_text_separator = r'\|'
         self.kana_text_indexer_mode = 'normal'
-        self.kana_text_word_file = '~/.config/sphinx/kana_word_list.txt'
+        self.kana_text_word_file = '~/sphinx/word_list.txt'
         self.kana_text_word_list = ()
         self.html_kana_text_on_genindex = False
         self.html_change_triple = False
