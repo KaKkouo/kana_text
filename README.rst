@@ -2,6 +2,8 @@ extends the functionality of the Text class. any person, who use index/glossary 
 
 .. image:: https://i.gyazo.com/4cbf3408c162fb2bfcc493661d35a42b.png
 
+if word_list.txt is made with kana_text_word_file parameter, the genindex.html is created without editing rst files.
+
 QUICK START
 -----------
 

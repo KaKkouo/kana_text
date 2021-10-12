@@ -201,7 +201,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 Qiita/@koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.23.4.3' # 2021-10-12
+__version__ = '0.23.4.4' # 2021-10-13
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -1057,14 +1057,15 @@ class IndexRack(object):
                 char = make_classifier_from_first_letter(text, self.config)
                 unit[self.UNIT_CLSF] = unit.textclass(char)
 
-            #position 'see' and 'seealso'
-            if unit[self.UNIT_EMPH] in ('7', '8', '9'):
-                code = '2' #'see' or 'seealso'
-            else:
-                code = '1' #'main' or ''
-
             #sortkeyの設定
-            unit._sortkey = code
+            #'see', 'seealso'の表示順に手を加える.
+
+            if unit[self.UNIT_EMPH] in ('7', '8', '9'):
+                order_code = '2' #'see' or 'seealso'
+            else:
+                order_code = '1' #'main' or ''
+
+            unit._sort_order = order_code
 
     def update_unit_with_function_catalog(self, unit):
         """
@@ -1103,9 +1104,9 @@ class IndexRack(object):
         self._rack.sort(key=lambda x: (
             x[self.UNIT_CLSF].astext(), #classifier
             x[self.UNIT_TERM].astext(), #term
-            x._sortkey,                 # for 'see' or 'seealso'
+            x._sort_order,              #entry type in('see', 'seealso')
             x[self.UNIT_SBTM].astext(), #subterm
-            x[self.UNIT_EMPH],          #enphasis(main)
+            x[self.UNIT_EMPH],          #emphasis(main)
             x['file_name'], x['target']))
         #x['file_name'], x['target']は、0.21の動作仕様に合わせるため.
         #逆にすると内部的な処理順に依存するため、今の「ファイル名昇順」の方がいいと思う.
@@ -1203,9 +1204,10 @@ class IndexRack(object):
                 #文字列型を渡す時は、__str__に任せる.
         return entries
 
-class SubTerm(str):
+class SubTerm(nodes.reprunicode):
     """
     Jinja2に「文字列」と思わせるには「node.repruniocde」の継承が必要.
+    （実体はstrだけど、Sphinxの流儀に従っていた方が無難）
     """
     def __init__(self, template=None):
         self._terms = []
@@ -1223,9 +1225,10 @@ class SubTerm(str):
         rpr += ">"
         return rpr
     def __str__(self):
-        """IndexRack.convert_genindex_dataに関係するメソッド."""
+        """Jinja2用"""
         return self.ashier()
     def __eq__(self, other):
+        """unittest、IndexRack.generate_genindex_data用."""
         return self.astext() == other
     def __len__(self):
         return len(self._terms)
@@ -1276,7 +1279,7 @@ class IndexUnit(object):
                 obj['whatiam'] = 'subterm'
                 subterm.append(obj)
 
-        self._sortkey = None
+        self._sort_order = None
         self._display_data = [textclass(''), textclass(term), subterm] #classifierを更新するのでタプルにはできない.
         self._link_data = (emphasis, file_name, target)
         self._index_key = index_key
@@ -1381,7 +1384,7 @@ class _StandaloneHTMLBuilder(builders.StandaloneHTMLBuilder):
         return IndexEntries(self.env).create_index(self)
 
     def write_genindex(self) -> None:
-        genindex = self.create_genindex() #KaKkou. データのソートが終わった直後
+        genindex = self.create_genindex()
 
         #以降の処理はSphinx4.1.2オリジナルと同じ
         indexcounts = []
