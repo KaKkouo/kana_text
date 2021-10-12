@@ -210,7 +210,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh/Qiita'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.23.3.1' #2021-10-12
+__version__ = '0.23.4.1' # 2021-10-12
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -1185,34 +1185,28 @@ class IndexRack(object):
             else:
                 if r_fn: r_subterm_links.append((r_main, r_uri))
 
-        if self.testmode:
+        if self.testmode or not self.config.html_kana_text_on_genindex:
             return rtnlist
 
+        #ルビ表示の指定があれば、termオブジェクトをterm.asruby()に置き換える.
         return self.convert_genindex_data(rtnlist)
 
     def convert_genindex_data(self, entries):
-        """ソートの後処理. 
+        """テンプレートエンジンにわたす前の後処理
 
-        各KanaTextオブジェクトについて、必要なものだけ文字列に置き換える.
-        __str__メソッドの対応で事足りるオブジェクトはそのまま.
+        - ルビ表示するtermについて、リスト型データに置き換える.
+        - __str__メソッドの対応で事足りるオブジェクトはそのまま.
         """
-        genindex = []
         for classifier, terms in entries:
             assert terms
 
-            new_terms = []
-            for term, term_info in terms:
-                #用語（主）の処理
-                if self.config.html_kana_text_on_genindex:
-                    #__str__ 経由ではリスト型を受け取れないので、入れ替える.
-                    term = term.asruby()
-                    #文字列型を渡す時は、__str__に任せる.
+            for i in range(len(terms)):
+                #__str__ 経由ではリスト型を受け取れないので、入れ替える.
+                terms[i] = (terms[i][0].asruby(), terms[i][1])
+                #文字列型を渡す時は、__str__に任せる.
+        return entries
 
-                new_terms.append((term,term_info))
-            genindex.append((classifier,new_terms))
-        return genindex
-
-class SubTerm(nodes.reprunicode):
+class SubTerm(str):
     """
     Jinja2に「文字列」と思わせるには「node.repruniocde」の継承が必要.
     """
@@ -1233,7 +1227,7 @@ class SubTerm(nodes.reprunicode):
         return rpr
     def __str__(self):
         """IndexRack.convert_genindex_dataに関係するメソッド."""
-        return self.astext()
+        return self.ashier()
     def __eq__(self, other):
         return self.astext() == other
     def __len__(self):
