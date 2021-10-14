@@ -22,7 +22,7 @@ tips
 
 - with nodes.reprunicode, jinja2 thinks the object is a string.
 
-variable name
+variables
 
 - term: KanaText OBJect. it had better to be 'ktobj' vaiable name.
 - rawword: ex. 'かな|言葉^11'
@@ -39,16 +39,15 @@ variable name
 - delimiter: used by object.astext(), etc.
 - option_marker: the '^' of 'かな|言葉^11'
 
-concept of method name
+methods
 
 - ashier: return a string like hieroglyph
 - astext: return a string like a eacy identifier
 - askana: return a string which is reading
 - asruby: return a list data for the display with ruby. for genindex.html.
 - ashtml: return a string which is made with html tags. for document.html which has glossary.
-- __eq__: return astext for a easy identifier
-- __str__: return a string for display, selected on 'whatiam'
-- note. no difference __eq__ and __str__ on the Text class
+- __eq__: return a string by astext,  to be identified easily, for unittest
+- __str__: return a string by ashier, for jinja2
 
 relations
 
