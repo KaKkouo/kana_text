@@ -2,6 +2,19 @@ DEVELOPMENT
 -----------
 structure of the data for genindex.html
 
+- entry: {file_name, [(entry_type, value, target, main, index_key)]}
+
+    - file_name: the name without suffix
+    - entries: [entry]
+
+        - entry: (entry_type, value, target, main, index_key)
+
+            - entry_type: in('single', 'pair', 'triple', 'see', 'seealso')
+            - value: 'word', 'word; word' or 'word; word; word'
+            - target: the target id
+            - main: 'main' or ''
+            - index_key: a string or None
+
 - genidex: [(classifier, terms)]
 
     - classifier: KanaText
