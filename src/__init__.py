@@ -198,10 +198,10 @@ latexの関連情報
 ==================
 """
 
-__copyright__ = 'Copyright (C) 2021 Qiita/@koKkekoh'
+__copyright__ = 'Copyright (C) 2021 @koKkekoh/Qiita'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.24.0.dev6' # 2021-10-15
+__version__ = '0.24.0.dev7' # 2021-10-16
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -391,15 +391,15 @@ class KanaText(nodes.Node):
             raise KeyError(key)
 
     def __eq__(self, other):
-        #unittest用
+        """unittest用"""
         return self.astext() == other
 
     def __str__(self):
-        #jinja2用
+        """jinja2用"""
         return self.ashier()
 
     def __iter__(self):
-        #jinja2用
+        """jinja2用"""
         for isruby, value in self.asruby():
             yield (isruby, value)
         #self._iterator = self.asruby()
@@ -509,10 +509,6 @@ class KanaText(nodes.Node):
             >>> kana = KanaText('たなかはなこ|田中はな子')
             >>> kana.asruby()
             [(False, '田中はな子')]
-            >>> kana = KanaText('田中はな子')
-            >>> kana.asruby()
-            [(False, '田中はな子')]
-            >>> kana = KanaText('田中はな子')
         """
 
         if self['null']: return None
@@ -579,6 +575,17 @@ class KanaTextUnit(nodes.Element):
     _number_of_terms = { 'single': 2, 'pair': 2, 'triple': 3, 'see': 2, 'seealso': 2, 'list': 99}
 
     def __init__(self, rawtext, entry_type='single', file_name=None, target=None, main='', index_key=''):
+
+        rawwords = _each_words.split(rawtext)
+
+        terms = []
+        for rawword in rawwords:
+            terms.append(KanaText(rawword))
+
+        super().__init__(rawtext, *terms, entry_type=entry_type, 
+                         file_name=file_name, target=target, main=main, index_key=index_key)
+
+    def __repr__(self):
         """
         doctest:
 
@@ -593,17 +600,6 @@ class KanaTextUnit(nodes.Element):
             <KanaTextUnit: entry_type='single' <KanaText: len=2 ruby='specific' option='1' <#text: 'あ|壱'>>>
         """
 
-
-        rawwords = _each_words.split(rawtext)
-
-        terms = []
-        for rawword in rawwords:
-            terms.append(KanaText(rawword))
-
-        super().__init__(rawtext, *terms, entry_type=entry_type, 
-                         file_name=file_name, target=target, main=main, index_key=index_key)
-
-    def __repr__(self):
         name = self.__class__.__name__
         prop = f"<{name}: "
 
