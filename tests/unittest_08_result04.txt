@@ -1,6 +1,0 @@
-[あ]
-term: |壱《い》|壱《い》
-sub: 参参/doc02.html#id-02
-[分類子]
-term: |四《に》|四《に》/doc03.html#id-03
-sub: 六六/doc04.html#id-04

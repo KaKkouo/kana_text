@@ -80,12 +80,12 @@ testcase06in = {
 
 testcase06out = []
 
-testcase01str = "tests/unittest_08_result01.txt"
-testcase02str = "tests/unittest_08_result02.txt"
-testcase03str = "tests/unittest_08_result03.txt"
-testcase04str = "tests/unittest_08_result04.txt"
-testcase05str = "tests/unittest_08_result05.txt"
-testcase06str = "tests/unittest_08_result06.txt"
+testcase01str = "tests/result_08_01.txt"
+testcase02str = "tests/result_08_02.txt"
+testcase03str = "tests/result_08_03.txt"
+testcase04str = "tests/result_08_04.txt"
+testcase05str = "tests/result_08_05.txt"
+testcase06str = "tests/result_08_06.txt"
 
 #-------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ class _config(object):
     def __init__(self):
         self.kana_text_separator = r'\|'
         self.kana_text_indexer_mode = 'normal'
-        self.kana_text_word_file = '~/sphinx/word_list.txt'
+        self.kana_text_word_file = ''
         self.kana_text_word_list = ()
         self.html_kana_text_on_genindex = False
         self.html_change_triple = False
@@ -130,7 +130,7 @@ class testIndexRack(unittest.TestCase):
         cfg.kana_text_indexer_mode = 'small'
         cfg.html_kana_text_on_genindex = True
         bld = _builder(env, cfg)
-        idx = IndexRack(bld, False)
+        idx = IndexRack(bld, True)
         gidx = idx.create_genindex(testcase01in)
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
@@ -143,7 +143,7 @@ class testIndexRack(unittest.TestCase):
         cfg.kana_text_indexer_mode = 'small'
         cfg.html_kana_text_on_genindex = True
         bld = _builder(env, cfg)
-        idx = IndexRack(bld, False)
+        idx = IndexRack(bld, True)
         gidx = idx.create_genindex(testcase02in)
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
@@ -156,7 +156,7 @@ class testIndexRack(unittest.TestCase):
         cfg.kana_text_indexer_mode = 'small'
         cfg.html_kana_text_on_genindex = True
         bld = _builder(env, cfg)
-        idx = IndexRack(bld, False)
+        idx = IndexRack(bld, True)
         gidx = idx.create_genindex(testcase03in)
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
@@ -169,7 +169,7 @@ class testIndexRack(unittest.TestCase):
         cfg.kana_text_indexer_mode = 'small'
         cfg.html_kana_text_on_genindex = True
         bld = _builder(env, cfg)
-        idx = IndexRack(bld, False)
+        idx = IndexRack(bld, True)
         gidx = idx.create_genindex(testcase04in)
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
@@ -182,7 +182,7 @@ class testIndexRack(unittest.TestCase):
         cfg.kana_text_indexer_mode = 'small'
         cfg.html_kana_text_on_genindex = True
         bld = _builder(env, cfg)
-        idx = IndexRack(bld, False)
+        idx = IndexRack(bld, True)
         gidx = idx.create_genindex(testcase05in)
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
@@ -195,7 +195,7 @@ class testIndexRack(unittest.TestCase):
         cfg.kana_text_indexer_mode = 'small'
         cfg.html_kana_text_on_genindex = True
         bld = _builder(env, cfg)
-        idx = IndexRack(bld, False)
+        idx = IndexRack(bld, True)
         gidx = idx.create_genindex(testcase06in)
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
