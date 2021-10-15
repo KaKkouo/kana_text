@@ -201,7 +201,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh/Qiita'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.24.0.1' # 2021-10-16
+__version__ = '0.24.0.2' # 2021-10-16
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
