@@ -1,5 +1,6 @@
 CHANGES
 -------
+- 2021-10-16 0.24 organize the usage of KanaText's __eq__, __str__, __iter__.
 - 2021-10-09 0.23 refactoring: KanaHTMLBuilder, configuration parameters.
 - 2021-10-08 0.22 refactoring: IndexRack, IndexUnit.
 - 2021-10-04 0.21 refactoring: KanaText, KanaTextUnit.
