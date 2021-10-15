@@ -201,7 +201,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 Qiita/@koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.23.4.5' # 2021-10-14
+__version__ = '0.24.0.dev4' # 2021-10-14
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -326,7 +326,15 @@ def make_specific_by_parsing_option(word, kana, option):
 
     return rtn
 
-class KanaText(nodes.Text):
+class KanaText(nodes.Node):
+    """Textクラスの上位互換
+
+    - Jinja2のstring判定ではFalseとなるように、reprunicode(str)は継承しない.
+    - __str__はText.astext()と同じ挙動としてashier()を使う.
+    - KanaText.astext()は簡易IDとして扱う.
+    """
+
+    children = () #Nodeクラス向けの対応.
 
     def __init__(self, rawword, separator=_dflt_separator, option_marker=_dflt_option_marker):
         """
@@ -350,12 +358,6 @@ class KanaText(nodes.Text):
         self._properties = {'hier': hier, 'kana': kana, 'ruby': ruby, 'option': option,
                             'null': not hier, 'separator':  self._delimiter, }
 
-        if kana:
-            d = self._delimiter
-            super().__init__(kana+d+hier, kana+d+hier)
-        else:
-            super().__init__(hier, hier)
-
     def __len__(self):
         if not self['kana'] is None: return 2
         if not self['hier'] is None: return 1 #0.22.0: 'is None'を削除しても動作するように調整.
@@ -372,6 +374,7 @@ class KanaText(nodes.Text):
             raise TypeError(key)
 
     def __setitem__(self, key, value):
+        """必要なものに限定する."""
         if isinstance(key, str):
             if key == 'whatiam':
                 self.whatiam = value
@@ -395,6 +398,18 @@ class KanaText(nodes.Text):
         #jinja2用
         return self.ashier()
 
+    def __iter__(self):
+        #jinja2用
+        self._iterator = self.asruby()
+        self._iter_counter = -1
+
+    def __next(self):
+        self._iter_counter += 1
+        try:
+            return self._iterator[self._iter_counter]
+        except IndexError as err:
+            raise StopIteration
+
     def __repr__(self):
         return self.entity_of_repr()
 
@@ -417,8 +432,6 @@ class KanaText(nodes.Text):
             return prop
         elif hier:
             return f"<{name}: len={len(self)} <#text: '{hier}'>>"
-        elif self.rawsource:
-            return f"<{name}: <#rawsource: '{self.rawsource}'>>"
         elif self._rawword:
             return f"<{name}: <#rawword: '{self._rawword}'>>"
         else:
