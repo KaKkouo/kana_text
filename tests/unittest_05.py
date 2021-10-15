@@ -296,7 +296,7 @@ class _builder(object):
 env = _env()
 cfg = _config()
 bld = _builder(env, cfg)
-idx = IndexRack(bld, True)
+idx = IndexRack(bld)
 idx0 = IndexRack(bld)
 
 class testIndexRack(unittest.TestCase):
@@ -321,7 +321,7 @@ class testIndexRack(unittest.TestCase):
         cfg = _config()
         cfg.kana_text_word_file = False
         bld = _builder(env, cfg)
-        idx = IndexRack(bld, True)
+        idx = IndexRack(bld)
         idx.config.kana_text_indexer_mode = 'small'
         gidx = idx.create_genindex(testcase03in)
         self.assertEqual(gidx, testcase03out)
@@ -333,7 +333,7 @@ class testIndexRack(unittest.TestCase):
         cfg.html_kana_text_on_genindex = True
         cfg.kana_text_indexer_mode = 'small'
         bld = _builder(env, cfg)
-        idx = IndexRack(bld, True)
+        idx = IndexRack(bld)
         gidx = idx.create_genindex(testcase04in)
         self.assertEqual(gidx, testcase04out)
 
@@ -345,7 +345,7 @@ class testIndexRack(unittest.TestCase):
         cfg.html_kana_text_on_genindex = True
         cfg.kana_text_indexer_mode = 'small'
         bld = _builder(env, cfg)
-        idx = IndexRack(bld, True)
+        idx = IndexRack(bld)
         gidx = idx.create_genindex(testcase05in)
         self.assertEqual(gidx, testcase05out)
 

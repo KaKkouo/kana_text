@@ -159,7 +159,7 @@ class _builder(object):
 env = _env()
 cfg = _config()
 bld = _builder(env, cfg)
-idx = IndexRack(bld, True)
+idx = IndexRack(bld)
 idx0 = IndexRack(bld)
 
 class testIndexRack(unittest.TestCase):

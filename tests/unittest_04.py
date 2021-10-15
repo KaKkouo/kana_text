@@ -498,7 +498,7 @@ class _builder(object):
 env = _env()
 cfg = _config()
 bld = _builder(env, cfg)
-idx = IndexRack(bld, True)
+idx = IndexRack(bld)
 idx0 = IndexRack(bld)
 
 class testIndexRack(unittest.TestCase):
@@ -519,21 +519,21 @@ class testIndexRack(unittest.TestCase):
 
     def test04_first_letter_of_term(self):
         self.maxDiff = None
-        idx04 = IndexRack(bld, True)
+        idx04 = IndexRack(bld)
         idx04.config.kana_text_indexer_mode = 'large'
         gidx = idx04.create_genindex(testcase04in)
         self.assertEqual(gidx, testcase04out)
 
     def test05_first_letter_of_term(self):
         self.maxDiff = None
-        idx05 = IndexRack(bld, True)
+        idx05 = IndexRack(bld)
         idx05.config.kana_text_indexer_mode = 'small'
         gidx = idx05.create_genindex(testcase05in)
         self.assertEqual(gidx, testcase05out)
 
     def test06_first_letter_of_term(self):
         self.maxDiff = None
-        idx06 = IndexRack(bld, True)
+        idx06 = IndexRack(bld)
         idx06.config.kana_text_indexer_mode = 'small'
         gidx = idx06.create_genindex(testcase06in)
         self.assertEqual(gidx, testcase06out)
