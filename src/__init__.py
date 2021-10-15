@@ -201,7 +201,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 Qiita/@koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.24.0.dev4' # 2021-10-14
+__version__ = '0.24.0.dev6' # 2021-10-15
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -400,15 +400,18 @@ class KanaText(nodes.Node):
 
     def __iter__(self):
         #jinja2用
-        self._iterator = self.asruby()
-        self._iter_counter = -1
+        for isruby, value in self.asruby():
+            yield (isruby, value)
+        #self._iterator = self.asruby()
+        #self._iter_counter = -1
+        #return self
 
-    def __next(self):
-        self._iter_counter += 1
-        try:
-            return self._iterator[self._iter_counter]
-        except IndexError as err:
-            raise StopIteration
+    #def __next(self):
+    #    self._iter_counter += 1
+    #    try:
+    #        return self._iterator[self._iter_counter]
+    #    except IndexError as err:
+    #        raise StopIteration
 
     def __repr__(self):
         return self.entity_of_repr()
@@ -555,6 +558,17 @@ class KanaText(nodes.Node):
             else:
                 html += value
         return html
+
+def debug_kana_text():
+    """
+    >>> debug_kana_text()
+    (True, ('壱', 'い'))
+    (True, ('弐', 'ろ'))
+    (True, ('参', 'は'))
+    """
+    term = KanaText('いろは|壱弐参^111')
+    for e in term:
+        print(e)
 
 #------------------------------------------------------------
 
@@ -1195,26 +1209,22 @@ class IndexRack(object):
             else:
                 if r_fn: r_subterm_links.append((r_main, r_uri))
 
-        if self.testmode or not self.config.html_kana_text_on_genindex:
-            return rtnlist
+        return rtnlist
+        #if self.testmode or not self.config.html_kana_text_on_genindex:
+        #    return rtnlist
 
         #ルビ表示の指定があれば、termオブジェクトをterm.asruby()に置き換える.
-        return self.convert_genindex_data(rtnlist)
+        #return self.convert_genindex_data(rtnlist)
 
     def convert_genindex_data(self, entries):
-        """テンプレートエンジンに渡すための後処理
-
-        1. genindex.htmlは通常の「make html」でも動作する仕様(方針).
-        2. これのために「if kname is string」という条件判断を使っている.
-        3. この条件をすり抜けるためには「Text」ではなく「Node」を継承すべき.
-        4. KanaTextも__str__ではなく__iter__, __next__でリストデータを渡す.
-        """
+        """テンプレートエンジンに渡すための後処理"""
         for classifier, terms in entries:
             assert terms
 
             for i in range(len(terms)):
                 #__str__ 経由ではリスト型を受け取れないので、入れ替える.
                 terms[i] = (terms[i][0].asruby(), terms[i][1])
+                #terms[i] = (iter(terms[i][0]), terms[i][1])
                 #文字列型を渡す時は、__str__に任せる.
         return entries
 
