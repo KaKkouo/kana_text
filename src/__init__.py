@@ -38,15 +38,7 @@ sphinxcontrib.kana_text
    .. index::
       pair: かなの表示; き|記載方法
 
-   例えば、 「たなかはなこ:田中はな子^12b1」 と書くと、索引に記載される。
-
-   例えば、 :index:`たなかはなこ|田中はな子^12b1` と書くと、索引に記載される。
-
-   ロールでは、 :index:`!たなかはなこ|田中はな子^12b1` と書くと、項目の上位に表示される。
-
-   更に、 :index:`たなかはなこ|田中はな子^12qq1<pair: し|架空の小説; て|お試し>` と書くこともできる。
-
-   索引に表示しないのなら、 :kana:`たなかはなこ|田中はな子^12aa1` と書く。
+   夜空に浮かぶ\ :index:`あまた|数多^21`\ の星々が\ :kana:`きらめいて|煌めいて^2c`\ いる。
 
 読み仮名の表示の調整
 --------------------
@@ -55,18 +47,22 @@ sphinxcontrib.kana_text
 - 「かな|単語^オプション」とする
 - 「^」以降はソート処理では無視される
 
+    - see: IndexRack.sort_units
+
 指定方法
 
 - 「かな|単語^」は読み仮名の表示。「^」がないと非表示
 - 「かな|単語^2312」と数字が続く場合は、単語の各１文字に当てる読みの数
 - 「かな|単語^2a1b」とアルファベットがある場合は、ルビ表示に使わない
+
+    - 読み仮名の部分的非表示は「a-i」「q-y」の２種類で対応
+
 - 「かな|単語^201」とゼロがある場合は、単語のその１文字の割当をスキップする
-- 読み仮名の部分的非表示は「a-i」「q-y」の２種類で対応
 
 適切に設定していない場合
 
-- 文字数以上の指定があった場合は可能な範囲で処理される
-- 指定が不足している場合はルビは表示しない
+- 文字数以上の指定があった場合、在る文字を指定通りに表示する.
+- 指定が不足している場合はルビは表示しない.
 
 パラメータ
 ----------
@@ -77,8 +73,17 @@ kana_text_separator
 
 kana_text_option_marker
 
-- 「かな|単語^22」の「^」を指定する. 初期設定は「r'\^'」. 
+- 「かな|単語^11」の「^」を指定する. 初期設定は「r'\^'」. 
 - 現在は実装が不完全なため、初期設定以外は使えない.
+
+kana_text_word_file
+
+- 「かな|言葉^11」の書式で記載された設定ファイルの指定.
+- 指定したファイルがないとmakeがエラーで止まる.
+
+kana_text_word_list
+
+- 「かな|言葉^11」の書式で指定された文字列をリスト形式で設定する.
 
 html_kana_text_on_genindex
 
@@ -94,7 +99,7 @@ kana_text_indexer_mode
 - 'small': ex.「モジュール」は「ま」の項目.
 - 'large': ex.「モジュール」は「も」の項目.
 - その他:  ex.「モジュール」は「モ」のまま.
-- 省略時は`small`. 索引に載る言葉が少ないうちは'small'を推奨.
+- 省略時は`small`.
 
 genindex.htmlの作り方
 ---------------------
@@ -201,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh/Qiita'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.24.0.4' # 2021-10-16
+__version__ = '0.24.1' # 2021-10-16
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -327,14 +332,14 @@ def make_specific_by_parsing_option(word, kana, option):
     return rtn
 
 class KanaText(nodes.Node):
-    """Textクラスの上位互換
+    """かな文字を扱うTextクラス
 
     - Jinja2のstring判定ではFalseとなるように、reprunicode(str)は継承しない.
     - __str__はText.astext()と同じ挙動としてashier()を使う.
     - KanaText.astext()は簡易IDとして扱う.
     """
 
-    children = () #Nodeクラス向けの対応.
+    children = () #これでTextクラスと同じ扱いになる.
 
     def __init__(self, rawword, separator=_dflt_separator, option_marker=_dflt_option_marker):
         """
@@ -400,18 +405,16 @@ class KanaText(nodes.Node):
 
     def __iter__(self):
         """jinja2用"""
-        for isruby, value in self.asruby():
-            yield (isruby, value)
-        #self._iterator = self.asruby()
-        #self._iter_counter = -1
-        #return self
+        self._iterator = self.asruby()
+        self._iter_counter = -1
+        return self
 
-    #def __next(self):
-    #    self._iter_counter += 1
-    #    try:
-    #        return self._iterator[self._iter_counter]
-    #    except IndexError as err:
-    #        raise StopIteration
+    def __next__(self):
+        self._iter_counter += 1
+        try:
+            return self._iterator[self._iter_counter]
+        except IndexError:
+            raise StopIteration
 
     def __repr__(self):
         return self.entity_of_repr()
@@ -555,17 +558,6 @@ class KanaText(nodes.Node):
                 html += value
         return html
 
-def debug_kana_text():
-    """
-    >>> debug_kana_text()
-    (True, ('壱', 'い'))
-    (True, ('弐', 'ろ'))
-    (True, ('参', 'は'))
-    """
-    term = KanaText('いろは|壱弐参^111')
-    for e in term:
-        print(e)
-
 #------------------------------------------------------------
 
 _each_words = re.compile(r' *; +')
@@ -633,11 +625,11 @@ class KanaTextUnit(nodes.Element):
 
             try:
                 text1 = sub1._rawword
-            except AttributeError as err:
+            except AttributeError:
                 text1 = ''
             try:
                 text2 = sub2._rawword
-            except AttributeError as err:
+            except AttributeError:
                 text2 = ''
 
             index_unit = IndexUnit(ent._rawword, text1, text2, emphasis, fn, tid, index_key, KanaText)
@@ -648,7 +640,7 @@ class KanaTextUnit(nodes.Element):
             if entry_type == 'single':
                 try:
                     index_units.append(_index_unit(self[0], self[1], ''))
-                except IndexError as err:
+                except IndexError:
                     index_units.append(_index_unit(self[0], '', ''))
             elif entry_type == 'pair':
                 index_units.append(_index_unit(self[0], self[1], ''))
@@ -889,7 +881,7 @@ def make_classifier_from_first_letter(text, config):
         else:
             #想定パラメータ以外なら基本的な処理
             return text[:1].upper()
-    except KeyError as err:
+    except KeyError:
         #変換表になければ基本的な処理
         return text[:1].upper()
 
@@ -910,8 +902,8 @@ class IndexRack(object):
 
     1. self.__init__() 初期化. 設定からの読み込み.
     2. self.append() IndexUnitの取り込み. self.update()の準備.
-    3. self.update() 各unitの更新、並び替えの準備.
-    4. self.sort() 並び替え. ※3,4は分ける必要はないけど、見通しが良くなるので. 
+    3. self.update_units() 各unitの更新、並び替えの準備.
+    4. self.sort_units() 並び替え.
     5. self.generate_genindex_data() genindex用データの生成.
     """
     
@@ -924,7 +916,7 @@ class IndexRack(object):
         self.env = builder.env
         self.config = builder.config
         self.get_relative_uri = builder.get_relative_uri
-        self.testmode = testmode
+        self.testmode = testmode #0.24 未使用になった.
 
         self._kana_catalog = {} # {term: (emphasis, kana)} #KanaText
 
@@ -947,7 +939,7 @@ class IndexRack(object):
                      ) -> List[Tuple[str, List[Tuple[str, Any]]]]:
         """IndexEntriesクラス/create_indexメソッドを置き換える."""
 
-        #引数の保管
+        #引数の保存
         self._group_entries = group_entries
         self._fixre = _fixre
 
@@ -955,7 +947,7 @@ class IndexRack(object):
         self._kana_catalog_pre = self._kana_catalog #(注)__init__がないと前回分が残る.
         self._rack = [] # [IndexUnit, IndexUnit, ...]
         self._classifier_catalog = {} # {term: classifier} 
-        self._kana_catalog = {} # {term: (emphasis, kana)} #KanaText
+        self._kana_catalog = {} # {term: (emphasis, kana, ruby, option)}
         self._function_catalog = {} #{function name: number of homonymous funcion}
 
         #get entries（引数にあるentriesは単体テストからの受け取り場所）
@@ -973,8 +965,7 @@ class IndexRack(object):
         self.update_units()
         self.sort_units()
 
-        genidx = self.generate_genindex_data() 
-        return genidx
+        return self.generate_genindex_data() 
 
     def append(self, unit):
         """
@@ -1036,7 +1027,7 @@ class IndexRack(object):
             if m:
                 try:
                     self._function_catalog[m.group(1)] += 1
-                except KeyError as err:
+                except KeyError:
                     self._function_catalog[m.group(1)] = 1
             else:
                 pass
@@ -1051,9 +1042,10 @@ class IndexRack(object):
         for unit in self._rack:
             assert [unit[self.UNIT_TERM]]
 
+            #複数ある同名関数の更新
+
             if self._group_entries:
                 self.update_unit_with_function_catalog(unit)
-
 
             #各termの読みの設定（「同じ単語は同じ読み」とする）
 
@@ -1063,7 +1055,7 @@ class IndexRack(object):
                 self.update_term_with_kana_catalog(subterm)
 
             #classifierの設定（［重要］if/elifの判定順）
-            #- 読みの設定は行わない.
+            #- self._kana_catalogの内容は反映しない.
             #- 同じ用語が複数glossaryである場合、分類子は一箇所で設定すべき
             #- 複数の同じ用語が別々の分類子を設定していた場合、集約されるのは一つのみ.
             #- 複数箇所で設定していた場合は、修正すべき用語が特定できるようにする.
@@ -1071,6 +1063,7 @@ class IndexRack(object):
             ikey = unit['index_key']
             term = unit[self.UNIT_TERM]
 
+            #［重要］if/elifの判定順
             if ikey:
                 unit[self.UNIT_CLSF] = unit.textclass(ikey)
             elif term.ashier() in self._classifier_catalog:
@@ -1132,7 +1125,7 @@ class IndexRack(object):
             x[self.UNIT_EMPH],          #emphasis(main)
             x['file_name'], x['target']))
         #x['file_name'], x['target']は、0.21の動作仕様に合わせるため.
-        #逆にすると内部的な処理順に依存するため、今の「ファイル名昇順」の方がいいと思う.
+        #逆にすると内部的な処理順に依存するため、現状の動作仕様を維持する.
 
     def generate_genindex_data(self):
         """
@@ -1206,23 +1199,6 @@ class IndexRack(object):
                 if r_fn: r_subterm_links.append((r_main, r_uri))
 
         return rtnlist
-        #if self.testmode or not self.config.html_kana_text_on_genindex:
-        #    return rtnlist
-
-        #ルビ表示の指定があれば、termオブジェクトをterm.asruby()に置き換える.
-        #return self.convert_genindex_data(rtnlist)
-
-    def convert_genindex_data(self, entries):
-        """テンプレートエンジンに渡すための後処理"""
-        for classifier, terms in entries:
-            assert terms
-
-            for i in range(len(terms)):
-                #__str__ 経由ではリスト型を受け取れないので、入れ替える.
-                terms[i] = (terms[i][0].asruby(), terms[i][1])
-                #terms[i] = (iter(terms[i][0]), terms[i][1])
-                #文字列型を渡す時は、__str__に任せる.
-        return entries
 
 class SubTerm(nodes.reprunicode):
     """
