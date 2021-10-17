@@ -8,6 +8,7 @@ from unittest_05 import testIndexRack as IndexRack2
 from unittest_06 import testIndexRack as IndexRack3
 from unittest_07 import testIndexRack as IndexRack4
 from unittest_08 import testIndexRack as IndexRack5
+from unittest_09 import testIndexEntries as IndexEntries
 
 def suites():
     suites = unittest.TestSuite()
@@ -19,4 +20,5 @@ def suites():
     suites.addTests(unittest.makeSuite(IndexRack3))
     suites.addTests(unittest.makeSuite(IndexRack4))
     suites.addTests(unittest.makeSuite(IndexRack5))
+    suites.addTests(unittest.makeSuite(IndexEntries))
     return suites
