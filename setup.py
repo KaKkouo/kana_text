@@ -2,7 +2,6 @@ import sys
 from setuptools import setup
 
 import src as kt
-sys.path.append('tests')
 
 setup(
     version = kt.__version__,
