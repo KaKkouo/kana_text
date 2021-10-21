@@ -59,8 +59,8 @@ genindex.html
    $ sphinx-kana-genindex
    $ mv genindex.html.sample path_to_sphinx_project/_templates/genindex.html
 
-note by japanese
-----------------
+note(japanese)
+--------------
 当PyPIパッケージのインデクサー部分を「sphinxdexer」として切り分けています。 
 こちらのパッケージは読み仮名情報を付与する場合のリファレンス実装という役割も担うことになります。
 
