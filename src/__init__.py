@@ -203,10 +203,10 @@ latexの関連情報
 ==================
 """
 
-__copyright__ = 'Copyright (C) 2021 @koKkekoh/Qiita'
+__copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.24.1.1' # 2021-10-16
+__version__ = '0.25.0.dev1' # 2021-10-21
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
