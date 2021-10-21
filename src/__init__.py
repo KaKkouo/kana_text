@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0.dev1' # 2021-10-21
+__version__ = '0.25.0.dev3' # 2021-10-21
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -225,6 +225,8 @@ from sphinx.locale import _, __
 from sphinx.util import logging, split_into
 from sphinx.util.nodes import process_index_entry
 from sphinx.writers import html5
+
+import sphindexer as idxr
 
 logger = logging.getLogger(__name__)
 
@@ -341,7 +343,7 @@ class KanaText(nodes.Node):
 
     children = () #これでTextクラスと同じ扱いになる.
 
-    def __init__(self, rawword, separator=_dflt_separator, option_marker=_dflt_option_marker):
+    def __init__(self, rawword, config=None):
         """
         doctest:
 
@@ -349,6 +351,16 @@ class KanaText(nodes.Node):
             >>> kana
             <KanaText: len=2 ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
         """
+
+        if config and _dflt_separator != config.kana_text_separator:
+            separator = config.kana_text_separator
+        else:
+            separator = _dflt_separator
+
+        if config and _dflt_option_marker != config.kana_text_option_marker:
+            option_marker = config.kana_text_option_marker
+        else:
+            option_marker = _dflt_option_marker
 
         self._rawword = rawword
         self._delimiter = _chop.sub('', separator)
@@ -562,7 +574,7 @@ class KanaText(nodes.Node):
 
 _each_words = re.compile(r' *; +')
 
-class KanaTextUnit(nodes.Element):
+class KanaTextUnit(idxr.IndexEntry):
 
     _number_of_terms = { 'single': 2, 'pair': 2, 'triple': 3, 'see': 2, 'seealso': 2, 'list': 99}
 
@@ -574,8 +586,7 @@ class KanaTextUnit(nodes.Element):
         for rawword in rawwords:
             terms.append(KanaText(rawword))
 
-        super().__init__(rawtext, *terms, entry_type=entry_type, 
-                         file_name=file_name, target=target, main=main, index_key=index_key)
+        super().__init__(rawtext, entry_type, file_name, target, main, index_key, KanaText)
 
     def __repr__(self):
         """
@@ -1480,8 +1491,8 @@ def setup(app) -> Dict[str, Any]:
     app.set_translator('kana', KanaHTML5Translator)
 
     #設定の登録
-    app.add_config_value('kana_text_separator', r'\|', 'env') 
-    app.add_config_value('kana_text_option_marker', r'\^', 'env') 
+    app.add_config_value('kana_text_separator', _dflt_separator, 'env') 
+    app.add_config_value('kana_text_option_marker', _dflt_option_marker, 'env') 
     app.add_config_value('kana_text_word_file', '', 'env') 
     app.add_config_value('kana_text_word_list', (), 'env') 
     app.add_config_value('kana_text_indexer_mode', 'small', 'env') 
