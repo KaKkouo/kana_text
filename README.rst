@@ -58,3 +58,10 @@ genindex.html
 
    $ sphinx-kana-genindex
    $ mv genindex.html.sample path_to_sphinx_project/_templates/genindex.html
+
+note by japanese
+----------------
+当PyPIパッケージのインデクサー部分を「sphinxdexer」として切り分けています。 
+こちらのパッケージは読み仮名情報を付与する場合のリファレンス実装という役割も担うことになります。
+
+自分なりの記法を実現されたい方は、Githubの実装を参考にして独自の記法を実現してください。独自の記法の解析は「KanaText」に集約されます。他はコピペで済むはずです。同じパッケージ名は使えないので注意してください。紛らわしい名前を避けてもらえると助かります。
