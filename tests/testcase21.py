@@ -2,7 +2,7 @@
 import sys
 import unittest
 sys.path.append('sphinxcontrib')
-from src import KanaTextUnit
+from src import IndexEntry
 
 #正規表現による字句解析
 testcase1i = [
@@ -254,46 +254,46 @@ testcase5o = [
 testcase6i = ['']
 testcase6o = []
 
-class testKanaTextUnit(unittest.TestCase):
+class testIndexEntry(unittest.TestCase):
     #正規表現による字句解析
     def test01_astext(self):
         for t, e in zip(testcase1i, testcase1o):
-            node = KanaTextUnit(t)
+            node = IndexEntry(t)
             rslt = node.astext()
             self.assertEqual(e, rslt)
 
     #オプションの処理
     def test02_asruby(self):
         for t, e in zip(testcase2i, testcase2o):
-            node = KanaTextUnit(t)
+            node = IndexEntry(t)
             rslt = node.asruby()
             self.assertEqual(e, rslt)
 
     #オプションと文字データの文字数の多少
     def test03_asruby(self):
         for t, e in zip(testcase3i, testcase3o):
-            node = KanaTextUnit(t)
+            node = IndexEntry(t)
             rslt = node.asruby()
             self.assertEqual(e, rslt)
 
     #用語の数
     def test04_asruby(self):
         for t, e in zip(testcase4i, testcase4o):
-            node = KanaTextUnit(t)
+            node = IndexEntry(t)
             rslt = node.asruby()
             self.assertEqual(e, rslt)
 
     #非表示指定の「a-i」「q-y」の動作
     def test05_asruby(self):
         for t, e in zip(testcase5i, testcase5o):
-            node = KanaTextUnit(t)
+            node = IndexEntry(t)
             rslt = node.asruby()
             self.assertEqual(e, rslt)
 
     #非表示指定の「a-i」「q-y」の動作
     def test06_asruby(self):
         for t, e in zip(testcase6i, testcase6o):
-            node = KanaTextUnit(t)
+            node = IndexEntry(t)
             rslt = node.asruby()
             self.assertEqual(e, rslt)
 

@@ -148,7 +148,7 @@ KanaTextクラス
 - かな表示を可能にする.
 - 「.. index::」「..glossary::」「:index:」「:kana:」で使用.
 
-KanaTextUnitクラス
+IndexEntryクラス
 
 - 「.. index::」でsingle/pair/tripleと一緒に書かれている用語に対応.
 - IndexUnittクラスに乗る前のKanaTextオブジェクトを保持する.
@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0.dev3' # 2021-10-21
+__version__ = '0.25.0.dev4' # 2021-10-21
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -574,7 +574,7 @@ class KanaText(nodes.Node):
 
 _each_words = re.compile(r' *; +')
 
-class KanaTextUnit(idxr.IndexEntry):
+class IndexEntry(idxr.IndexEntry):
 
     _number_of_terms = { 'single': 2, 'pair': 2, 'triple': 3, 'see': 2, 'seealso': 2, 'list': 99}
 
@@ -592,15 +592,15 @@ class KanaTextUnit(idxr.IndexEntry):
         """
         doctest:
 
-            >>> ktext = KanaTextUnit('壱壱; 弐弐')
+            >>> ktext = IndexEntry('壱壱; 弐弐')
             >>> ktext
-            <KanaTextUnit: entry_type='single' <KanaText: len=1 <#text: '壱壱'>><KanaText: len=1 <#text: '弐弐'>>>
-            >>> ktext = KanaTextUnit('ああ|壱壱^')
+            <IndexEntry: entry_type='single' <KanaText: len=1 <#text: '壱壱'>><KanaText: len=1 <#text: '弐弐'>>>
+            >>> ktext = IndexEntry('ああ|壱壱^')
             >>> ktext
-            <KanaTextUnit: entry_type='single' <KanaText: len=2 ruby='on' <#text: 'ああ|壱壱'>>>
-            >>> ktext = KanaTextUnit('あ|壱^1')
+            <IndexEntry: entry_type='single' <KanaText: len=2 ruby='on' <#text: 'ああ|壱壱'>>>
+            >>> ktext = IndexEntry('あ|壱^1')
             >>> ktext
-            <KanaTextUnit: entry_type='single' <KanaText: len=2 ruby='specific' option='1' <#text: 'あ|壱'>>>
+            <IndexEntry: entry_type='single' <KanaText: len=2 ruby='specific' option='1' <#text: 'あ|壱'>>>
         """
 
         name = self.__class__.__name__
@@ -680,13 +680,13 @@ class KanaTextUnit(idxr.IndexEntry):
     def askana(self, concat=(', ', 3)):
         """
         doctest:
-            >>> ktext = KanaTextUnit('壱壱')
+            >>> ktext = IndexEntry('壱壱')
             >>> ktext.askana()
             ''
-            >>> ktext = KanaTextUnit('ああ|壱壱^11')
+            >>> ktext = IndexEntry('ああ|壱壱^11')
             >>> ktext.askana()
             'ああ'
-            >>> ktext = KanaTextUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext = IndexEntry('ああ|壱壱^11; いい|弐弐; うう|参参^11')
             >>> ktext.askana()
             'ああ, いい, うう'
         """
@@ -696,13 +696,13 @@ class KanaTextUnit(idxr.IndexEntry):
     def ashier(self, concat=(', ', 3)):
         """
         doctest:
-            >>> ktext = KanaTextUnit('壱壱')
+            >>> ktext = IndexEntry('壱壱')
             >>> ktext.ashier()
             '壱壱'
-            >>> ktext = KanaTextUnit('ああ|壱壱^11')
+            >>> ktext = IndexEntry('ああ|壱壱^11')
             >>> ktext.ashier()
             '壱壱'
-            >>> ktext = KanaTextUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext = IndexEntry('ああ|壱壱^11; いい|弐弐; うう|参参^11')
             >>> ktext.ashier()
             '壱壱, 弐弐, 参参'
         """
@@ -712,13 +712,13 @@ class KanaTextUnit(idxr.IndexEntry):
     def astext(self, concat=('; ', 3)):
         """
         doctest:
-            >>> ktext = KanaTextUnit('壱壱')
+            >>> ktext = IndexEntry('壱壱')
             >>> ktext.astext()
             '壱壱'
-            >>> ktext = KanaTextUnit('ああ|壱壱^11')
+            >>> ktext = IndexEntry('ああ|壱壱^11')
             >>> ktext.astext()
             'ああ|壱壱'
-            >>> ktext = KanaTextUnit('ああ|壱壱^11; いい|弐弐; うう|参参^11')
+            >>> ktext = IndexEntry('ああ|壱壱^11; いい|弐弐; うう|参参^11')
             >>> ktext.astext()
             'ああ|壱壱; いい|弐弐; うう|参参'
         """
@@ -728,7 +728,7 @@ class KanaTextUnit(idxr.IndexEntry):
     def asruby(self):
         """
         doctest:
-            >>> kanatext = KanaTextUnit('ああ|壱壱; いい|弐弐^; うう|参参')
+            >>> kanatext = IndexEntry('ああ|壱壱; いい|弐弐^; うう|参参')
             >>> kanatext.asruby()
             [[(False, '壱壱')], [(True, ('弐弐', 'いい'))], [(False, '参参')]]
         """
@@ -933,14 +933,14 @@ class IndexRack(object):
 
         #設定で用意されたかな文字情報の登録
         for rawword in self.config.kana_text_word_list:
-            unit = KanaTextUnit(rawword, 'list', 'WORD_LIST', '', '_cnfpy_', None) #_cnfpy_
+            unit = IndexEntry(rawword, 'list', 'WORD_LIST', '', '_cnfpy_', None) #_cnfpy_
             index_units = unit.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
 
         #設定ファイルで用意されたかな文字情報の登録
         for rawword in get_word_list_from_file(self.config):
-            unit = KanaTextUnit(rawword, 'list', 'WORD_FILE', '', '_rncmd_', None) #_rncmd_
+            unit = IndexEntry(rawword, 'list', 'WORD_FILE', '', '_rncmd_', None) #_rncmd_
             index_units = unit.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
@@ -969,7 +969,7 @@ class IndexRack(object):
 
         for fn, entries in entries.items():
             for entry_type, value, tid, main, index_key in entries:
-                unit = KanaTextUnit(value, entry_type, fn, tid, main, index_key)
+                unit = IndexEntry(value, entry_type, fn, tid, main, index_key)
                 index_units = unit.make_index_units()
                 self.extend(index_units)
 
@@ -1483,7 +1483,7 @@ def setup(app) -> Dict[str, Any]:
 
     #glossaryディレクティブ、kanaロールの表示用
     app.add_node(KanaText, html=(visit_kana, depart_kana))
-    app.add_node(KanaTextUnit, html=(visit_kana, depart_kana))
+    app.add_node(IndexEntry, html=(visit_kana, depart_kana))
     #索引の表示はKanaHTMLBuilderで行う
 
     #HTML出力

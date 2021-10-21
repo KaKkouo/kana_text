@@ -16,7 +16,7 @@ def suites():
     suites.addTests(unittest.makeSuite(testcase11.testKanaText))
     suites.addTests(unittest.makeSuite(testcase12.testKanaText))
     suites.addTests(unittest.makeSuite(testcase13.testKanaText))
-    suites.addTests(unittest.makeSuite(testcase21.testKanaTextUnit))
+    suites.addTests(unittest.makeSuite(testcase21.testIndexEntry))
     suites.addTests(unittest.makeSuite(testcase31.testIndexUnit))
     suites.addTests(unittest.makeSuite(testcase41.testIndexRack))
     suites.addTests(unittest.makeSuite(testcase43.testIndexRack))
