@@ -82,25 +82,29 @@ class testIndexEntries(unittest.TestCase):
         self.maxDiff = None
         env = util.env(testcase01i)
         bld = util.builder(env)
-        gidx = util.IndexEntries(env).create_index(bld)
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(testcase01o, gidx)
     def test02_see_and_seealso(self):
         self.maxDiff = None
         env = util.env(testcase02i)
         bld = util.builder(env)
-        gidx = util.IndexEntries(env).create_index(bld)
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(testcase02o, gidx)
     def test03_homonymous_function(self):
         self.maxDiff = None
         env = util.env(testcase03i)
         bld = util.builder(env)
-        gidx = util.IndexEntries(env).create_index(bld)
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(testcase03o, gidx)
     def test04_homonymous_function(self):
         self.maxDiff = None
         env = util.env(testcase04i)
         bld = util.builder(env)
-        gidx = util.IndexEntries(env).create_index(bld)
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(testcase04o, gidx)
 
 #-------------------------------------------------------------------
