@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0.dev9' # 2021-10-22
+__version__ = '0.25.0.dev10' # 2021-10-23
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -880,7 +880,7 @@ class ExIndexRack(idxr.IndexRack):
             for iu in index_units:
                 self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
 
-        super().__init__(builder, KanaText)
+        super().__init__(builder, KanaText, ExIndexEntry)
 
     def create_genindex(self, entries=None, group_entries: bool = True,
                      _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
@@ -891,29 +891,7 @@ class ExIndexRack(idxr.IndexRack):
         self._kana_catalog_pre = self._kana_catalog #(注)__init__がないと前回分が残る.
         self._kana_catalog = {} # {term: (emphasis, kana, ruby, option)}
 
-        #引数の保存
-        self._group_entries = group_entries
-        self._fixre = _fixre
-
-        #入れ物の用意とリセット
-        self._rack = [] # [IndexUnit, IndexUnit, ...]
-        self._classifier_catalog = {} # {term: classifier}
-        self._function_catalog = {} #{function name: number of homonymous funcion}
-
-        domain = cast(IndexDomain, self.env.get_domain('index'))
-        entries = domain.entries
-        #entries: Dict{ファイル名: List[Tuple(type, value, tid, main, index_key)]}
-
-        for fn, entries in entries.items():
-            for entry_type, value, tid, main, index_key in entries:
-                unit = ExIndexEntry(value, entry_type, fn, tid, main, index_key)
-                index_units = unit.make_index_units()
-                self.extend(index_units)
-
-        self.update_units()
-        self.sort_units()
-
-        return self.generate_genindex_data()
+        return super().create_genindex(group_entries, _fixre)
 
     def append(self, unit):
         """
