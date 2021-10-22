@@ -180,14 +180,14 @@ testcase04out = [
 ('な',
   [('ののの|球球球',
     [[],
-     [('ののの|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]),
-      ('see 球球球', [])],
+     [('see 球球球', []),
+     ('ののの|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')])],
      None])]),
  ('ら',
   [('れれれ|拾拾拾',
     [[],
-     [('れれれ|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]),
-      ('see also 拾拾拾', [])],
+     [('see also 拾拾拾', []),
+      ('れれれ|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')])],
      None])])]
 
 #kana_text_word_listの上書き
@@ -204,14 +204,14 @@ testcase05out = [
 ('な',
   [('ねねね|拾拾拾',
     [[],
-     [('ねねね|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]),
-      ('see also 拾拾拾', [])],
+     [('see also 拾拾拾', []),
+      ('ねねね|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')])],
      None])]),
  ('ら',
   [('るるる|球球球',
     [[],
-     [('るるる|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]),
-      ('see 球球球', [])],
+     [('see 球球球', []),
+      ('るるる|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')])],
      None])])
  ]
 
@@ -238,7 +238,6 @@ class testIndexRack(unittest.TestCase):
         self.assertEqual(gidx, testcase02out)
 
     def test03_kana_catalog(self):
-        assert False
         self.maxDiff = None
         env = util.env(testcase03in)
         bld = util.builder(env)
@@ -248,7 +247,6 @@ class testIndexRack(unittest.TestCase):
         self.assertEqual(gidx, testcase03out)
 
     def test04_kana_catalog(self):
-        assert False
         self.maxDiff = None
         env = util.env(testcase04in)
         bld = util.builder(env)
@@ -260,7 +258,6 @@ class testIndexRack(unittest.TestCase):
         self.assertEqual(gidx, testcase04out)
 
     def test05_kana_catalog(self):
-        assert False
         self.maxDiff = None
         env = util.env(testcase05in)
         bld = util.builder(env)
