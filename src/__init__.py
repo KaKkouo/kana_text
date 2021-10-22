@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0.dev7' # 2021-10-22
+__version__ = '0.25.0.dev8' # 2021-10-22
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -1131,12 +1131,13 @@ class ExIndexUnit(object):
 
     def __repr__(self):
         """
-        >>> iu = ExIndexUnit('', '', '', '5', 'doc1', 'id-1', '分類子', KanaText)
+        >>> kt = KanaText
+        >>> iu = ExIndexUnit(kt(''), kt(''), kt(''), '5', 'doc1', 'id-1', '分類子')
         >>> iu
-        <ExIndexUnit: main='5' file_name='doc1' target='id-1' <KanaText: <#empty>><KanaText: <#empty>>>
-        >>> iu = ExIndexUnit('壱', '弐', '', '8', '', '', None, KanaText)
+        <ExIndexUnit: main='5' file_name='doc1' target='id-1' <#empty><#empty>>
+        >>> iu = ExIndexUnit(kt('壱'), kt('弐'), kt(''), '8', '', '', None)
         >>> iu
-        <ExIndexUnit: main='8' <KanaText: <#empty>><KanaText: len=1 <#text: '壱'>><ExSubTerm: len=1 tpl='see %s' <KanaText: len=1 <#text: '弐'>>>>
+        <ExIndexUnit: main='8' <#empty><KanaText: len=1 <#text: '壱'>><ExSubTerm: len=1 tpl='see %s' <KanaText: len=1 <#text: '弐'>>>>
         """
         name = self.__class__.__name__
         main = self['main']
