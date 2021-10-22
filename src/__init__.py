@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0.dev8' # 2021-10-22
+__version__ = '0.25.0.dev9' # 2021-10-22
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -868,15 +868,15 @@ class ExIndexRack(idxr.IndexRack):
 
         #設定で用意されたかな文字情報の登録
         for rawword in builder.config.kana_text_word_list:
-            unit = ExIndexEntry(rawword, 'list', 'WORD_LIST', '', 'conf.py', None) #_cnfpy_
-            index_units = unit.make_index_units()
+            entry = ExIndexEntry(rawword, 'list', 'WORD_LIST', '', 'conf.py', None) #_cnfpy_
+            index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
 
         #設定ファイルで用意されたかな文字情報の登録
         for rawword in get_word_list_from_file(builder.config):
-            unit = ExIndexEntry(rawword, 'list', 'WORD_FILE', '', 'valuerc', None) #_rncmd_
-            index_units = unit.make_index_units()
+            entry = ExIndexEntry(rawword, 'list', 'WORD_FILE', '', 'valuerc', None) #_rncmd_
+            index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
 
@@ -891,7 +891,29 @@ class ExIndexRack(idxr.IndexRack):
         self._kana_catalog_pre = self._kana_catalog #(注)__init__がないと前回分が残る.
         self._kana_catalog = {} # {term: (emphasis, kana, ruby, option)}
 
-        return super().create_genindex(group_entries, _fixre)
+        #引数の保存
+        self._group_entries = group_entries
+        self._fixre = _fixre
+
+        #入れ物の用意とリセット
+        self._rack = [] # [IndexUnit, IndexUnit, ...]
+        self._classifier_catalog = {} # {term: classifier}
+        self._function_catalog = {} #{function name: number of homonymous funcion}
+
+        domain = cast(IndexDomain, self.env.get_domain('index'))
+        entries = domain.entries
+        #entries: Dict{ファイル名: List[Tuple(type, value, tid, main, index_key)]}
+
+        for fn, entries in entries.items():
+            for entry_type, value, tid, main, index_key in entries:
+                unit = ExIndexEntry(value, entry_type, fn, tid, main, index_key)
+                index_units = unit.make_index_units()
+                self.extend(index_units)
+
+        self.update_units()
+        self.sort_units()
+
+        return self.generate_genindex_data()
 
     def append(self, unit):
         """
