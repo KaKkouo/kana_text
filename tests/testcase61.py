@@ -4,6 +4,7 @@ import unittest
 from pprint import pprint
 sys.path.append('sphinxcontrib')
 from src import IndexRack
+from . import util
 
 #-------------------------------------------------------------------
 
@@ -137,67 +138,59 @@ testcase06out = [
 
 #-------------------------------------------------------------------
 
-class _env(object): pass
-
-class _config(object):
-    def __init__(self):
-        self.kana_text_separator = r'\|'
-        self.kana_text_indexer_mode = 'normal'
-        self.kana_text_word_file = '~/sphinx/word_list.txt'
-        self.kana_text_word_list = ()
-        self.html_kana_text_on_genindex = False
-        self.html_change_triple = False
-
-class _builder(object):
-    def __init__(self, env, cfg):
-        self.env = env
-        self.config = cfg
-
-    def get_relative_uri(self, _, fn):
-        return fn+'.html'
-
-env = _env()
-cfg = _config()
-bld = _builder(env, cfg)
-idx = IndexRack(bld)
-idx0 = IndexRack(bld)
-
 class testIndexRack(unittest.TestCase):
-
     def test01_function_catalog(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'small'
-        gidx = idx.create_genindex(testcase01in)
+        env = util.env(testcase01in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(gidx, testcase01out)
 
     def test02_function_catalog(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'small'
-        gidx = idx.create_genindex(testcase02in)
+        env = util.env(testcase02in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(gidx, testcase02out)
 
     def test03_function_catalog(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'small'
-        gidx = idx.create_genindex(testcase03in)
+        env = util.env(testcase03in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(gidx, testcase03out)
 
     def test04_function_catalog(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'small'
-        gidx = idx.create_genindex(testcase04in)
+        env = util.env(testcase04in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(gidx, testcase04out)
 
     def test05_function_catalog(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'small'
-        gidx = idx.create_genindex(testcase05in)
+        env = util.env(testcase05in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(gidx, testcase05out)
 
     def test06_function_catalog(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'small'
-        gidx = idx.create_genindex(testcase06in)
+        env = util.env(testcase06in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(gidx, testcase06out)
 
 #-------------------------------------------------------------------

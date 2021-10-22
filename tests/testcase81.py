@@ -6,6 +6,7 @@ from jinja2 import Template
 
 sys.path.append('sphinxcontrib')
 from src import IndexRack
+from . import util
 
 #-------------------------------------------------------------------
 
@@ -80,35 +81,14 @@ testcase06in = {
 
 testcase06out = []
 
-testcase01str = "tests/result_08_01.txt"
-testcase02str = "tests/result_08_02.txt"
-testcase03str = "tests/result_08_03.txt"
-testcase04str = "tests/result_08_04.txt"
-testcase05str = "tests/result_08_05.txt"
-testcase06str = "tests/result_08_06.txt"
+testcase01str = "tests/result81_01.txt"
+testcase02str = "tests/result81_02.txt"
+testcase03str = "tests/result81_03.txt"
+testcase04str = "tests/result81_04.txt"
+testcase05str = "tests/result81_05.txt"
+testcase06str = "tests/result81_06.txt"
 
 #-------------------------------------------------------------------
-
-class _env(object): pass
-
-class _config(object):
-    def __init__(self):
-        self.kana_text_separator = r'\|'
-        self.kana_text_indexer_mode = 'normal'
-        self.kana_text_word_file = ''
-        self.kana_text_word_list = ()
-        self.html_kana_text_on_genindex = False
-        self.html_change_triple = False
-
-class _builder(object):
-    def __init__(self, env, cfg):
-        self.env = env
-        self.config = cfg
-
-    def get_relative_uri(self, _, fn):
-        return fn+'.html'
-
-env = _env()
 
 def get_result(file_name):
     with open(file_name, 'r') as fd:
@@ -126,25 +106,24 @@ class testIndexRack(unittest.TestCase):
 
     def test01_text_by_jinja2(self):
         self.maxDiff = None
-        cfg = _config()
-        cfg.kana_text_indexer_mode = 'small'
-        cfg.html_kana_text_on_genindex = True
-        bld = _builder(env, cfg)
+        env = util.env(testcase01in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = True
         idx = IndexRack(bld)
-        gidx = idx.create_genindex(testcase01in)
-        #self.assertEqual(testcase01out, gidx)
+        gidx = idx.create_genindex()
         text = template.render({'genindexentries': gidx})
         rslt = get_result(testcase01str)
         self.assertEqual(rslt, text)
 
     def test02_text_by_jinja2(self):
         self.maxDiff = None
-        cfg = _config()
-        cfg.kana_text_indexer_mode = 'small'
-        cfg.html_kana_text_on_genindex = True
-        bld = _builder(env, cfg)
+        env = util.env(testcase02in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = True
         idx = IndexRack(bld)
-        gidx = idx.create_genindex(testcase02in)
+        gidx = idx.create_genindex()
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
         rslt = get_result(testcase02str)
@@ -152,12 +131,12 @@ class testIndexRack(unittest.TestCase):
 
     def test03_text_by_jinja2(self):
         self.maxDiff = None
-        cfg = _config()
-        cfg.kana_text_indexer_mode = 'small'
-        cfg.html_kana_text_on_genindex = True
-        bld = _builder(env, cfg)
-        idx = IndexRack(bld, True)
-        gidx = idx.create_genindex(testcase03in)
+        env = util.env(testcase03in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = True
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
         rslt = get_result(testcase03str)
@@ -165,12 +144,12 @@ class testIndexRack(unittest.TestCase):
 
     def test04_text_by_jinja2(self):
         self.maxDiff = None
-        cfg = _config()
-        cfg.kana_text_indexer_mode = 'small'
-        cfg.html_kana_text_on_genindex = True
-        bld = _builder(env, cfg)
-        idx = IndexRack(bld, True)
-        gidx = idx.create_genindex(testcase04in)
+        env = util.env(testcase04in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = True
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
         rslt = get_result(testcase04str)
@@ -178,12 +157,12 @@ class testIndexRack(unittest.TestCase):
 
     def test05_text_by_jinja2(self):
         self.maxDiff = None
-        cfg = _config()
-        cfg.kana_text_indexer_mode = 'small'
-        cfg.html_kana_text_on_genindex = True
-        bld = _builder(env, cfg)
-        idx = IndexRack(bld, True)
-        gidx = idx.create_genindex(testcase05in)
+        env = util.env(testcase05in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = True
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
         rslt = get_result(testcase05str)
@@ -191,12 +170,12 @@ class testIndexRack(unittest.TestCase):
 
     def test06_text_by_jinja2(self):
         self.maxDiff = None
-        cfg = _config()
-        cfg.kana_text_indexer_mode = 'small'
-        cfg.html_kana_text_on_genindex = True
-        bld = _builder(env, cfg)
+        env = util.env(testcase06in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = True
         idx = IndexRack(bld)
-        gidx = idx.create_genindex(testcase06in)
+        gidx = idx.create_genindex()
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
         rslt = get_result(testcase06str)

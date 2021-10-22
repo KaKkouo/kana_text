@@ -4,6 +4,7 @@ import unittest
 from pprint import pprint
 sys.path.append('sphinxcontrib')
 from src import IndexRack
+from . import util
 
 #-------------------------------------------------------------------
 
@@ -97,64 +98,6 @@ testcase01out = [
      None])])
 ]
 
-testcase07out_ = [ #0.21までの実装での挙動
-('ま',
- [('む|検証０３',
-   [[('main', 'doc03b.html#id-03b'),
-     ('', 'doc03a.html#id-03a'),
-     ('', 'doc03c.html#id-03c')],
-    [],
-    None]),
-  ('む|検証０６',
-   [[],
-    [('いい|検証０６', [('', 'doc06a.html#id-06a')]),
-     ('めめ|検証０６', [('main', 'doc06b.html#id-06b')]),
-     ('んん|検証０６', [('', 'doc06c.html#id-06c')])],
-    None]),
-  ('むむ|検証０１',
-   [[('', 'doc01a.html#id-01a'),
-     ('', 'doc01b.html#id-01b'),
-     ('', 'doc01c.html#id-01c')],
-    [],
-    None]),
-  ('むむ|検証０２',
-   [[('main', 'doc02b.html#id-02b'),
-     ('', 'doc02a.html#id-02a'),
-     ('', 'doc02c.html#id-02c')],
-    [],
-    None]),
-  ('むむ|検証０４',
-   [[('', 'doc04a.html#id-04a'),
-     ('', 'doc04b.html#id-04b'),
-     ('', 'doc04c.html#id-04c')],
-    [],
-    None]),
-  ('むむ|検証０５',
-   [[],
-    [('いい|検証０５', [('', 'doc05a.html#id-05a')]),
-     ('めめ|検証０５', [('main', 'doc05b.html#id-05b')]),
-     ('んん|検証０５', [('', 'doc05c.html#id-05c')])],
-    None]),
-  ('むむ|検証０７',
-   [[],
-    [('ああ|検証０７', [('', 'doc07a.html#id-07a')]),
-     ('いい|検証０７', [('', 'doc07a.html#id-07a')]),
-     ('むむ|検証０７', [('main', 'doc07b.html#id-07b')]),
-     ('めめ|検証０７', [('main', 'doc07b.html#id-07b')]),
-     ('をを|検証０７', [('', 'doc07c.html#id-07c')]),
-     ('んん|検証０７', [('', 'doc07c.html#id-07c')])],
-    None]),
-  ('めめ|検証０８',
-   [[],
-    [('ああ|検証０８', [('', 'doc08a.html#id-08a')]),
-     ('いい|検証０８', [('', 'doc08a.html#id-08a')]),
-     ('む|検証０８', [('main', 'doc08b.html#id-08b')]),
-     ('めめ|検証０８', [('main', 'doc08b.html#id-08b')]),
-     ('をを|検証０８', [('', 'doc08c.html#id-08c')]),
-     ('んん|検証０８', [('', 'doc08c.html#id-08c')])],
-    None])])
-]
-
 #同じ単語なら同じ読み（triple）
 testcase02in = {
 'doc09a': [('triple','ああ|球球球; いい|球球球; そそ|球球球','id-09a','',None)],
@@ -212,14 +155,14 @@ testcase03out = [
 ('あ',
   [('ああ|球球球',
     [[],
-     [('ああ|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]),
-      ('see 球球球', [])],
+     [('see 球球球', []),
+      ('ああ|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]), ],
      None])]),
- ('な',
+('な',
   [('なな|拾拾拾',
     [[],
-     [('なな|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]),
-      ('see also 拾拾拾', [])],
+     [('see also 拾拾拾', []),
+      ('なな|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]), ],
      None])])
 ]
 
@@ -274,79 +217,59 @@ testcase05out = [
 
 #-------------------------------------------------------------------
 
-class _env(object): pass
-
-class _config(object):
-    def __init__(self):
-        self.kana_text_separator = r'\|'
-        self.kana_text_indexer_mode = 'normal'
-        self.kana_text_word_file = '~/sphinx/word_list.txt'
-        self.kana_text_word_list = ()
-        self.html_kana_text_on_genindex = False
-        self.html_change_triple = False
-
-class _builder(object):
-    def __init__(self, env, cfg):
-        self.env = env
-        self.config = cfg
-
-    def get_relative_uri(self, _, fn):
-        return fn+'.html'
-
-env = _env()
-cfg = _config()
-bld = _builder(env, cfg)
-idx = IndexRack(bld)
-idx0 = IndexRack(bld)
-
 class testIndexRack(unittest.TestCase):
 
     def test01_kana_catalog(self):
         self.maxDiff = None
-        idx.config.kana_text_indexer_mode = 'small'
-        gidx = idx.create_genindex(testcase01in)
+        env = util.env(testcase01in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(gidx, testcase01out)
 
     def test02_kana_catalog(self):
         self.maxDiff = None
-        cfg = _config()
-        cfg.kana_text_word_file = False
-        cfg.kana_text_indexer_mode = 'small'
-        bld = _builder(env, cfg)
-        gidx = idx.create_genindex(testcase02in)
+        env = util.env(testcase02in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
         self.assertEqual(gidx, testcase02out)
 
     def test03_kana_catalog(self):
+        assert False
         self.maxDiff = None
-        cfg = _config()
-        cfg.kana_text_word_file = False
-        bld = _builder(env, cfg)
+        env = util.env(testcase03in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
         idx = IndexRack(bld)
-        idx.config.kana_text_indexer_mode = 'small'
-        gidx = idx.create_genindex(testcase03in)
+        gidx = idx.create_genindex()
         self.assertEqual(gidx, testcase03out)
 
     def test04_kana_catalog(self):
+        assert False
         self.maxDiff = None
-        cfg = _config()
-        cfg.kana_text_word_list = ['ののの|球球球^', 'れれれ|拾拾拾^']
-        cfg.html_kana_text_on_genindex = True
-        cfg.kana_text_indexer_mode = 'small'
-        bld = _builder(env, cfg)
+        env = util.env(testcase04in)
+        bld = util.builder(env)
+        bld.config.kana_text_word_list = ['ののの|球球球^', 'れれれ|拾拾拾^']
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = True
         idx = IndexRack(bld)
-        gidx = idx.create_genindex(testcase04in)
+        gidx = idx.create_genindex()
         self.assertEqual(gidx, testcase04out)
 
     def test05_kana_catalog(self):
+        assert False
         self.maxDiff = None
-        cfg = _config()
-        cfg.kana_text_word_list = []
-        cfg.kana_text_word_file = 'tests/word_list.txt'
-        cfg.html_kana_text_on_genindex = True
-        cfg.kana_text_indexer_mode = 'small'
-        bld = _builder(env, cfg)
+        env = util.env(testcase05in)
+        bld = util.builder(env)
+        bld.config.kana_text_word_list = []
+        bld.config.kana_text_word_file = 'tests/word_list.txt'
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = True
         idx = IndexRack(bld)
-        gidx = idx.create_genindex(testcase05in)
+        gidx = idx.create_genindex()
         self.assertEqual(gidx, testcase05out)
 
 #-------------------------------------------------------------------
