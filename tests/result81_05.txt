@@ -1,8 +1,8 @@
 [あ]
 term: 球球球
-sub: 球球球/doc01.html#id-01,[1]/doc03.html#id-03
 sub: see 球球球
+sub: 球球球/doc01.html#id-01,[1]/doc03.html#id-03
 [な]
 term: 拾拾拾
-sub: 拾拾拾/doc05.html#id-05,[1]/doc06.html#id-06
 sub: see also 拾拾拾
+sub: 拾拾拾/doc05.html#id-05,[1]/doc06.html#id-06
