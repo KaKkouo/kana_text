@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import unittest
-from src import IndexRack
+from src import ExIndexRack as IndexRack
 from . import util 
 
 testcase01i = { 

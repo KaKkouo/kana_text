@@ -2,40 +2,40 @@
 import sys
 import unittest
 sys.path.append('sphinxcontrib')
-from src import IndexUnit, KanaText
+from src import ExIndexUnit as IndexUnit, KanaText as kt
 
 testcase01i = [
-    ('壱壱', '似似', '参参', '5', 'doc1', 'id-01', '分類子', KanaText),
-    ('壱壱', '似似', '', '5', 'doc1', 'id-01', '分類子', KanaText),
-    ('壱壱', '', '', '5', 'doc1', 'id-01', '分類子', KanaText),
-    ('壱壱', '似似', '参参', '5', '', '', '', KanaText),
-    ('壱壱', '似似', '', '5', '', '', '', KanaText),
-    ('壱壱', '', '', '5', '', '', '', KanaText),
-    ('いい|壱壱', '', '', '5', '', '', '', KanaText),
-    ('いい|壱壱^', '', '', '5', '', '', '', KanaText),
-    ('いい|壱壱^11', '', '', '5', '', '', '', KanaText),
+    (kt('壱壱'), kt('似似'), kt('参参'), '5', 'doc1', 'id-01', '分類子'),
+    (kt('壱壱'), kt('似似'), kt(''), '5', 'doc1', 'id-01', '分類子'),
+    (kt('壱壱'), kt(''), kt(''), '5', 'doc1', 'id-01', '分類子'),
+    (kt('壱壱'), kt('似似'), kt('参参'), '5', '', '', ''),
+    (kt('壱壱'), kt('似似'), kt(''), '5', '', '', ''),
+    (kt('壱壱'), kt(''), kt(''), '5', '', '', ''),
+    (kt('いい|壱壱'), kt(''), kt(''), '5', '', '', ''),
+    (kt('いい|壱壱^'), kt(''), kt(''), '5', '', '', ''),
+    (kt('いい|壱壱^11'), kt(''), kt(''), '5', '', '', ''),
 ]
 
 testcase01o = [
-    "<IndexUnit: main='5' file_name='doc1' target='id-01' <KanaText: <#empty>><KanaText: len=1 <#text: '壱壱'>><SubTerm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
-    "<IndexUnit: main='5' file_name='doc1' target='id-01' <KanaText: <#empty>><KanaText: len=1 <#text: '壱壱'>><SubTerm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
-    "<IndexUnit: main='5' file_name='doc1' target='id-01' <KanaText: <#empty>><KanaText: len=1 <#text: '壱壱'>>>",
-    "<IndexUnit: main='5' <KanaText: <#empty>><KanaText: len=1 <#text: '壱壱'>><SubTerm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
-    "<IndexUnit: main='5' <KanaText: <#empty>><KanaText: len=1 <#text: '壱壱'>><SubTerm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
-    "<IndexUnit: main='5' <KanaText: <#empty>><KanaText: len=1 <#text: '壱壱'>>>",
-    "<IndexUnit: main='5' <KanaText: <#empty>><KanaText: len=2 <#text: 'いい|壱壱'>>>",
-    "<IndexUnit: main='5' <KanaText: <#empty>><KanaText: len=2 ruby='on' <#text: 'いい|壱壱'>>>",
-    "<IndexUnit: main='5' <KanaText: <#empty>><KanaText: len=2 ruby='specific' option='11' <#text: 'いい|壱壱'>>>",
+    "<IndexUnit: main='5' file_name='doc1' target='id-01' <#empty><KanaText: len=1 <#text: '壱壱'>><SubTerm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
+    "<IndexUnit: main='5' file_name='doc1' target='id-01' <#empty><KanaText: len=1 <#text: '壱壱'>><SubTerm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
+    "<IndexUnit: main='5' file_name='doc1' target='id-01' <#empty><KanaText: len=1 <#text: '壱壱'>>>",
+    "<IndexUnit: main='5' <#empty><KanaText: len=1 <#text: '壱壱'>><SubTerm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
+    "<IndexUnit: main='5' <#empty><KanaText: len=1 <#text: '壱壱'>><SubTerm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
+    "<IndexUnit: main='5' <#empty><KanaText: len=1 <#text: '壱壱'>>>",
+    "<IndexUnit: main='5' <#empty><KanaText: len=2 <#text: 'いい|壱壱'>>>",
+    "<IndexUnit: main='5' <#empty><KanaText: len=2 ruby='on' <#text: 'いい|壱壱'>>>",
+    "<IndexUnit: main='5' <#empty><KanaText: len=2 ruby='specific' option='11' <#text: 'いい|壱壱'>>>",
     ]
 
 #__getitem__
 testcase02i = (
-    'いい|壱壱^11', 'ろろ|弐弐^', 'はは|参参^2',
-    '5', 'doc1', 'id-02', '分類子', KanaText)
+    kt('いい|壱壱^11'), kt('ろろ|弐弐^'), kt('はは|参参^2'),
+    '5', 'doc1', 'id-02', '分類子')
 
 testcase02o = [
     '5', 'doc1', 'id-02', '分類子',
-    "<KanaText: <#empty>>",
+    "<#empty>",
     "<KanaText: len=2 ruby='specific' option='11' <#text: 'いい|壱壱'>>",
     "<SubTerm: len=2 <KanaText: len=2 ruby='on' <#text: 'ろろ|弐弐'>><KanaText: len=2 ruby='specific' option='2' <#text: 'はは|参参'>>>",
     "'5'",

@@ -5,7 +5,7 @@ from pprint import pprint
 from jinja2 import Template
 
 sys.path.append('sphinxcontrib')
-from src import IndexRack
+from src import ExIndexRack as IndexRack
 from . import util
 
 #-------------------------------------------------------------------

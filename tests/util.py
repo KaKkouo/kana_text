@@ -1,4 +1,4 @@
-from src import IndexRack
+from src import ExIndexRack as IndexRack
 
 class domain(object):
     def __init__(self, entries):

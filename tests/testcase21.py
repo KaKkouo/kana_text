@@ -2,7 +2,7 @@
 import sys
 import unittest
 sys.path.append('sphinxcontrib')
-from src import IndexEntry
+from src import ExIndexEntry as IndexEntry
 
 #正規表現による字句解析
 testcase1i = [
