@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0.dev10' # 2021-10-23
+__version__ = '0.25.0.dev11' # 2021-10-23
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -798,43 +798,6 @@ _first_char_large = {
     'ラ': 'ら', 'リ': 'り', 'ル': 'る', 'レ': 'れ', 'ロ': 'ろ', 
     'わ': 'わ', 'を': 'を', 'ん': 'ん', 'ワ': 'わ', 'ヲ': 'を', 'ン': 'ん' }
 
-#1-5: ExIndexRack.put_in_kana_catalogでの優先順.
-#3,5: 同一subterm内でのリンクの表示順.
-#8,9: 同一term内でのsubtermの表示順.
-_emphasis2char = {
-    '_cnfpy_': '1', #「conf.py/kana_text_word_list」
-    '_rncmd_': '2', #「~/.sphinx/kana_catalog.py」
-    'main':    '3', #glossaryで定義した用語. indexでは「!」が先頭にあるもの.
-    '_rsvd4_': '4', #reserved
-    '':        '5', #'main', 'see', 'seealso'以外.
-    '_rsvd6_': '6', #reserved
-    '_rsvd7_': '7', #reserved
-    'see':     '8',
-    'seealso': '9',
-}
-
-_char2emphasis = {
-    '0': '', '1': '', '2': '', '3': 'main', '4': '',
-    '5': '', '6': '', '7': '', '8': 'see', '9': 'seealso',
-}
-
-def make_classifier_from_first_letter(text, config):
-    """
-    先頭の一文字を必要な加工をして分類子に使う.
-    """
-    try:
-        #パラメータに応じて変換テーブルを使い分ける.
-        if 'small' == config.kana_text_indexer_mode:
-            return _first_char_small[text[:1]]
-        elif 'large' == config.kana_text_indexer_mode:
-            return _first_char_large[text[:1]]
-        else:
-            #想定パラメータ以外なら基本的な処理
-            return text[:1].upper()
-    except KeyError:
-        #変換表になければ基本的な処理
-        return text[:1].upper()
-
 def get_word_list_from_file(config):
     if not config.kana_text_word_file: return []
 
@@ -899,14 +862,9 @@ class ExIndexRack(idxr.IndexRack):
         """
         #情報収集
         self.put_in_kana_catalog(unit[self.UNIT_EMPH], unit.get_children()) 
-        self.put_in_classifier_catalog(unit['index_key'], unit[self.UNIT_TERM].ashier())
 
-        #情報収集
-        if self._group_entries:
-            self.put_in_function_catalog(unit.astexts(), self._fixre)
-
-        #unitをrackに乗せる
-        self._rack.append(unit)
+        #残りの処理
+        super().append(unit)
 
     def put_in_kana_catalog(self, emphasis, terms): #KanaText
         """KanaText用の処理"""
@@ -934,6 +892,23 @@ class ExIndexRack(idxr.IndexRack):
             elif kana:
                 self._kana_catalog[hier] = (emphasis, kana, ruby, spec)
 
+    def make_classifier_from_first_letter(self, text):
+        """
+        先頭の一文字を必要な加工をして分類子に使う.
+        """
+        try:
+            #パラメータに応じて変換テーブルを使い分ける.
+            if 'small' == self.config.kana_text_indexer_mode:
+                return _first_char_small[text[:1]]
+            elif 'large' == self.config.kana_text_indexer_mode:
+                return _first_char_large[text[:1]]
+            else:
+                #想定パラメータ以外なら基本的な処理
+                return text[:1].upper()
+        except KeyError:
+            #変換表になければ基本的な処理
+            return text[:1].upper()
+
     def update_units(self):
         """rackに格納されている全てのunitの更新を行う."""
 
@@ -951,41 +926,11 @@ class ExIndexRack(idxr.IndexRack):
             for subterm in unit[self.UNIT_SBTM]._terms:
                 self.update_term_with_kana_catalog(subterm)
 
-        for unit in self._rack:
-            #複数ある同名関数の更新
+        super().update_units()
 
-            if self._group_entries:
-                self.update_unit_with_function_catalog(unit)
-
-            #classifierの設定（［重要］if/elifの判定順）
-            #- self._kana_catalogの内容は反映しない.
-            #- 同じ用語が複数glossaryである場合、分類子は一箇所で設定すべき
-            #- 複数の同じ用語が別々の分類子を設定していた場合、集約されるのは一つのみ.
-            #- 複数箇所で設定していた場合は、修正すべき用語が特定できるようにする.
-
-            ikey = unit['index_key']
-            term = unit[self.UNIT_TERM]
-
-            #［重要］if/elifの判定順
-            if ikey:
-                unit[self.UNIT_CLSF] = self.textclass(ikey)
-            elif term.ashier() in self._classifier_catalog:
-                unit[self.UNIT_CLSF] = self.textclass(self._classifier_catalog[term.ashier()])
-            else:
-                text = unit[self.UNIT_TERM].astext()
-                char = make_classifier_from_first_letter(text, self.config)
-                unit[self.UNIT_CLSF] = self.textclass(char)
-
-            #sortkeyの設定
-            #'see', 'seealso'の表示順に手を加える.
-
-            if unit[self.UNIT_EMPH] in ('7', '8', '9'):
-                order_code = '1' #'see' or 'seealso'
-            else:
-                order_code = '2' #'main' or ''
-
-            unit._sort_order = order_code
-
+    def get_word(self, term):
+        return term.ashier()
+    
     def update_term_with_kana_catalog(self, term):
         if term.ashier() in self._kana_catalog:
             term[1] = self._kana_catalog[term.ashier()][1]
@@ -995,77 +940,7 @@ class ExIndexRack(idxr.IndexRack):
             pass
 
     def generate_genindex_data(self):
-        """
-        Text/KanaTextの選択を意識して書く.
-        （Text側で__eq__が実装されることが前提）
-        """
-        rtnlist = [] #判定用
-
-        _clf, _tm, _sub = -1, -1, -1
-        for unit in self._rack: #rackからunitを取り出す
-            i_clf = unit[self.UNIT_CLSF]
-            i_tm  = unit[self.UNIT_TERM]
-            i_sub = unit[self.UNIT_SBTM] #see: ExSubTerm
-            i_em  = unit[self.UNIT_EMPH]
-            i_fn  = unit['file_name']
-            i_tid = unit['target']
-            i_iky = unit['index_key']
-
-            #make a uri
-            if i_fn:
-                try:
-                    r_uri = self.get_relative_uri('genindex', i_fn) + '#' + i_tid
-                except NoUri:
-                    continue
-
-            #see: KanaText.__ne__
-            if len(rtnlist) == 0 or not rtnlist[_clf][0] == i_clf.astext(): #use __eq__
-                i_clf['whatiam'] = 'classifier'
-                rtnlist.append((i_clf, []))
-
-                #追加された「(clf, [])」を見るように_clfを更新する. 他はリセット.
-                _clf, _tm, _sub = _clf+1, -1, -1
-
-            r_clsfr = rtnlist[_clf] #[classifier, [term, term, ..]]
-            r_clfnm = r_clsfr[0] #classifier is KanaText object.
-            r_subterms = r_clsfr[1] #[term, term, ..]
-
-            #see: KanaText.__ne__
-            if len(r_subterms) == 0 or not r_subterms[_tm][0] == i_tm.astext(): #use __eq__
-                r_subterms.append((i_tm, [[], [], i_iky]))
-                _tm, _sub = _tm+1, -1
-
-            r_term = r_subterms[_tm]       #[term, [links, [subterm, subterm, ..], index_key]
-            r_term_value = r_term[0]    #term_value is KanaText object.
-            r_term_links = r_term[1][0] #[(main, uri), (main, uri), ..]
-            r_subterms = r_term[1][1]   #[subterm, subterm, ..]
-
-            #一文字から元の文字列に戻す
-            r_main = _char2emphasis[i_em]
-
-            #see/seealsoならリンク情報を消す
-            if r_main in ('see', 'seealso'):
-                r_fn = None
-            else:
-                r_fn = i_fn
-                
-            #sub(class ExSubTerm): [], [KanaText], [KanaText, KanaText].
-            if len(i_sub) == 0:
-                if r_fn: r_term_links.append((r_main, r_uri))
-            elif len(r_subterms) == 0 or not r_subterms[_sub][0] == i_sub.astext():
-                if self.config.html_change_triple:
-                    i_sub.change_triple = True
-                r_subterms.append((i_sub, []))
-
-                _sub = _sub+1
-                r_subterm = r_subterms[_sub]
-                r_subterm_value = r_subterm[0]
-                r_subterm_links = r_subterm[1]
-                if r_fn: r_subterm_links.append((r_main, r_uri))
-            else:
-                if r_fn: r_subterm_links.append((r_main, r_uri))
-
-        return rtnlist
+        return super().generate_genindex_data()
 
 class ExSubTerm(idxr.SubTerm):
     """
