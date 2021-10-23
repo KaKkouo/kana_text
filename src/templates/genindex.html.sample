@@ -37,6 +37,25 @@
   {%- endif %}
 {% endmacro %}
 
+{% macro indexentries2(firstname, links) %}
+  {%- if links -%}
+    <a href="{{ links[0][1] }}">
+    {%- if links[0][0] %}<strong>{% endif -%}
+    {{ firstname|e }}
+    {%- if links[0][0] %}</strong>{% endif -%}
+    </a>
+
+    {%- for ismain, link in links[1:] -%}
+      , <a href="{{ link }}">{% if ismain %}<strong>{% endif -%}
+      [{{ loop.index }}]
+      {%- if ismain %}</strong>{% endif -%}
+      </a>
+    {%- endfor %}
+  {%- else %}
+    {{ firstname|e }}
+  {%- endif %}
+{% endmacro %}
+
 {% block body %}
 
 <h1 id="index">{{ _('Index') }}</h1>
@@ -58,7 +77,7 @@
       {%- if subitems %}
       <ul>
       {%- for subentryname, subentrylinks in subitems %}
-        <li>{{ indexentries(subentryname, subentrylinks) }}</li>
+        <li>{{ indexentries2(subentryname, subentrylinks) }}</li>
       {%- endfor %}
       </ul>
       {%- endif -%}</li>
