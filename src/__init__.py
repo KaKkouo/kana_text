@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0b1' # 2021-10-23
+__version__ = '0.25.0b2' # 2021-10-24
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -578,8 +578,8 @@ class ExIndexEntry(idxr.IndexEntry):
 
     _number_of_terms = { 'single': 2, 'pair': 2, 'triple': 3, 'see': 2, 'seealso': 2, 'list': 99}
 
-    def __init__(self, rawtext, entry_type='single', file_name=None, target=None, main='', index_key='',
-                 textclass=None):
+    def __init__(self, rawtext, entry_type='single', file_name=None, target=None, main='',
+                 index_key='', textclass=None):
 
         super().__init__(rawtext, entry_type, file_name, target, main, index_key, KanaText)
 
@@ -613,9 +613,6 @@ class ExIndexEntry(idxr.IndexEntry):
         prop += children + ">"
 
         return prop
-
-    def make_index_units(self, unitclass=None, packclass=None):
-        return super().make_index_units(ExIndexUnit, ExSubTerm)
 
     def askana(self, concat=(', ', 3)):
         """
@@ -833,6 +830,8 @@ class ExIndexRack(idxr.IndexRack):
         #設定で用意されたかな文字情報の登録
         for rawword in builder.config.kana_text_word_list:
             entry = ExIndexEntry(rawword, 'list', 'WORD_LIST', '', 'conf.py', None) #_cnfpy_
+            entry.unitclass = ExIndexUnit
+            entry.packclass = ExSubTerm
             index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
@@ -840,11 +839,13 @@ class ExIndexRack(idxr.IndexRack):
         #設定ファイルで用意されたかな文字情報の登録
         for rawword in get_word_list_from_file(builder.config):
             entry = ExIndexEntry(rawword, 'list', 'WORD_FILE', '', 'valuerc', None) #_rncmd_
+            entry.unitclass = ExIndexUnit
+            entry.packclass = ExSubTerm
             index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
 
-        super().__init__(builder, KanaText, ExIndexEntry, ExIndexUnit, ExSubTerm)
+        super().__init__(builder)
 
     def create_genindex(self, entries=None, group_entries: bool = True,
                      _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
@@ -854,6 +855,12 @@ class ExIndexRack(idxr.IndexRack):
         #入れ物の用意とリセット
         self._kana_catalog_pre = self._kana_catalog #(注)__init__がないと前回分が残る.
         self._kana_catalog = {} # {term: (emphasis, kana, ruby, option)}
+
+        #クラスの設定
+        self.textclass = KanaText
+        self.entryclass = ExIndexEntry
+        self.unitclass = ExIndexUnit
+        self.packclass = ExSubTerm
 
         return super().create_genindex(group_entries, _fixre)
 
