@@ -25,6 +25,19 @@
 {%- endif -%}
 {%- endmacro -%}
 
+{%- macro indexentries2(firstname, links) -%}
+{%- if links -%}
+{%- if links[0][0] %}!{% endif -%}
+{{ firstname|e }}/{{ links[0][1] }}
+{%- for ismain, link in links[1:] -%}
+, {%- if ismain -%}!{%- endif -%}
+[{{ loop.index }}]/{{ link }}
+{%- endfor -%}
+{%- else -%}
+{{ firstname|e }}
+{%- endif -%}
+{%- endmacro -%}
+
 {%- block body -%}
 {%- for key, dummy in genindex -%}
 {{ key }}
@@ -36,7 +49,7 @@
 term: {{ indexentries(entryname, links) }}
 {% if subitems -%}
 {% for subentryname, subentrylinks in subitems -%}
-sub: {{ indexentries(subentryname, subentrylinks) }}
+sub: {{ indexentries2(subentryname, subentrylinks) }}
 {% endfor -%}
 {%- endif -%}
 {% endfor -%}
