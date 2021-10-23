@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0.dev11' # 2021-10-23
+__version__ = '0.25.0.dev12' # 2021-10-23
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -367,7 +367,7 @@ class KanaText(nodes.Node):
         self._separator = separator
         self._option_marker = option_marker
 
-        self.whatiam = 'term' #in('classifier', 'term', 'subterm')
+        self.whatiam = 'term' #in('classifier', 'term')
 
         parser = parser_for_kana_text(separator, option_marker)
         hier, kana, ruby, option = self._parse_text(rawword.strip(), parser)
@@ -578,7 +578,8 @@ class ExIndexEntry(idxr.IndexEntry):
 
     _number_of_terms = { 'single': 2, 'pair': 2, 'triple': 3, 'see': 2, 'seealso': 2, 'list': 99}
 
-    def __init__(self, rawtext, entry_type='single', file_name=None, target=None, main='', index_key=''):
+    def __init__(self, rawtext, entry_type='single', file_name=None, target=None, main='', index_key='',
+                 textclass=None):
 
         super().__init__(rawtext, entry_type, file_name, target, main, index_key, KanaText)
 
@@ -613,8 +614,8 @@ class ExIndexEntry(idxr.IndexEntry):
 
         return prop
 
-    def make_index_units(self):
-        return super().make_index_units(ExIndexUnit)
+    def make_index_units(self, unitclass=None, packclass=None):
+        return super().make_index_units(ExIndexUnit, ExSubTerm)
 
     def askana(self, concat=(', ', 3)):
         """
@@ -843,7 +844,7 @@ class ExIndexRack(idxr.IndexRack):
             for iu in index_units:
                 self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
 
-        super().__init__(builder, KanaText, ExIndexEntry)
+        super().__init__(builder, KanaText, ExIndexEntry, ExIndexUnit, ExSubTerm)
 
     def create_genindex(self, entries=None, group_entries: bool = True,
                      _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
@@ -947,15 +948,12 @@ class ExSubTerm(idxr.SubTerm):
     Jinja2に「文字列」と思わせるには「node.repruniocde」の継承が必要.
     （実体はstrだけど、Sphinxの流儀に従っていた方が無難）
     """
-    def __init__(self, template=None):
+    def __init__(self, emphasis, *terms):
         self.change_triple = False
-        super().__init__(template)
+        super().__init__(emphasis, *terms)
     def __str__(self):
         """Jinja2用"""
         return self.ashier()
-    def append(self, subterm):
-        subterm['whatiam'] = 'subterm'
-        super().append(subterm)
     def astext(self):
         if self._template and len(self) == 1:
             return self._template % self._terms[0].ashier()
@@ -976,108 +974,12 @@ class ExSubTerm(idxr.SubTerm):
             hier += subterm.ashier() + self._delimiter
         return hier[:-len(self._delimiter)]
 
-class ExIndexUnit(object):
+class ExIndexUnit(idxr.IndexUnit):
 
     CLSF, TERM, SBTM, EMPH = 0, 1, 2, 3
 
-    def __init__(self, term, subterm1, subterm2, emphasis, file_name, target, index_key):
-        """
-        - リンクを作成しない場合は、file_name, targetは空文字かNoneにする.
-        - Text/KanaTextを選択できる口だけ用意しているけど、実装はKanaText用でやっている.
-        - IndexUnitを継承してExIndexUnitを定義するようなIndexUnitにすればイケる.
-        """
-
-        if emphasis == '8':
-            subterm = ExSubTerm(_('see %s'))
-        elif emphasis == '9':
-            subterm = ExSubTerm(_('see also %s'))
-        else:
-            subterm = ExSubTerm()
-
-        for sbtm in (subterm1, subterm2):
-            if sbtm.astext():
-                sbtm['whatiam'] = 'subterm'
-                subterm.append(sbtm)
-
-        self._sort_order = None
-        self._display_data = ['', term, subterm] #classifierを更新するのでタプルにはできない.
-        self._link_data = (emphasis, file_name, target)
-        self._index_key = index_key
-
-    def __repr__(self):
-        """
-        >>> kt = KanaText
-        >>> iu = ExIndexUnit(kt(''), kt(''), kt(''), '5', 'doc1', 'id-1', '分類子')
-        >>> iu
-        <ExIndexUnit: main='5' file_name='doc1' target='id-1' <#empty><#empty>>
-        >>> iu = ExIndexUnit(kt('壱'), kt('弐'), kt(''), '8', '', '', None)
-        >>> iu
-        <ExIndexUnit: main='8' <#empty><KanaText: len=1 <#text: '壱'>><ExSubTerm: len=1 tpl='see %s' <KanaText: len=1 <#text: '弐'>>>>
-        """
-        name = self.__class__.__name__
-        main = self['main']
-        fn = self['file_name']
-        tid = self['target']
-        rpr  = f"<{name}: "
-        if main: rpr += f"main='{main}' "
-        if fn: rpr += f"file_name='{fn}' "
-        if tid: rpr += f"target='{tid}' "
-        if self[0]:
-            rpr += repr(self[0])
-        else:
-            rpr += repr(KanaText(''))
-        rpr += repr(self[1])
-        if len(self[2]) > 0: rpr += repr(self[2])
-        rpr += ">"
-        return rpr
-
-    def __getitem__(self, key):
-        if isinstance(key, str):
-            if key == 'main':      return self._link_data[0]
-            if key == 'file_name': return self._link_data[1]
-            if key == 'target':    return self._link_data[2]
-            if key == 'index_key': return self._index_key
-            raise KeyError(key)
-        elif isinstance(key, int):
-            if key == self.CLSF:
-                if self._display_data[self.CLSF]:
-                    return self._display_data[self.CLSF] #classifier
-                else:
-                    return KanaText('')
-            if key == self.TERM: return self._display_data[self.TERM] #term
-            if key == self.SBTM: return self._display_data[self.SBTM] #subterm
-            if key == self.EMPH: return self._link_data[0]    #emphasis(main)
-            raise KeyError(key)
-        else:
-            raise TypeError(key)
-
-    def __setitem__(self, key, value): #更新するデータだけ対応する.
-        if isinstance(key, int):
-            if key == self.CLSF: self._display_data[self.CLSF] = value
-            elif key == self.TERM: self._display_data[self.TERM] = value
-            elif key == self.SBTM: self._display_data[self.SBTM] = value
-            elif key == self.EMPH: self._display_data[self.EMPH] = value
-            else: raise KeyError(key)
-        else:
-            raise KeyError(key)
-
-    def get_children(self):
-        children = [self[self.TERM]]
-        if self[2]:
-            for child in self[self.SBTM]._terms:
-                children.append(child)
-        return children
-
-    def set_subterm_delimiter(self, delimiter=', '):
-        self[self.SBTM].set_delimiter(delimiter)
-
-    def astexts(self):
-        texts = [self[self.TERM].astext()]
-
-        for subterm in self[self.SBTM]._terms:
-            texts.append(subterm.astext())
-
-        return texts
+    def __init__(self, term, subterm, emphasis, file_name, target, index_key):
+        super().__init__(term, subterm, emphasis, file_name, target, index_key)
 
     def askanas(self):
         kanas = [self[self.TERM].askana()]
@@ -1098,53 +1000,12 @@ class ExIndexUnit(object):
 
 #------------------------------------------------------------
 
-class _StandaloneHTMLBuilder(builders.StandaloneHTMLBuilder):
-    """
-    オリジナルに依存する部分と拡張部分を区別するために用意したクラス.
-    """
-
-    def create_genindex(self) -> None: #KaKkou
-        """
-        このように分けてくれると、self.create_index()を書き換えるだけで済む.
-        """
-
-        return IndexEntries(self.env).create_index(self)
-
-    def write_genindex(self) -> None:
-        genindex = self.create_genindex()
-
-        #以降の処理はSphinx4.1.2オリジナルと同じ
-        indexcounts = []
-        for _k, entries in genindex:
-            indexcounts.append(sum(1 + len(subitems)
-                                   for _, (_, subitems, _) in entries))
-
-        genindexcontext = {
-            'genindexentries': genindex,
-            'genindexcounts': indexcounts,
-            'split_index': self.config.html_split_index,
-        }
-        logger.info('genindex ', nonl=True)
-
-        if self.config.html_split_index:
-            self.handle_page('genindex', genindexcontext,
-                             'genindex-split.html')
-            self.handle_page('genindex-all', genindexcontext,
-                             'genindex.html')
-            for (key, entries), count in zip(genindex, indexcounts):
-                ctx = {'key': key, 'entries': entries, 'count': count,
-                       'genindexentries': genindex}
-                self.handle_page('genindex-' + key, ctx,
-                                 'genindex-single.html')
-        else:
-            self.handle_page('genindex', genindexcontext, 'genindex.html')
-
-class KanaHTMLBuilder(_StandaloneHTMLBuilder):
+class KanaHTMLBuilder(idxr.HTMLBuilder):
     """索引ページの日本語対応"""
 
     name = 'kana'
 
-    def create_genindex(self) -> None: #KaKkou
+    def index_adapter(self) -> None: #KaKkou
         """索引の作成"""
         #自前のIndexerを使う
         return ExIndexRack(self).create_genindex()
