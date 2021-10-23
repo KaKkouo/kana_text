@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0b2' # 2021-10-24
+__version__ = '0.25.0b3' # 2021-10-24
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -295,9 +295,11 @@ def make_html_with_ruby(word: str, kana: str) -> str:
         >>> make_html_with_ruby("単語","たんご")
         '<ruby><rb>単語</rb><rp>（</rp><rt>たんご</rt><rp>）</rp></ruby>'
     """
+    _word = nodes.unescapce(word)
+    _word = nodes.unescapce(kana)
 
-    rb = f'<rb>{word}</rb>' #単語
-    rt = f'<rt>{kana}</rt>' #かな
+    rb = f'<rb>{_word}</rb>' #単語
+    rt = f'<rt>{_kana}</rt>' #かな
     rp = ('<rp>（</rp>', '<rp>）</rp>')
 
     return f'<ruby>{rb}{rp[0]}{rt}{rp[1]}</ruby>'
@@ -413,7 +415,10 @@ class KanaText(nodes.Node):
 
     def __str__(self):
         """jinja2用"""
-        return self.ashier()
+        if self.whatiam == 'term':
+            return self.ashtml()
+        else:
+            return self.ashier()
 
     def __iter__(self):
         """jinja2用"""
