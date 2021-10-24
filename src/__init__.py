@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0b4' # 2021-10-24
+__version__ = '0.25.0b5' # 2021-10-24
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -395,9 +395,7 @@ class KanaText(nodes.Node):
     def __setitem__(self, key, value):
         """必要なものに限定する."""
         if isinstance(key, str):
-            if key == 'whatiam':
-                self.whatiam = value
-            elif key in ('ruby', 'option'):
+            if key in ('ruby', 'option'):
                 self._properties[key] = value
             else:
                 raise KeyError(key)
@@ -415,7 +413,7 @@ class KanaText(nodes.Node):
 
     def __str__(self):
         """jinja2用"""
-        if self.whatiam == 'term':
+        if self.whatiam == 'term' and self.html_kana_text_on_genindex:
             return self.ashtml()
         else:
             return self.ashier()
@@ -875,6 +873,7 @@ class ExIndexRack(idxr.IndexRack):
         """
         #情報収集
         self.put_in_kana_catalog(unit[self.UNIT_EMPH], unit.get_children()) 
+        unit[self.UNIT_TERM].html_kana_text_on_genindex = self.config.html_kana_text_on_genindex
 
         #残りの処理
         super().append(unit)
@@ -951,9 +950,6 @@ class ExIndexRack(idxr.IndexRack):
             term['option'] = self._kana_catalog[term.ashier()][3]
         else:
             pass
-
-    def generate_genindex_data(self):
-        return super().generate_genindex_data()
 
 class ExSubTerm(idxr.SubTerm):
     """

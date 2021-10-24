@@ -63,6 +63,16 @@ testcase04str = "tests/result81_04.txt"
 testcase05str = "tests/result81_05.txt"
 testcase06str = "tests/result81_06.txt"
 
+testcase07in = testcase01in
+testcase08in = testcase02in
+testcase09in = testcase03in
+testcase10in = testcase04in
+
+testcase07str = "tests/result81_07.txt"
+testcase08str = "tests/result81_08.txt"
+testcase09str = "tests/result81_09.txt"
+testcase10str = "tests/result81_10.txt"
+
 #-------------------------------------------------------------------
 
 def get_result(file_name):
@@ -154,6 +164,54 @@ class testIndexRack(unittest.TestCase):
         #self.assertEqual(testcase01out, gidx)
         text = template.render({'genindexentries': gidx})
         rslt = get_result(testcase06str)
+        self.assertEqual(rslt, text)
+
+    def test07_text_by_jinja2(self):
+        self.maxDiff = None
+        env = util.env(testcase07in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = False
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
+        text = template.render({'genindexentries': gidx})
+        rslt = get_result(testcase07str)
+        self.assertEqual(rslt, text)
+
+    def test08_text_by_jinja2(self):
+        self.maxDiff = None
+        env = util.env(testcase08in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = False
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
+        text = template.render({'genindexentries': gidx})
+        rslt = get_result(testcase08str)
+        self.assertEqual(rslt, text)
+
+    def test09_text_by_jinja2(self):
+        self.maxDiff = None
+        env = util.env(testcase09in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = False
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
+        text = template.render({'genindexentries': gidx})
+        rslt = get_result(testcase09str)
+        self.assertEqual(rslt, text)
+
+    def test10_text_by_jinja2(self):
+        self.maxDiff = None
+        env = util.env(testcase10in)
+        bld = util.builder(env)
+        bld.config.kana_text_indexer_mode = 'small'
+        bld.config.html_kana_text_on_genindex = False
+        idx = IndexRack(bld)
+        gidx = idx.create_genindex()
+        text = template.render({'genindexentries': gidx})
+        rslt = get_result(testcase10str)
         self.assertEqual(rslt, text)
 
 #-------------------------------------------------------------------
