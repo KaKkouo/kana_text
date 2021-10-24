@@ -1,8 +1,16 @@
 [あ]
-term: <ruby><rb>壱</rb><rp>（</rp><rt>い</rt><rp>）</rp></ruby><ruby><rb>壱</rb><rp>（</rp><rt>い</rt><rp>）</rp></ruby>
-sub: 参参/doc02.html#id-02
-sub: 弐弐/doc01.html#id-01
-[分類子]
-term: <ruby><rb>四</rb><rp>（</rp><rt>に</rt><rp>）</rp></ruby><ruby><rb>四</rb><rp>（</rp><rt>に</rt><rp>）</rp></ruby>
-sub: 六六/doc04.html#id-04
-sub: 五五/doc03.html#id-03
+term: 壱壱
+sub: 弐弐 参参/doc01.html#id-1111
+[な]
+term: 四四
+sub: 五五 六六/doc02.html#id-1121
+[は]
+term: 参参
+sub: 壱壱 弐弐/doc01.html#id-1111
+term: 六六
+sub: 四四 五五/doc02.html#id-1121
+term: 五五
+sub: 六六, 四四/doc02.html#id-1121
+[ら]
+term: 弐弐
+sub: 参参, 壱壱/doc01.html#id-1111

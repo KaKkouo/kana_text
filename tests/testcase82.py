@@ -12,7 +12,7 @@ from . import util
 
 testcase01in = {
 'doc02': [('triple','にに|四四^11; ほほ|五五^11; へへ|六六^11','id-1121','',None)],
-'doc01': [('single','いい|壱壱^11; ろろ|弐弐^11; はは|参参^11','id-1111','',None)],
+'doc01': [('triple','いい|壱壱^11; ろろ|弐弐^11; はは|参参^11','id-1111','',None)],
 }
 
 testcase02in = testcase01in
