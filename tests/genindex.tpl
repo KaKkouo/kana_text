@@ -15,26 +15,13 @@
 {%- macro indexentries(firstname, links) -%}
 {%- if links -%}
 {%- if links[0][0] %}!{% endif -%}
-{{ kana_entry(firstname) }}/{{ links[0][1] }}
+{{ firstname }}/{{ links[0][1] }}
 {%- for ismain, link in links[1:] -%}
 , {%- if ismain -%}!{%- endif -%}
 [{{ loop.index }}]/{{ link }}
 {%- endfor -%}
 {%- else -%}
-{{ kana_entry(firstname) }}
-{%- endif -%}
-{%- endmacro -%}
-
-{%- macro indexentries2(firstname, links) -%}
-{%- if links -%}
-{%- if links[0][0] %}!{% endif -%}
-{{ firstname|e }}/{{ links[0][1] }}
-{%- for ismain, link in links[1:] -%}
-, {%- if ismain -%}!{%- endif -%}
-[{{ loop.index }}]/{{ link }}
-{%- endfor -%}
-{%- else -%}
-{{ firstname|e }}
+{{ firstname }}
 {%- endif -%}
 {%- endmacro -%}
 
@@ -49,7 +36,7 @@
 term: {{ indexentries(entryname, links) }}
 {% if subitems -%}
 {% for subentryname, subentrylinks in subitems -%}
-sub: {{ indexentries2(subentryname, subentrylinks) }}
+sub: {{ indexentries(subentryname, subentrylinks) }}
 {% endfor -%}
 {%- endif -%}
 {% endfor -%}
