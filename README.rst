@@ -45,7 +45,7 @@ rst file:
 
 .. image:: https://i.gyazo.com/63fe4ccfaa8a57bb2d8db50c0a689cad.png
 
-.. coce-block:: rst
+.. code-block:: rst
 
    :term:`linkt to the term<ようごいち|用語壱^212>`
 
