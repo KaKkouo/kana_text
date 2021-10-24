@@ -18,27 +18,10 @@ testcase01in = {
 'doc01': [('single','いい|壱壱^11; ろろ|弐弐^11','id-01','',None)],
 }
 
-testcase01out = [
-('あ',
-  [('いい|壱壱',
-    [[],
-     [('はは|参参', [('', 'doc02.html#id-02')]),
-      ('ろろ|弐弐', [('', 'doc01.html#id-01')])],
-     None])]),
- ('分類子',
-  [('にに|四四',
-    [[],
-     [('へへ|六六', [('', 'doc04.html#id-04')]),
-      ('ほほ|五五', [('', 'doc03.html#id-03')])],
-     None])])
-]
-
 #html_kana_text_on_genindex = True
 testcase02in = {
 'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
 }
-
-testcase02out = []
 
 #html_kana_text_on_genindex = True
 testcase03in = {
@@ -46,16 +29,12 @@ testcase03in = {
 'doc03': [('single','にに|四四^11; ほほ|五五^11','id-03','', '分類子')],
 }
 
-testcase03out = []
-
 #html_kana_text_on_genindex = True
 testcase04in = {
 'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
 'doc03': [('single','にに|四四^11','id-03','', '分類子')],
 'doc02': [('single','いい|壱壱^11; はは|参参^11','id-02','',None)],
 }
-
-testcase04out = []
 
 #kana_text_word_listの上書き
 testcase05in = {
@@ -67,8 +46,6 @@ testcase05in = {
 'doc06': [('single','おお|拾拾拾; んん|拾拾拾','id-06','',None)],
 }
 
-testcase05out = []
-
 #kana_text_word_listの上書き
 testcase06in = {
 'doc01': [('single','ああ|球球球; いい|球球球','id-01','',None)],
@@ -78,8 +55,6 @@ testcase06in = {
 'doc05': [('single','なな|拾拾拾','id-05','',None)],
 'doc06': [('single','おお|拾拾拾','id-06','',None)],
 }
-
-testcase06out = []
 
 testcase01str = "tests/result81_01.txt"
 testcase02str = "tests/result81_02.txt"
