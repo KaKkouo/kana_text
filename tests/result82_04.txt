@@ -1,0 +1,8 @@
+[あ]
+term: <ruby><rb>壱</rb><rp>（</rp><rt>い</rt><rp>）</rp></ruby><ruby><rb>壱</rb><rp>（</rp><rt>い</rt><rp>）</rp></ruby>
+sub: 参参/doc02.html#id-02
+sub: 弐弐/doc01.html#id-01
+[分類子]
+term: <ruby><rb>四</rb><rp>（</rp><rt>に</rt><rp>）</rp></ruby><ruby><rb>四</rb><rp>（</rp><rt>に</rt><rp>）</rp></ruby>
+sub: 六六/doc04.html#id-04
+sub: 五五/doc03.html#id-03
