@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0b3' # 2021-10-24
+__version__ = '0.25.0b4' # 2021-10-24
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -295,8 +295,8 @@ def make_html_with_ruby(word: str, kana: str) -> str:
         >>> make_html_with_ruby("単語","たんご")
         '<ruby><rb>単語</rb><rp>（</rp><rt>たんご</rt><rp>）</rp></ruby>'
     """
-    _word = nodes.unescapce(word)
-    _word = nodes.unescapce(kana)
+    _word = nodes.unescape(word)
+    _kana = nodes.unescape(kana)
 
     rb = f'<rb>{_word}</rb>' #単語
     rt = f'<rt>{_kana}</rt>' #かな
@@ -965,7 +965,7 @@ class ExSubTerm(idxr.SubTerm):
         super().__init__(emphasis, *terms)
     def __str__(self):
         """Jinja2用"""
-        return self.ashier()
+        return nodes.unescape(self.ashier())
     def astext(self):
         if self._template and len(self) == 1:
             return self._template % self._terms[0].ashier()
