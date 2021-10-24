@@ -2,7 +2,7 @@
 import sys
 import unittest
 sys.path.append('sphinxcontrib')
-from src import ExIndexUnit as IndexUnit, ExSubTerm as sb, KanaText as kt
+from src import ExIndexUnit as IndexUnit, ExSubterm as sb, KanaText as kt
 
 testcase01i = [
     (kt('壱壱'), sb('5', kt('似似'), kt('参参')), '5', 'doc1', 'id-01', '分類子'),
@@ -17,11 +17,11 @@ testcase01i = [
 ]
 
 testcase01o = [
-    "<ExIndexUnit: main='5' file_name='doc1' target='id-01' <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubTerm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
-    "<ExIndexUnit: main='5' file_name='doc1' target='id-01' <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubTerm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
+    "<ExIndexUnit: main='5' file_name='doc1' target='id-01' <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
+    "<ExIndexUnit: main='5' file_name='doc1' target='id-01' <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
     "<ExIndexUnit: main='5' file_name='doc1' target='id-01' <#empty><KanaText: len=1 <#text: '壱壱'>>>",
-    "<ExIndexUnit: main='5' <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubTerm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
-    "<ExIndexUnit: main='5' <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubTerm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
+    "<ExIndexUnit: main='5' <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
+    "<ExIndexUnit: main='5' <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
     "<ExIndexUnit: main='5' <#empty><KanaText: len=1 <#text: '壱壱'>>>",
     "<ExIndexUnit: main='5' <#empty><KanaText: len=2 <#text: 'いい|壱壱'>>>",
     "<ExIndexUnit: main='5' <#empty><KanaText: len=2 ruby='on' <#text: 'いい|壱壱'>>>",
@@ -37,7 +37,7 @@ testcase02o = [
     '5', 'doc1', 'id-02', '分類子',
     "<#empty>",
     "<KanaText: len=2 ruby='specific' option='11' <#text: 'いい|壱壱'>>",
-    "<ExSubTerm: len=2 <KanaText: len=2 ruby='on' <#text: 'ろろ|弐弐'>><KanaText: len=2 ruby='specific' option='2' <#text: 'はは|参参'>>>",
+    "<ExSubterm: len=2 <KanaText: len=2 ruby='on' <#text: 'ろろ|弐弐'>><KanaText: len=2 ruby='specific' option='2' <#text: 'はは|参参'>>>",
     "'5'",
 ]
 
