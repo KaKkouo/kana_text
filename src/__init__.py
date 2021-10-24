@@ -206,7 +206,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0b5' # 2021-10-24
+__version__ = '0.25.0b6' # 2021-10-24
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -417,19 +417,6 @@ class KanaText(nodes.Node):
             return self.ashtml()
         else:
             return self.ashier()
-
-    def __iter__(self):
-        """jinja2用"""
-        self._iterator = self.asruby()
-        self._iter_counter = -1
-        return self
-
-    def __next__(self):
-        self._iter_counter += 1
-        try:
-            return self._iterator[self._iter_counter]
-        except IndexError:
-            raise StopIteration
 
     def __repr__(self):
         return self.entity_of_repr()
