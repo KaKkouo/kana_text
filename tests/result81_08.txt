@@ -1,0 +1,3 @@
+[な]
+term: 四四
+sub: 六六/doc04.html#id-04
