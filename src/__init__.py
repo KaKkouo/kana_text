@@ -85,15 +85,6 @@ kana_text_word_list
 
 - 「かな|言葉^11」の書式で指定された文字列をリスト形式で設定する.
 
-html_kana_text_on_genindex
-
-- 索引ページでのかな表示を有効にする. 省略時は非表示. 推奨はTrue.
-- 対応した「genidex.html」が必要. コマンド「sphinx-kana-genindex」で作成される.
-
-html_change_triple
-
-- tripleでの「3rd, 1st」の表示を「1st, 3rd」に変更する. 省略時はFalse.
-
 kana_text_indexer_mode
 
 - 'small': ex.「モジュール」は「ま」の項目.
@@ -101,34 +92,23 @@ kana_text_indexer_mode
 - その他:  ex.「モジュール」は「モ」のまま.
 - 省略時は`small`.
 
+kana_text_on_genindex
+
+- 索引ページでのかな表示を有効にする. 省略時は非表示. 推奨はTrue.
+- 対応した「genidex.html」が必要. コマンド「sphinx-kana-genindex」で作成される.
+
+kana_text_change_triple
+
+- tripleでの「3rd, 1st」の表示を「1st, 3rd」に変更する. 省略時はFalse.
+
 genindex.htmlの作り方
 ---------------------
 コマンド「sphinx-kana-genindex」の実行で、以下の内容のファイルがカレントディレクトリに作成される.
 
 1. sphinx/themes/basic/genindex.html をプロジェクトの「_templates」にコピーする.
-2. 「{{ firstname|e }}」を次のように変更し、続けて同ファイルに「macro」を記述する.
+2. indexentriesマクロにある二つの「{{ firstname|e }}」から「|e」を取り除く。
 
-.. code-block:: jinja
-
-    {{ kana_entry(firstname) }}
-
-.. code-block:: jinja
-
-    {% macro kana_entry(kname) %}
-    {%- if kname is string -%}
-      {{ kname|e }}
-    {%- else %}
-      {%- for isruby, val in kname -%}
-      {%- if isruby -%}
-        <ruby><rb>{{ val[0]|e }}</rb><rp>（</rp>
-        <rt>{{ val[1]|e }}</rt><rp>）<rp>
-        </ruby>
-      {%- else %}
-        {{ val|e }}
-      {%- endif %}
-      {%- endfor %}
-    {%- endif %}
-    {% endmacro %}
+    - 「|e」の代わりに「nodes.unescape」で対処。
 
 開発者向け
 ==========
@@ -177,7 +157,7 @@ ExIndexUnitクラス
 
 - 索引ページで表示される各項目に対応したオブジェクトのクラス.
 
-ExSubTermクラス
+ExSubtermクラス
 
 - ExIndexUnitクラス内のsubtermオブジェクトのクラス.
 - KanaTextを最大で二つ持つ.
@@ -206,7 +186,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.0' # 2021-10-24
+__version__ = '0.25.1b1' # 2021-10-24
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -413,7 +393,7 @@ class KanaText(nodes.Node):
 
     def __str__(self):
         """jinja2用"""
-        if self.whatiam == 'term' and self.html_kana_text_on_genindex:
+        if self.whatiam == 'term' and self.kana_text_on_genindex:
             return self.ashtml()
         else:
             return self.ashier()
@@ -821,7 +801,7 @@ class ExIndexRack(idxr.IndexRack):
         for rawword in builder.config.kana_text_word_list:
             entry = ExIndexEntry(rawword, 'list', 'WORD_LIST', '', 'conf.py', None) #_cnfpy_
             entry.unitclass = ExIndexUnit
-            entry.packclass = ExSubTerm
+            entry.packclass = ExSubterm
             index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
@@ -830,7 +810,7 @@ class ExIndexRack(idxr.IndexRack):
         for rawword in get_word_list_from_file(builder.config):
             entry = ExIndexEntry(rawword, 'list', 'WORD_FILE', '', 'valuerc', None) #_rncmd_
             entry.unitclass = ExIndexUnit
-            entry.packclass = ExSubTerm
+            entry.packclass = ExSubterm
             index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
@@ -850,7 +830,7 @@ class ExIndexRack(idxr.IndexRack):
         self.textclass = KanaText
         self.entryclass = ExIndexEntry
         self.unitclass = ExIndexUnit
-        self.packclass = ExSubTerm
+        self.packclass = ExSubterm
 
         return super().create_genindex(group_entries, _fixre)
 
@@ -860,7 +840,7 @@ class ExIndexRack(idxr.IndexRack):
         """
         #情報収集
         self.put_in_kana_catalog(unit[self.UNIT_EMPH], unit.get_children()) 
-        unit[self.UNIT_TERM].html_kana_text_on_genindex = self.config.html_kana_text_on_genindex
+        unit[self.UNIT_TERM].kana_text_on_genindex = self.config.kana_text_on_genindex
 
         #残りの処理
         super().append(unit)
@@ -914,7 +894,7 @@ class ExIndexRack(idxr.IndexRack):
         #__init__で貯めた情報を追加する.
         self._kana_catalog.update(self._kana_catalog_pre)
 
-        #カタログ情報を使った更新
+        #カタログ情報を使った更新/kana_text_change_tripleの反映
         for unit in self._rack:
             assert [unit[self.UNIT_TERM]]
 
@@ -924,6 +904,9 @@ class ExIndexRack(idxr.IndexRack):
 
             for subterm in unit[self.UNIT_SBTM]._terms:
                 self.update_term_with_kana_catalog(subterm)
+
+            #kana_text_change_tripleの設定値を反映
+            unit[self.UNIT_SBTM].change_triple = self.config.kana_text_change_triple
 
         super().update_units()
 
@@ -938,7 +921,7 @@ class ExIndexRack(idxr.IndexRack):
         else:
             pass
 
-class ExSubTerm(idxr.SubTerm):
+class ExSubterm(idxr.Subterm):
     """
     Jinja2に「文字列」と思わせるには「node.repruniocde」の継承が必要.
     （実体はstrだけど、Sphinxの流儀に従っていた方が無難）
@@ -961,7 +944,7 @@ class ExSubTerm(idxr.SubTerm):
         if self._template and len(self) == 1:
             return self._template % self._terms[0].ashier()
 
-        if self.change_triple and len(self) == 2:
+        if self.change_triple and len(self) == 2 and self._delimiter == ', ':
             return self[1].ashier() + self._delimiter + self[0].ashier()
 
         hier = ""
@@ -1007,38 +990,8 @@ class KanaHTMLBuilder(idxr.HTMLBuilder):
 
 #------------------------------------------------------------
 
-class _IndexRole(IndexRole):
-    """
-    変更点は次の通り
-    - 変更前）text = nodes.Text(title, title)
-    - 変更後）text = self.create_textnode(title, title)
-    """
-    def create_textnode(sefl, text, rawtext):
-        return Text(text, rawtext)
-
-    def run(self) -> Tuple[List[Node], List[system_message]]:
-        target_id = 'index-%s' % self.env.new_serialno('index')
-        if self.has_explicit_title:
-            # if an explicit target is given, process it as a full entry
-            title = self.title
-            entries = process_index_entry(self.target, target_id)
-        else:
-            # otherwise we just create a single entry
-            if self.target.startswith('!'):
-                title = self.title[1:]
-                entries = [('single', self.target[1:], target_id, 'main', None)]
-            else:
-                title = self.title
-                entries = [('single', self.target, target_id, '', None)]
-
-        index = addnodes.index(entries=entries)
-        target = nodes.target('', '', ids=[target_id])
-        text = self.create_textnode(title, title) #KaKkou
-        self.set_source_info(index)
-        return [index, target, text], []
-
-class KanaIndexRole(_IndexRole):
-    def create_textnode(self, text, rawtext):
+class KanaIndexRole(idxr.XRefIndex):
+    def textclass(self, text, rawtext):
         return KanaText(text)
 
 #------------------------------------------------------------
@@ -1072,8 +1025,8 @@ def setup(app) -> Dict[str, Any]:
     app.add_config_value('kana_text_word_file', '', 'env') 
     app.add_config_value('kana_text_word_list', (), 'env') 
     app.add_config_value('kana_text_indexer_mode', 'small', 'env') 
-    app.add_config_value('html_kana_text_on_genindex', False, 'html') 
-    app.add_config_value('html_change_triple', False, 'html') 
+    app.add_config_value('kana_text_on_genindex', False, 'html') 
+    app.add_config_value('kana_text_change_triple', False, 'html') 
 
     #バージョンの最後は作成日（MMDDYY）
     return {

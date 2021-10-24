@@ -17,8 +17,8 @@ class config(object):
         self.kana_text_indexer_mode = 'normal'
         self.kana_text_word_file = ''
         self.kana_text_word_list = ()
-        self.html_kana_text_on_genindex = False
-        self.html_change_triple = False
+        self.kana_text_on_genindex = False
+        self.kana_text_change_triple = False
 
 class builder(object):
     def __init__(self, env):
