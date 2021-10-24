@@ -1,5 +1,6 @@
 CHANGES
 -------
+- 2021-10-24 0.25 divide into sphindexer and kana_text.
 - 2021-10-16 0.24 organize the usage of KanaText's __eq__, __str__, __iter__.
 - 2021-10-09 0.23 refactoring: KanaHTMLBuilder, configuration parameters.
 - 2021-10-08 0.22 refactoring: IndexRack, IndexUnit.
