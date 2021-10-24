@@ -186,7 +186,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.1b1' # 2021-10-24
+__version__ = '0.25.1b2' # 2021-10-24
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -945,7 +945,7 @@ class ExSubterm(idxr.Subterm):
             return self._template % self._terms[0].ashier()
 
         if self.change_triple and len(self) == 2 and self._delimiter == ', ':
-            return self[1].ashier() + self._delimiter + self[0].ashier()
+            return self._terms[1].ashier() + self._delimiter + self._terms[0].ashier()
 
         hier = ""
         for subterm in self._terms:
