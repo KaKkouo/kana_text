@@ -46,11 +46,12 @@ class testKanaText(unittest.TestCase):
     #正規表現による字句解析
     def test01_marker(self):
         for t, e in zip(testcase1i, testcase1o):
-            cfg = util.config()
-            cfg.kana_text_option_marker = r'\#'
-            term = KanaText(t, cfg)
+            KanaText.config = util.config()
+            KanaText.config.kana_text_option_marker = r'\#'
+            term = KanaText(t)
             rslt = term.astext()
             self.assertEqual(e, rslt)
+            KanaText.config.kana_text_option_marker = r'\^'
 
 def main():
     unittest.main()

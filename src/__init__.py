@@ -186,7 +186,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.1b2' # 2021-10-24
+__version__ = '0.25.1b1' # 2021-10-24
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -324,8 +324,9 @@ class KanaText(nodes.Node):
     """
 
     children = () #これでTextクラスと同じ扱いになる.
+    config = None
 
-    def __init__(self, rawword, config=None):
+    def __init__(self, rawword):
         """
         doctest:
 
@@ -334,13 +335,13 @@ class KanaText(nodes.Node):
             <KanaText: len=2 ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
         """
 
-        if config and _dflt_separator != config.kana_text_separator:
-            separator = config.kana_text_separator
+        if self.config and _dflt_separator != self.config.kana_text_separator:
+            separator = self.config.kana_text_separator
         else:
             separator = _dflt_separator
 
-        if config and _dflt_option_marker != config.kana_text_option_marker:
-            option_marker = config.kana_text_option_marker
+        if self.config and _dflt_option_marker != self.config.kana_text_option_marker:
+            option_marker = self.config.kana_text_option_marker
         else:
             option_marker = _dflt_option_marker
 

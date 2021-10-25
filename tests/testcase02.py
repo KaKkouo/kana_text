@@ -46,9 +46,9 @@ class testKanaText(unittest.TestCase):
     #正規表現による字句解析
     def test01_separator(self):
         for t, e in zip(testcase1i, testcase1o):
-            cfg = util.config()
-            cfg.kana_text_separator = '、'
-            term = KanaText(t, cfg)
+            KanaText.config = util.config()
+            KanaText.config.kana_text_separator = '、'
+            term = KanaText(t)
             rslt = term.astext()
             self.assertEqual(e, rslt)
 
