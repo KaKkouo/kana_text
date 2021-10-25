@@ -14,6 +14,7 @@ class env(object):
 class config(object):
     def __init__(self):
         self.kana_text_separator = r'\|'
+        self.kana_text_option_marker = r'\^'
         self.kana_text_indexer_mode = 'normal'
         self.kana_text_word_file = ''
         self.kana_text_word_list = ()

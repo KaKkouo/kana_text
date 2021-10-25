@@ -6,22 +6,24 @@ from src import KanaText
 
 from . import dataset0
 
-#len()の基本チェック
+#self.ashier()の基本チェック
 testcase01i = dataset0.dataset
 
 testcase01o = [   #想定する結果
-    2, 2, 2, 2, 2, 1, 1, 1, 1, 1,
-    2, 2, 2, 2, 2, 1, 1, 1, 1, 1,
-    2, 2, 2, 2, 2, 1, 1, 1, 1, 1,
-    #0, 0, 0, #0.22.0/対応保留
-    ]
+    "用語１", "用語２", "用語３", "用語４", "用語５",
+    "用語６", "用語７", "用語８", "用語９", "用語Ａ",
+    "用語１", "用語２", "用語３", "用語４", "用語５",
+    "用語６", "用語７", "用語８", "用語９", "用語Ａ",
+    "用語１", "用語２", "用語３", "用語４", "用語５",
+    "用語６", "用語７", "用語８", "用語９", "用語Ａ",
+    "", "", ""]
 
 class testKanaText(unittest.TestCase):
-    #lenで基本チェック
-    def test01_len(self):
+    #ashierの基本チェック
+    def test01_ashier(self):
         for t, e in zip(testcase01i, testcase01o):
             term = KanaText(t)
-            rslt = len(term)
+            rslt = term.ashier()
             self.assertEqual(e, rslt)
 
 def main():

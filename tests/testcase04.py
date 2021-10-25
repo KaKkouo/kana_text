@@ -6,22 +6,20 @@ from src import KanaText
 
 from . import dataset0
 
-#askana()の基本チェック
-testcase01i = dataset0.dataset
-
-testcase01o = [   #想定する結果
-    "よみ１", "よみ２", "よみ３", "よみ４", "よみ５", "", "", "", "", "",
-    "よみ１", "よみ２", "よみ３", "よみ４", "よみ５", "", "", "", "", "",
-    "よみ１", "よみ２", "よみ３", "よみ４", "よみ５", "", "", "", "", "",
-    "", "", ""
+#未入力/扱えない文字列
+testcase01i = [
+    '', '  ', '　　',
+    'かな|^',
     ]
 
+testcase01o = [None, None, None, None]
+
 class testKanaText(unittest.TestCase):
-    #askanaの基本チェック
-    def test01_askana(self):
+    #非表示指定の「a-i」「q-y」の動作
+    def test01_asruby(self):
         for t, e in zip(testcase01i, testcase01o):
             term = KanaText(t)
-            rslt = term.askana()
+            rslt = term.asruby()
             self.assertEqual(e, rslt)
 
 def main():
