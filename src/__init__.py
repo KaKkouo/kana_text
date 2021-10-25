@@ -135,12 +135,12 @@ ExIndexEntryクラス
 
 visit_kana/depart_kanaメソッド
 
-- add_node()により、KanaTextクラスに紐付けてKanaHTMLBuilderクラスに登録される.
+- add_node()により、KanaTextクラスに紐付けてExHTMLBuilderクラスに登録される.
 - glossaryで記載したテキストは、 **visit_term()** メソッドでKanaTextクラスにする.
 
     - 本来の調整場所はGlossaryクラスだが、コード量の少ないvisit_termメソッドを選択.
 
-KanaHTML5Translatorクラス/visit_termメソッド
+ExHTML5Translatorクラス/visit_termメソッド
 
 - 目的のTextノードをKanaTextノードに変更する.
 
@@ -162,7 +162,7 @@ ExSubtermクラス
 - ExIndexUnitクラス内のsubtermオブジェクトのクラス.
 - KanaTextを最大で二つ持つ.
 
-KanaHTMLBuilderクラス/create_genindexメソッド
+ExHTMLBuilderクラス/create_genindexメソッド
 
 - 索引ページの表示、ソート処理前の「^オプション」の削除を行う.
 
@@ -186,7 +186,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.1b1' # 2021-10-24
+__version__ = '0.25.1b4' # 2021-10-25
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -202,7 +202,7 @@ from sphinx.domains.index import IndexDomain, IndexRole
 from sphinx.errors import NoUri
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import _, __
-from sphinx.util import logging, split_into
+from sphinx.util import logging, split_into, docutils
 from sphinx.util.nodes import process_index_entry
 from sphinx.writers import html5
 
@@ -585,54 +585,6 @@ class ExIndexEntry(idxr.IndexEntry):
 
         return prop
 
-    def askana(self, concat=(', ', 3)):
-        """
-        doctest:
-            >>> ktext = ExIndexEntry('壱壱')
-            >>> ktext.askana()
-            ''
-            >>> ktext = ExIndexEntry('ああ|壱壱^11')
-            >>> ktext.askana()
-            'ああ'
-            >>> ktext = ExIndexEntry('ああ|壱壱^11; いい|弐弐; うう|参参^11')
-            >>> ktext.askana()
-            'ああ, いい, うう'
-        """
-        kana = concat[0].join(k.askana() for k in self)
-        return kana
-
-    def ashier(self, concat=(', ', 3)):
-        """
-        doctest:
-            >>> ktext = ExIndexEntry('壱壱')
-            >>> ktext.ashier()
-            '壱壱'
-            >>> ktext = ExIndexEntry('ああ|壱壱^11')
-            >>> ktext.ashier()
-            '壱壱'
-            >>> ktext = ExIndexEntry('ああ|壱壱^11; いい|弐弐; うう|参参^11')
-            >>> ktext.ashier()
-            '壱壱, 弐弐, 参参'
-        """
-        word = concat[0].join(k.ashier() for k in self)
-        return word
-
-    def astext(self, concat=('; ', 3)):
-        """
-        doctest:
-            >>> ktext = ExIndexEntry('壱壱')
-            >>> ktext.astext()
-            '壱壱'
-            >>> ktext = ExIndexEntry('ああ|壱壱^11')
-            >>> ktext.astext()
-            'ああ|壱壱'
-            >>> ktext = ExIndexEntry('ああ|壱壱^11; いい|弐弐; うう|参参^11')
-            >>> ktext.astext()
-            'ああ|壱壱; いい|弐弐; うう|参参'
-        """
-        text = concat[0].join(k.astext() for k in self)
-        return text
-
     def asruby(self):
         """
         doctest:
@@ -648,60 +600,6 @@ class ExIndexEntry(idxr.IndexEntry):
     def ashtml(self, concat=('; ', 3)):
         html = concat[0].join(h.ashtml() for h in self)
         return html
-
-#------------------------------------------------------------
-
-def KanaRole(name, rawtext, text, lineno, inliner, options={}, content=[]):
-    """「:kana:`かな|単語`」によるルビ表示
-
-    :param name: ロール名. kana
-    :type name: str
-    :param rawtext: ロール名を含む全体. ex. \:kana\:\`たなかはなこ|田中はな子^\`
-    :type rawtext: str
-    :param text: ロール内データ. ex たなかはなこ|田中はな子^
-    :type text: str
-    :param inliner: Inliner object
-    :type inliner: docutils.parsers.rst.states.Inliner
-    :return: 作成したノード
-    :rtype: [node], [システムメッセージ]
-    """
-    node = KanaText(text)
-    return [node], []
-
-def visit_kana(self, node):
-    """KanaTextクラスで作成されたオブジェクトの表示処理"""
-    self.body.append(node.ashtml())
-
-def depart_kana(self, node):
-    """KanaTextクラスで作成されたオブジェクトの表示処理"""
-    pass
-
-#------------------------------------------------------------
-
-class KanaHTML5Translator(html5.HTML5Translator):
-
-    def visit_term(self, node: Element) -> None:
-        """
-        目的の文字列をKanaTextクラスにするための対応.
-        後は、add_nodeで割り当てたメソッドが行う.
-        """
-
-        try:
-            term = KanaText(node[0].astext())
-        except TypeError as e:
-            pass
-        else:
-            #なくても動作しているのだけど、念の為
-            term.parent = node[0].parent
-            term.document = node[0].document
-            term.source = node[0].source
-            term.line = node[0].line
-            term.children = node[0].children
-            #ここまでが念の為
-
-            node[0] = term
-
-        self.body.append(self.starttag(node,'dt',''))
 
 #------------------------------------------------------------
 
@@ -954,32 +852,55 @@ class ExSubterm(idxr.Subterm):
         return hier[:-len(self._delimiter)]
 
 class ExIndexUnit(idxr.IndexUnit):
-
-    CLSF, TERM, SBTM, EMPH = 0, 1, 2, 3
-
-    def __init__(self, term, subterm, emphasis, file_name, target, index_key):
-        super().__init__(term, subterm, emphasis, file_name, target, index_key)
-
-    def askanas(self):
-        kanas = [self[self.TERM].askana()]
-
-        for subterm in self[self.SBTM]._terms:
-            kanas.append(subterm.askana())
-
-        return kanas
-
-    def ashiers(self):
-        """Textなら、astexts()になっている."""
-        terms = [self[self.TERM].ashier()]
-
-        for subterm in self[self.SBTM]._terms:
-            terms.append(subterm.ashier())
-
-        return terms
+    pass
 
 #------------------------------------------------------------
 
-class KanaHTMLBuilder(idxr.HTMLBuilder):
+class ExRole(docutils.SphinxRole):
+    """「:kana:`かな|単語`」によるルビ表示"""
+
+    def run(self):
+        node = KanaText(self.text)
+        return [node], []
+
+def visit_kana(self, node):
+    """KanaTextクラスで作成されたオブジェクトの表示処理"""
+    self.body.append(node.ashtml())
+
+def depart_kana(self, node):
+    """KanaTextクラスで作成されたオブジェクトの表示処理"""
+    pass
+
+#------------------------------------------------------------
+
+class ExHTML5Translator(html5.HTML5Translator):
+
+    def visit_term(self, node: Element) -> None:
+        """
+        目的の文字列をKanaTextクラスにするための対応.
+        後は、add_nodeで割り当てたメソッドが行う.
+        """
+
+        try:
+            term = KanaText(node[0].astext())
+        except TypeError as e:
+            pass
+        else:
+            #なくても動作しているのだけど、念の為
+            term.parent = node[0].parent
+            term.document = node[0].document
+            term.source = node[0].source
+            term.line = node[0].line
+            term.children = node[0].children
+            #ここまでが念の為
+
+            node[0] = term
+
+        self.body.append(self.starttag(node,'dt',''))
+
+#------------------------------------------------------------
+
+class ExHTMLBuilder(idxr.HTMLBuilder):
     """索引ページの日本語対応"""
 
     name = 'kana'
@@ -1009,16 +930,16 @@ def setup(app) -> Dict[str, Any]:
     app.add_role('index', KanaIndexRole(), True)
 
     #「:kana:`かな|単語^11`」が使用可能になる
-    app.add_role('kana', KanaRole)
+    app.add_role('kana', ExRole)
 
     #glossaryディレクティブ、kanaロールの表示用
     app.add_node(KanaText, html=(visit_kana, depart_kana))
     app.add_node(ExIndexEntry, html=(visit_kana, depart_kana))
-    #索引の表示はKanaHTMLBuilderで行う
+    #索引の表示はExHTMLBuilderで行う
 
     #HTML出力
-    app.add_builder(KanaHTMLBuilder)
-    app.set_translator('kana', KanaHTML5Translator)
+    app.add_builder(ExHTMLBuilder)
+    app.set_translator('kana', ExHTML5Translator)
 
     #設定の登録
     app.add_config_value('kana_text_separator', _dflt_separator, 'env') 
