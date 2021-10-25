@@ -5,7 +5,7 @@ sys.path.append('sphinxcontrib')
 from src import KanaText
 
 #オプションと文字データの文字数の多少
-testcase3i = [ #テストケース
+testcase01i = [ #テストケース
     'いろはにほへと|壱弐参四五六七八九',
     'いろはにほへと|壱弐参四五六七八九^',
     'いろはにほへと|壱弐参四五六七八九^111010111',
@@ -20,7 +20,7 @@ testcase3i = [ #テストケース
     'いろはにほへと|壱弐参四五六七八九^jkl55',
         ]
 
-testcase3o = [   #期待する結果
+testcase01o = [   #期待する結果
     [(False, '壱弐参四五六七八九')],
     [(True, ('壱弐参四五六七八九', 'いろはにほへと'))],
     [  (True, ('壱', 'い')),
@@ -53,8 +53,8 @@ testcase3o = [   #期待する結果
 
 class testKanaText(unittest.TestCase):
     #オプションと文字データの文字数の多少
-    def test03_asruby(self):
-        for t, e in zip(testcase3i, testcase3o):
+    def test01_asruby(self):
+        for t, e in zip(testcase01i, testcase01o):
             term = KanaText(t)
             rslt = term.asruby()
             self.assertEqual(e, rslt)

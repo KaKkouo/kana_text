@@ -7,9 +7,9 @@ from src import KanaText
 from . import dataset0
 
 #askana()の基本チェック
-testcase7i = dataset0.dataset
+testcase01i = dataset0.dataset
 
-testcase7o = [   #想定する結果
+testcase01o = [   #想定する結果
     "よみ１", "よみ２", "よみ３", "よみ４", "よみ５", "", "", "", "", "",
     "よみ１", "よみ２", "よみ３", "よみ４", "よみ５", "", "", "", "", "",
     "よみ１", "よみ２", "よみ３", "よみ４", "よみ５", "", "", "", "", "",
@@ -18,8 +18,8 @@ testcase7o = [   #想定する結果
 
 class testKanaText(unittest.TestCase):
     #askanaの基本チェック
-    def test07_askana(self):
-        for t, e in zip(testcase7i, testcase7o):
+    def test01_askana(self):
+        for t, e in zip(testcase01i, testcase01o):
             term = KanaText(t)
             rslt = term.askana()
             self.assertEqual(e, rslt)

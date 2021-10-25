@@ -5,7 +5,7 @@ sys.path.append('sphinxcontrib')
 from src import KanaText
 
 #非表示指定の「a-i」「q-y」の動作
-testcase4i = [
+testcase01i = [
     #テストケース
     # 1 2 3 4 5 6 7 8 9101112131415
     'いろはにほへとちりぬるをわかよ|壱弐参四五六七八九拾壱弐参四五',
@@ -38,7 +38,7 @@ testcase4i = [
     'いろはにほへとちりぬるをわかよ|壱弐参四五六七八九拾壱弐参四五^1uu1', 
 ] 
 
-testcase4o = [
+testcase01o = [
     #期待する結果
     [(False, '壱弐参四五六七八九拾壱弐参四五')],
     [(True, ('壱弐参四五六七八九拾壱弐参四五', 'いろはにほへとちりぬるをわかよ'))],
@@ -92,8 +92,8 @@ testcase4o = [
 
 class testKanaText(unittest.TestCase):
     #非表示指定の「a-i」「q-y」の動作
-    def test04_asruby(self):
-        for t, e in zip(testcase4i, testcase4o):
+    def test01_asruby(self):
+        for t, e in zip(testcase01i, testcase01o):
             term = KanaText(t)
             rslt = term.asruby()
             self.assertEqual(e, rslt)

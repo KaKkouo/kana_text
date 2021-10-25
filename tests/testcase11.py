@@ -5,7 +5,7 @@ sys.path.append('sphinxcontrib')
 from src import KanaText
 
 #オプションの処理
-testcase2i = [
+testcase01i = [
     #テストパターン
     "よみ１|用語１",
     "よみ２|用語２^120a3",
@@ -18,7 +18,7 @@ testcase2i = [
     "用語９^120a3あいうえお",
     "用語Ａ^あいうえお", ]
 
-testcase2o = [   #想定する結果
+testcase01o = [   #想定する結果
     [(False, '用語１')],
     [(True, ('用', 'よ')), (True, ('語', 'み２')), (False, '２')],
     [(True, ('用語３', 'よみ３'))],
@@ -32,8 +32,8 @@ testcase2o = [   #想定する結果
 
 class testKanaText(unittest.TestCase):
     #オプションの処理
-    def test02_asruby(self):
-        for t, e in zip(testcase2i, testcase2o):
+    def test01_asruby(self):
+        for t, e in zip(testcase01i, testcase01o):
             term = KanaText(t)
             rslt = term.asruby()
             self.assertEqual(e, rslt)
