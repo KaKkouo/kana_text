@@ -83,7 +83,7 @@ class testIndexRack(unittest.TestCase):
         bld.config.kana_text_indexer_mode = 'small'
         bld.config.html_kana_text_on_genindex = True
         idx = IndexRack(bld)
-        gidx = idx.create_genindex()
+        gidx = idx.create_index()
         self.assertEqual(gidx, testcase01out)
 
     def test02_structure_of_data(self):
@@ -93,7 +93,7 @@ class testIndexRack(unittest.TestCase):
         bld.config.kana_text_indexer_mode = 'small'
         bld.config.html_kana_text_on_genindex = True
         idx = IndexRack(bld)
-        gidx = idx.create_genindex()
+        gidx = idx.create_index()
         self.assertEqual(gidx, testcase02out)
 
     def test03_structure_of_data(self):
@@ -103,7 +103,7 @@ class testIndexRack(unittest.TestCase):
         bld.config.kana_text_indexer_mode = 'small'
         bld.config.html_kana_text_on_genindex = True
         idx = IndexRack(bld)
-        gidx = idx.create_genindex()
+        gidx = idx.create_index()
         self.assertEqual(gidx, testcase03out)
 
     def test04_structure_of_data(self):
@@ -113,14 +113,10 @@ class testIndexRack(unittest.TestCase):
         bld.config.kana_text_indexer_mode = 'small'
         bld.config.html_kana_text_on_genindex = True
         idx = IndexRack(bld)
-        gidx = idx.create_genindex()
+        gidx = idx.create_index()
         self.assertEqual(gidx, testcase04out)
 
 #-------------------------------------------------------------------
 
 if __name__ == '__main__':
     unittest.main()
-
-    #bld.config.kana_text_indexer_mode = 'small'
-    #gidx = bld.create_genindex(testcase08in)
-    #pprint(gidx)

@@ -38,4 +38,4 @@ class IndexEntries(IndexRack):
         self.builder = builder
         self.config = builder.config
         self.get_relative_uri = builder.get_relative_uri
-        return self.create_genindex()
+        return super().create_index()

@@ -162,7 +162,7 @@ ExSubtermクラス
 - ExIndexUnitクラス内のsubtermオブジェクトのクラス.
 - KanaTextを最大で二つ持つ.
 
-ExHTMLBuilderクラス/create_genindexメソッド
+ExHTMLBuilderクラス/create_indexメソッド
 
 - 索引ページの表示、ソート処理前の「^オプション」の削除を行う.
 
@@ -186,7 +186,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.1' # 2021-10-25
+__version__ = '0.25.1.1b1' # 2021-10-25
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -716,7 +716,7 @@ class ExIndexRack(idxr.IndexRack):
 
         super().__init__(builder)
 
-    def create_genindex(self, entries=None, group_entries: bool = True,
+    def create_index(self, entries=None, group_entries: bool = True,
                      _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
                      ) -> List[Tuple[str, List[Tuple[str, Any]]]]:
         """IndexEntriesクラス/create_indexメソッドを置き換える."""
@@ -731,7 +731,7 @@ class ExIndexRack(idxr.IndexRack):
         self.unitclass = ExIndexUnit
         self.packclass = ExSubterm
 
-        return super().create_genindex(group_entries, _fixre)
+        return super().create_index(group_entries, _fixre)
 
     def append(self, unit):
         """
@@ -906,7 +906,7 @@ class ExHTMLBuilder(idxr.HTMLBuilder):
     def index_adapter(self) -> None: #KaKkou
         """索引の作成"""
         #自前のIndexerを使う
-        return ExIndexRack(self).create_genindex()
+        return ExIndexRack(self).create_index()
 
 #------------------------------------------------------------
 

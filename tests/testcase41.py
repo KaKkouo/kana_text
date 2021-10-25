@@ -478,28 +478,28 @@ testcase06out = [
 #-------------------------------------------------------------------
 
 class testIndexRack(unittest.TestCase):
-    def test01_create_genindex(self):
+    def test01_create_index(self):
         self.maxDiff = None
         env = util.env(testcase01in)
         bld = util.builder(env)
         idx = IndexRack(bld)
-        gidx = idx.create_genindex()
+        gidx = idx.create_index()
         self.assertEqual(gidx, testcase01out)
 
-    def test02_create_genindex(self):
+    def test02_create_index(self):
         self.maxDiff = None
         env = util.env(testcase02in)
         bld = util.builder(env)
         idx = IndexRack(bld)
-        gidx = idx.create_genindex()
+        gidx = idx.create_index()
         self.assertEqual(gidx, testcase02out)
 
-    def test03_create_genindex(self):
+    def test03_create_index(self):
         self.maxDiff = None
         env = util.env(testcase03in)
         bld = util.builder(env)
         idx = IndexRack(bld)
-        gidx = idx.create_genindex()
+        gidx = idx.create_index()
         self.assertEqual(gidx, testcase03out)
 
     def test04_first_letter_of_term(self):
@@ -508,7 +508,7 @@ class testIndexRack(unittest.TestCase):
         bld = util.builder(env)
         bld.config.kana_text_indexer_mode = 'large'
         idx = IndexRack(bld)
-        gidx = idx.create_genindex()
+        gidx = idx.create_index()
         self.assertEqual(gidx, testcase04out)
 
     def test05_first_letter_of_term(self):
@@ -517,7 +517,7 @@ class testIndexRack(unittest.TestCase):
         bld = util.builder(env)
         bld.config.kana_text_indexer_mode = 'small'
         idx = IndexRack(bld)
-        gidx = idx.create_genindex()
+        gidx = idx.create_index()
         self.assertEqual(gidx, testcase05out)
 
     def test06_first_letter_of_term(self):
@@ -526,14 +526,10 @@ class testIndexRack(unittest.TestCase):
         bld = util.builder(env)
         bld.config.kana_text_indexer_mode = 'small'
         idx = IndexRack(bld)
-        gidx = idx.create_genindex()
+        gidx = idx.create_index()
         self.assertEqual(gidx, testcase06out)
 
 #-------------------------------------------------------------------
 
 if __name__ == '__main__':
     unittest.main()
-
-    #bld.config.kana_text_indexer_mode = 'small'
-    #gidx = bld.create_genindex(testcase08in)
-    #pprint(gidx)
