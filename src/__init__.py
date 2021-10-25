@@ -186,7 +186,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.1b4' # 2021-10-25
+__version__ = '0.25.1b5' # 2021-10-25
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -930,7 +930,7 @@ def setup(app) -> Dict[str, Any]:
     app.add_role('index', KanaIndexRole(), True)
 
     #「:kana:`かな|単語^11`」が使用可能になる
-    app.add_role('kana', ExRole)
+    app.add_role('kana', ExRole())
 
     #glossaryディレクティブ、kanaロールの表示用
     app.add_node(KanaText, html=(visit_kana, depart_kana))
