@@ -186,7 +186,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.1b6' # 2021-10-25
+__version__ = '0.25.1' # 2021-10-25
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -821,10 +821,8 @@ class ExIndexRack(idxr.IndexRack):
             pass
 
 class ExSubterm(idxr.Subterm):
-    """
-    Jinja2に「文字列」と思わせるには「node.repruniocde」の継承が必要.
-    （実体はstrだけど、Sphinxの流儀に従っていた方が無難）
-    """
+    """subterm in IndexUnit"""
+
     def __init__(self, emphasis, *terms):
         self.change_triple = False
         super().__init__(emphasis, *terms)
