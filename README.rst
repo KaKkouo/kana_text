@@ -9,7 +9,7 @@ QUICK START
 
 installtion
 
-.. code-black:: sh
+.. code-block:: sh
 
    $ pip install sphindexer sphinxcontrib.kana_text
 
