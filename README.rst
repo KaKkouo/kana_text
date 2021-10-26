@@ -69,11 +69,10 @@ genindex.html
    $ sphinx-kana-genindex
    $ mv genindex.html.sample path_to_sphinx_project/_templates/genindex.html
 
-note(japanese)
---------------
-当パッケージのインデクサー機能は「sphinxdexer」が担っています。 
-当パッケージは読み仮名情報の付加方法についてのリファレンス実装にもなります。
+note
+----
+The indexer function of this package is handled by "sphindexer".
+This package also serves as a reference implementation of how to add reading information.
 
-自分なりの記法で「読み仮名」を実現されたい方は、Githubの実装を参考にして独自の記法を実現してください。独自の記法の解析は「KanaText」に集約されます。他はコピペで済むはずです。
-
-同じパッケージ名は使えないので注意してください。
+If you want to use your own notation for reading, please refer to the implementation on Github and create your own notation. 
+The analysis of your own notation will be integrated into "KanaText".
