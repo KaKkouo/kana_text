@@ -7,6 +7,12 @@ If word_list.txt is used by kana_text_word_file parameter, the genindex.html is 
 QUICK START
 -----------
 
+installtion
+
+.. code-black:: sh
+
+   $ pip install sphindexer sphinxcontrib.kana_text
+
 conf.py:
 
 .. code-block:: python
