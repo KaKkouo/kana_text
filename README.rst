@@ -18,12 +18,12 @@ conf.py:
    #kana_text_word_file = '~/.config/sphinx/word_list.txt'
    #kana_text_word_list = ['ようご|用語^21', 'ぶんしょさくせい|文書作成^2222',]
    #kana_text_indexer_mode = 'small'
-   #html_kana_text_on_genindex = False
+   #kana_text_on_genindex = False
 
 .. warning::
 
    - 'word_list.txt' is required for kana_text_word_file
-   - 'genindex.html' is required for html_kana_text_on_genindex = True.
+   - 'genindex.html' is required for kana_text_on_genindex = True.
    - both parameters are valid only against genindex.html.
 
 rst file:
