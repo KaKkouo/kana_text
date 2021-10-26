@@ -40,7 +40,7 @@ template = get_template('tests/genindex.tpl')
 
 class testIndexRack(unittest.TestCase):
 
-    def test01_triple_by_jinja2(self):
+    def test01_jinja2_for_triple(self):
         self.maxDiff = None
         env = util.env(testcase01in)
         bld = util.builder(env)
@@ -51,7 +51,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase01str)
         self.assertEqual(rslt, text)
 
-    def test02_triple_by_jinja2(self):
+    def test02_jinja2_for_triple(self):
         self.maxDiff = None
         env = util.env(testcase02in)
         bld = util.builder(env)
@@ -64,7 +64,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase02str)
         self.assertEqual(rslt, text)
 
-    def test03_triple_by_jinja2(self):
+    def test03_jinja2_for_triple(self):
         self.maxDiff = None
         env = util.env(testcase03in)
         bld = util.builder(env)
@@ -76,7 +76,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase03str)
         self.assertEqual(rslt, text)
 
-    def test04_triple_by_jinja2(self):
+    def test04_jinja2_for_triple(self):
         self.maxDiff = None
         env = util.env(testcase04in)
         bld = util.builder(env)

@@ -89,7 +89,7 @@ template = get_template('tests/genindex.tpl')
 
 class testIndexRack(unittest.TestCase):
 
-    def test01_text_by_jinja2(self):
+    def test01_jinja2_for_single(self):
         self.maxDiff = None
         env = util.env(testcase01in)
         bld = util.builder(env)
@@ -101,7 +101,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase01str)
         self.assertEqual(rslt, text)
 
-    def test02_text_by_jinja2(self):
+    def test02_jinja2_for_single(self):
         self.maxDiff = None
         env = util.env(testcase02in)
         bld = util.builder(env)
@@ -114,7 +114,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase02str)
         self.assertEqual(rslt, text)
 
-    def test03_text_by_jinja2(self):
+    def test03_jinja2_for_single(self):
         self.maxDiff = None
         env = util.env(testcase03in)
         bld = util.builder(env)
@@ -127,7 +127,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase03str)
         self.assertEqual(rslt, text)
 
-    def test04_text_by_jinja2(self):
+    def test04_jinja2_for_single(self):
         self.maxDiff = None
         env = util.env(testcase04in)
         bld = util.builder(env)
@@ -140,7 +140,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase04str)
         self.assertEqual(rslt, text)
 
-    def test05_text_by_jinja2(self):
+    def test05_jinja2_for_see_seealso(self):
         self.maxDiff = None
         env = util.env(testcase05in)
         bld = util.builder(env)
@@ -153,7 +153,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase05str)
         self.assertEqual(rslt, text)
 
-    def test06_text_by_jinja2(self):
+    def test06_jinja2_for_see_seealso(self):
         self.maxDiff = None
         env = util.env(testcase06in)
         bld = util.builder(env)
@@ -166,7 +166,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase06str)
         self.assertEqual(rslt, text)
 
-    def test07_text_by_jinja2(self):
+    def test07_jinja2_without_reading(self):
         self.maxDiff = None
         env = util.env(testcase07in)
         bld = util.builder(env)
@@ -177,7 +177,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase07str)
         self.assertEqual(rslt, text)
 
-    def test08_text_by_jinja2(self):
+    def test08_jinja2_without_reading(self):
         self.maxDiff = None
         env = util.env(testcase08in)
         bld = util.builder(env)
@@ -188,7 +188,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase08str)
         self.assertEqual(rslt, text)
 
-    def test09_text_by_jinja2(self):
+    def test09_jinja2_without_reading(self):
         self.maxDiff = None
         env = util.env(testcase09in)
         bld = util.builder(env)
@@ -199,7 +199,7 @@ class testIndexRack(unittest.TestCase):
         rslt = get_result(testcase09str)
         self.assertEqual(rslt, text)
 
-    def test10_text_by_jinja2(self):
+    def test10_jinja2_without_reading(self):
         self.maxDiff = None
         env = util.env(testcase10in)
         bld = util.builder(env)
