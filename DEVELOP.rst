@@ -15,6 +15,16 @@ structure of the data for genindex.html
             - main: 'main' or ''
             - index_key: classifier or None
 
+- unit(the other entry): [(classifier, term, subterm, emphasis, file_name, target, index_key)]
+
+    - classifier: KanaText(index_key, word[:1] or a letter made by word[:1])
+    - term: KanaText(word)
+    - subterm: '', KanaText(word), KanaText(word1) and KanaText(word2)
+    - emphasis
+    - file_name
+    - target
+    - index_key
+
 - genidex: [(classifier, terms)]
 
     - classifier: KanaText
