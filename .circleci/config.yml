@@ -13,8 +13,6 @@ jobs:
       - image: cimg/python:3.8
     steps:
       - checkout
-      - run: /home/circleci/.pyenv/versions/3.8.12/bin/python3.8 -m pip install --upgrade pip
-      - run: /home/circleci/.pyenv/versions/3.8.12/bin/python3.8 -m pip install --upgrade Sphinx
       - python/install-packages:
           pkg-manager: pip
       - run:
