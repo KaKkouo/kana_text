@@ -17,6 +17,7 @@ jobs:
           pkg-manager: pip
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
+      - run: pip install --upgrade Sphinx
       - run: pip install --upgrade sphindexer
       - run:
           name: Run tests
