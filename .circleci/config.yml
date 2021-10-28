@@ -17,7 +17,9 @@ jobs:
           pkg-manager: pip
       - run:
           name: Run tests
-          command: coverage run --source=src setup.py test 
+          command: |
+            coverage run --source=src setup.py test 
+            coverage report
 
 workflows:
   sample:
