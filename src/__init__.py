@@ -186,7 +186,7 @@ latexの関連情報
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.1.5' # 2021-10-28
+__version__ = '0.25.2a1' # 2021-10-29
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -546,8 +546,6 @@ class KanaText(nodes.Node):
 _each_words = re.compile(r' *; +')
 
 class ExIndexEntry(idxr.IndexEntry):
-
-    _number_of_terms = { 'single': 2, 'pair': 2, 'triple': 3, 'see': 2, 'seealso': 2, 'list': 99}
 
     def __init__(self, rawtext, entry_type='single', file_name=None, target=None, main='',
                  index_key='', textclass=None):
