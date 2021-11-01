@@ -33,7 +33,7 @@ testcase02o = [
 ('H',
     [('hogehoge',
         [[],
-         [('see also bar', []), ('see foo', [])],
+         [('see foo', []), ('see also bar', [])],
          None
         ])
     ])

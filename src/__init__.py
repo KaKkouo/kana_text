@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.26.0.dev1' # 2021-11-02
+__version__ = '0.26.0b0' # 2021-11-02
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -538,7 +538,7 @@ class ExIndexRack(idxr.IndexRack):
 
         # 設定ファイルで用意されたかな文字情報の登録
         for rawword in get_word_list_from_file(builder.config):
-            entry = ExIndexEntry(rawword, 'list', 'WORD_FILE', '', 'valuerc', None)  # _rncmd_
+            entry = ExIndexEntry(rawword, 'list', 'WORD_FILE', '', 'rcfile', None)  # _rncmd_
             entry.unitclass = ExIndexUnit
             entry.packclass = ExSubterm
             index_units = entry.make_index_units()
