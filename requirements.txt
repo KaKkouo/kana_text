@@ -1,4 +1,4 @@
 Sphinx
-sphindexer
+sphindexer>=0.6.0
 tox
 coverage
