@@ -1,192 +1,15 @@
 """
 sphinxcontrib.kana_text
 =======================
-参考情報
---------
-- https://www.sphinx-doc.org/ja/master/usage/restructuredtext/basics.html
-- https://www.sphinx-doc.org/ja/master/development/tutorials/helloworld.html
 
-機能
-====
-文字列を「かな|単語」という書式で記載することで、「かな」に応じた表示順となる。
-「かな」は表示では非表示、もしくはルビ表示にする.
-
-対象
-----
-- indexディレクティブ、glossaryディレクティブ
-- indexロール（ルビと索引）、kanaロール（ルビのみ）.
-
-「かな|単語^オプション」と書く以外は、これまでと同じ記法.
-
-使い方
-------
-次のように「かな|」を文字列の前方に付記する
-
-.. code-block:: rst
-
-   .. glossary::
-
-      ひ|微分
-        距離の関数から速度の関数、速度の関数から加速度の関数を導く
-
-      せ|積分
-        加速度の関数から速度の関数、速度の関数から距離の関数を導く
-
-      たなかはなこ|田中はな子^12aa1
-        読み仮名の表示の確認のサンプル
-
-   .. index::
-      pair: かなの表示; き|記載方法
-
-   夜空に浮かぶ\ :index:`あまた|数多^21`\ の星々が\ :kana:`きらめいて|煌めいて^2c`\ いる。
-
-読み仮名の表示の調整
---------------------
-ルビの表示を細かく指定したい場合に使う
-
-- 「かな|単語^オプション」とする
-- 「^」以降はソート処理では無視される
-
-    - see: ExIndexRack.sort_units
-
-指定方法
-
-- 「かな|単語^」は読み仮名の表示。「^」がないと非表示
-- 「かな|単語^2312」と数字が続く場合は、単語の各１文字に当てる読みの数
-- 「かな|単語^2a1b」とアルファベットがある場合は、ルビ表示に使わない
-
-    - 読み仮名の部分的非表示は「a-i」「q-y」の２種類で対応
-
-- 「かな|単語^201」とゼロがある場合は、単語のその１文字の割当をスキップする
-
-適切に設定していない場合
-
-- 文字数以上の指定があった場合、在る文字を指定通りに表示する.
-- 指定が不足している場合はルビは表示しない.
-
-パラメータ
-----------
-kana_text_separator
-
-- 「かな|単語」の区切りを指定する. 初期設定は「r'\|'」. 
-- 現在は実装が不完全なため、初期設定以外は使えない.
-
-kana_text_option_marker
-
-- 「かな|単語^11」の「^」を指定する. 初期設定は「r'\^'」. 
-- 現在は実装が不完全なため、初期設定以外は使えない.
-
-kana_text_word_file
-
-- 「かな|言葉^11」の書式で記載された設定ファイルの指定.
-- 指定したファイルがないとmakeがエラーで止まる.
-
-kana_text_word_list
-
-- 「かな|言葉^11」の書式で指定された文字列をリスト形式で設定する.
-
-kana_text_indexer_mode
-
-- 'small': ex.「モジュール」は「ま」の項目.
-- 'large': ex.「モジュール」は「も」の項目.
-- その他:  ex.「モジュール」は「モ」のまま.
-- 省略時は`small`.
-
-kana_text_on_genindex
-
-- 索引ページでのかな表示を有効にする. 省略時は非表示. 推奨はTrue.
-- 対応した「genidex.html」が必要. コマンド「sphinx-kana-genindex」で作成される.
-
-kana_text_change_triple
-
-- tripleでの「3rd, 1st」の表示を「1st, 3rd」に変更する. 省略時はFalse.
-
-genindex.htmlの作り方
----------------------
-コマンド「sphinx-kana-genindex」の実行で、以下の内容のファイルがカレントディレクトリに作成される.
-
-1. sphinx/themes/basic/genindex.html をプロジェクトの「_templates」にコピーする.
-2. indexentriesマクロにある二つの「{{ firstname|e }}」から「|e」を取り除く。
-
-    - 「|e」の代わりに「nodes.unescape」で対処。
-
-開発者向け
-==========
-
-データの優先順
--------------- 
-早い者勝ちv.s.上書き許容（インデクシング）
-
-- できる限り内部の処理順に依存しない実装を目指し、解消できない部分は「早い者勝ち」とする.
-- 「make clean」後の「make kana」で安定する挙動として.
-- 恐らくstd.pyでの登録データの方が、index.pyの登録データより処理が先.
-
-実装においての要点
------------------- 
-KanaTextクラス
-
-- かな表示を可能にする.
-- 「.. index::」「..glossary::」「:index:」「:kana:」で使用.
-
-ExIndexEntryクラス
-
-- 「.. index::」でsingle/pair/tripleと一緒に書かれている用語に対応.
-- ExIndexUnittクラスに乗る前のKanaTextオブジェクトを保持する.
-
-visit_kana/depart_kanaメソッド
-
-- add_node()により、KanaTextクラスに紐付けてExHTMLBuilderクラスに登録される.
-- glossaryで記載したテキストは、 **visit_term()** メソッドでKanaTextクラスにする.
-
-    - 本来の調整場所はGlossaryクラスだが、コード量の少ないvisit_termメソッドを選択.
-
-ExHTML5Translatorクラス/visit_termメソッド
-
-- 目的のTextノードをKanaTextノードに変更する.
-
-    - visit_termメソッドはglossaryで定義された単語（termクラス）が通る.
-
-ExIndexRackクラス/create_geindex_entriesメソッド
-
-- IndexEntriesクラス/create_indexメソッドを置き換える.
-- 可能な限り、内部的な処理順に依存しないようにした.
-- オリジナルは「func() (クラス名やモジュール名)」の集約処理が説明した通りではない.
-- 「see/seealso」の表示順がオリジナルと異なる.
-
-ExIndexUnitクラス
-
-- 索引ページで表示される各項目に対応したオブジェクトのクラス.
-
-ExSubtermクラス
-
-- ExIndexUnitクラス内のsubtermオブジェクトのクラス.
-- KanaTextを最大で二つ持つ.
-
-ExHTMLBuilderクラス/create_indexメソッド
-
-- 索引ページの表示、ソート処理前の「^オプション」の削除を行う.
-
-備忘録
-======
-latexでの索引ページ
--------------------
-実装の可能性
-
-- 索引ページから対応するドキュメントへのジャンプする機能があれば、原理的には対応可能.
-
-latexの関連情報
-
-- `TeX Wiki 索引作成 <https://texwiki.texjp.org/?%E7%B4%A2%E5%BC%95%E4%BD%9C%E6%88%90>`_
-- `TeX Wiki 相互参照 <https://texwiki.texjp.org/?LaTeX%E5%85%A5%E9%96%80%2F%E7%9B%B8%E4%BA%92%E5%8F%82%E7%85%A7%E3%81%A8%E3%83%AA%E3%83%B3%E3%82%AF>`_
-
-各クラス、メソッド
-==================
+Class, Function
+===============
 """
 
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.25.2a1' # 2021-10-29
+__version__ = '0.26.0.dev1' # 2021-11-02
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -210,7 +33,9 @@ import sphindexer as idxr
 
 logger = logging.getLogger(__name__)
 
-#------------------------------------------------------------
+
+# ------------------------------------------------------------
+
 
 _chop = re.compile(r'^\\')
 
@@ -315,6 +140,7 @@ def make_specific_by_parsing_option(word, kana, option):
 
     return rtn
 
+
 class KanaText(nodes.Node):
     """かな文字を扱うTextクラス
 
@@ -326,7 +152,7 @@ class KanaText(nodes.Node):
     children = () #これでTextクラスと同じ扱いになる.
     config = None
 
-    def __init__(self, rawword):
+    def __init__(self, rawword, rawtext=''):
         """
         doctest:
 
@@ -424,7 +250,7 @@ class KanaText(nodes.Node):
         elif self._rawword:
             return f"<{name}: <#rawword: '{self._rawword}'>>"
         else:
-            return f"<#empty>"
+            return "<#empty>"
 
     def _parse_text(self, text, parser):
         """
@@ -442,10 +268,10 @@ class KanaText(nodes.Node):
         _, _, kana, hier, _, marker, opt = match.groups()
 
         # display mode of ruby
-        if not kana:   ruby = '' #off
-        elif   opt:    ruby = 'specific'
+        if not kana  : ruby = ''  # off
+        elif   opt   : ruby = 'specific'
         elif   marker: ruby = 'on'
-        else:          ruby = '' #off
+        else         : ruby = ''  # off
 
         if not opt: opt = ''
 
@@ -508,19 +334,19 @@ class KanaText(nodes.Node):
         elif len(self) == 1:
             hier = self[0]
             if hier: data = [(False, hier)]
-            else:    data = None
+            else   : data = None
         elif not ruby:
             hier = self[0]
-            data = [(False, hier),]
-        elif ruby == 'specific': #細かくルビの表示/非表示を指定する
-            #アレコレがんばる
+            data = [(False, hier), ]
+        elif ruby == 'specific':  # 細かくルビの表示/非表示を指定する
+            # アレコレがんばる
             hier, kana = self[0], self[1]
             data = make_specific_by_parsing_option(hier, kana, option)
-        elif ruby == 'on': #ルビを付ける。文字の割当位置は気にしない。
+        elif ruby == 'on':  # ルビを付ける。文字の割当位置は気にしない。
             hier, kana = self[0], self[1]
             data = [(True, (hier, kana))]
         else:
-            #ここは通らないはずだけど、念の為
+            # ここは通らないはずだけど、念の為
             raise ValueError(repr(self))
 
         return data
@@ -541,9 +367,12 @@ class KanaText(nodes.Node):
                 html += value
         return html
 
-#------------------------------------------------------------
+
+# ------------------------------------------------------------
+
 
 _each_words = re.compile(r' *; +')
+
 
 class ExIndexEntry(idxr.IndexEntry):
 
@@ -573,10 +402,10 @@ class ExIndexEntry(idxr.IndexEntry):
         etype, ikey = self['entry_type'], self['index_key']
         main, fn, tid = self['main'], self['file_name'], self['target']
         if etype: prop += f"entry_type='{etype}' "
-        if main:  prop += f"main='{main}' "
-        if fn:    prop += f"file_name='{fn}' "
-        if tid:   prop += f"target='{tid}' "
-        if ikey:  prop += f"index_key='{ikey}' "
+        if main : prop += f"main='{main}' "
+        if fn   : prop += f"file_name='{fn}' "
+        if tid  : prop += f"target='{tid}' "
+        if ikey : prop += f"index_key='{ikey}' "
 
         children = ''.join([c.entity_of_repr() for c in self])
         prop += children + ">"
@@ -599,69 +428,72 @@ class ExIndexEntry(idxr.IndexEntry):
         html = concat[0].join(h.ashtml() for h in self)
         return html
 
-#------------------------------------------------------------
+
+# ------------------------------------------------------------
+
 
 _first_char_small = {
     'あ': 'あ', 'い': 'あ', 'う': 'あ', 'え': 'あ', 'お': 'あ',
-    'ア': 'あ', 'イ': 'あ', 'ウ': 'あ', 'エ': 'あ', 'オ': 'あ', 
+    'ア': 'あ', 'イ': 'あ', 'ウ': 'あ', 'エ': 'あ', 'オ': 'あ',
     'か': 'か', 'き': 'か', 'く': 'か', 'け': 'か', 'こ': 'か',
     'カ': 'か', 'キ': 'か', 'ク': 'か', 'ケ': 'か', 'コ': 'か',
     'が': 'か', 'ぎ': 'か', 'ぐ': 'か', 'げ': 'か', 'ご': 'か',
-    'ガ': 'か', 'ギ': 'か', 'グ': 'か', 'ゲ': 'か', 'ゴ': 'か', 
+    'ガ': 'か', 'ギ': 'か', 'グ': 'か', 'ゲ': 'か', 'ゴ': 'か',
     'さ': 'さ', 'し': 'さ', 'す': 'さ', 'せ': 'さ', 'そ': 'さ',
     'サ': 'さ', 'シ': 'さ', 'ス': 'さ', 'セ': 'さ', 'ソ': 'さ',
     'ざ': 'さ', 'じ': 'さ', 'ず': 'さ', 'ぜ': 'さ', 'ぞ': 'さ',
-    'ザ': 'さ', 'ジ': 'さ', 'ズ': 'さ', 'ゼ': 'さ', 'ゾ': 'さ', 
+    'ザ': 'さ', 'ジ': 'さ', 'ズ': 'さ', 'ゼ': 'さ', 'ゾ': 'さ',
     'た': 'た', 'ち': 'た', 'つ': 'た', 'て': 'た', 'と': 'た',
     'タ': 'た', 'チ': 'た', 'ツ': 'た', 'テ': 'た', 'ト': 'た',
     'だ': 'た', 'ぢ': 'た', 'づ': 'た', 'で': 'た', 'ど': 'た',
-    'ダ': 'た', 'ヂ': 'た', 'ヅ': 'た', 'デ': 'た', 'ド': 'た', 
+    'ダ': 'た', 'ヂ': 'た', 'ヅ': 'た', 'デ': 'た', 'ド': 'た',
     'な': 'な', 'に': 'な', 'ぬ': 'な', 'ね': 'な', 'の': 'な',
-    'ナ': 'な', 'ニ': 'な', 'ヌ': 'な', 'ネ': 'な', 'ノ': 'な', 
+    'ナ': 'な', 'ニ': 'な', 'ヌ': 'な', 'ネ': 'な', 'ノ': 'な',
     'は': 'は', 'ひ': 'は', 'ふ': 'は', 'へ': 'は', 'ほ': 'は',
     'ハ': 'は', 'ヒ': 'は', 'フ': 'は', 'ヘ': 'は', 'ホ': 'は',
     'ば': 'は', 'び': 'は', 'ぶ': 'は', 'べ': 'は', 'ぼ': 'は',
     'バ': 'は', 'ビ': 'は', 'ブ': 'は', 'ベ': 'は', 'ボ': 'は',
     'ぱ': 'は', 'ぴ': 'は', 'ぷ': 'は', 'ぺ': 'は', 'ぽ': 'は',
-    'パ': 'は', 'ピ': 'は', 'プ': 'は', 'ペ': 'は', 'ポ': 'は', 
+    'パ': 'は', 'ピ': 'は', 'プ': 'は', 'ペ': 'は', 'ポ': 'は',
     'ま': 'ま', 'み': 'ま', 'む': 'ま', 'め': 'ま', 'も': 'ま',
-    'マ': 'ま', 'ミ': 'ま', 'ム': 'ま', 'メ': 'ま', 'モ': 'ま', 
+    'マ': 'ま', 'ミ': 'ま', 'ム': 'ま', 'メ': 'ま', 'モ': 'ま',
     'や': 'や', 'ゆ': 'や', 'よ': 'や', 'ヤ': 'や', 'ユ': 'や', 'ヨ': 'や',
-    'ゃ': 'や', 'ゅ': 'や', 'ょ': 'や', 'ャ': 'や', 'ュ': 'や', 'ョ': 'や', 
+    'ゃ': 'や', 'ゅ': 'や', 'ょ': 'や', 'ャ': 'や', 'ュ': 'や', 'ョ': 'や',
     'ら': 'ら', 'り': 'ら', 'る': 'ら', 'れ': 'ら', 'ろ': 'ら',
-    'ラ': 'ら', 'リ': 'ら', 'ル': 'ら', 'レ': 'ら', 'ロ': 'ら', 
-    'わ': 'わ', 'を': 'わ', 'ワ': 'わ', 'ヲ': 'わ', 'ん': 'わ', 'ン': 'わ' }
+    'ラ': 'ら', 'リ': 'ら', 'ル': 'ら', 'レ': 'ら', 'ロ': 'ら',
+    'わ': 'わ', 'を': 'わ', 'ワ': 'わ', 'ヲ': 'わ', 'ん': 'わ', 'ン': 'わ'}
 
 _first_char_large = {
     'あ': 'あ', 'い': 'い', 'う': 'う', 'え': 'え', 'お': 'お',
-    'ア': 'あ', 'イ': 'い', 'ウ': 'う', 'エ': 'え', 'オ': 'お', 
+    'ア': 'あ', 'イ': 'い', 'ウ': 'う', 'エ': 'え', 'オ': 'お',
     'か': 'か', 'き': 'き', 'く': 'く', 'け': 'け', 'こ': 'こ',
     'カ': 'か', 'キ': 'き', 'ク': 'く', 'ケ': 'け', 'コ': 'こ',
     'が': 'か', 'ぎ': 'き', 'ぐ': 'く', 'げ': 'け', 'ご': 'こ',
     'さ': 'さ', 'し': 'し', 'す': 'す', 'せ': 'せ', 'そ': 'そ',
-    'ガ': 'か', 'ギ': 'き', 'グ': 'く', 'ゲ': 'け', 'ゴ': 'こ', 
+    'ガ': 'か', 'ギ': 'き', 'グ': 'く', 'ゲ': 'け', 'ゴ': 'こ',
     'サ': 'さ', 'シ': 'し', 'ス': 'す', 'セ': 'せ', 'ソ': 'そ',
     'ざ': 'さ', 'じ': 'し', 'ず': 'す', 'ぜ': 'せ', 'ぞ': 'そ',
-    'ザ': 'さ', 'ジ': 'し', 'ズ': 'す', 'ゼ': 'せ', 'ゾ': 'そ', 
+    'ザ': 'さ', 'ジ': 'し', 'ズ': 'す', 'ゼ': 'せ', 'ゾ': 'そ',
     'た': 'た', 'ち': 'ち', 'つ': 'つ', 'て': 'て', 'と': 'と',
     'タ': 'た', 'チ': 'ち', 'ツ': 'つ', 'テ': 'て', 'ト': 'と',
     'だ': 'た', 'ぢ': 'ち', 'づ': 'つ', 'で': 'て', 'ど': 'と',
-    'ダ': 'た', 'ヂ': 'ち', 'ヅ': 'つ', 'デ': 'て', 'ド': 'と', 
+    'ダ': 'た', 'ヂ': 'ち', 'ヅ': 'つ', 'デ': 'て', 'ド': 'と',
     'な': 'な', 'に': 'に', 'ぬ': 'ぬ', 'ね': 'ね', 'の': 'の',
-    'ナ': 'な', 'ニ': 'に', 'ヌ': 'ぬ', 'ネ': 'ね', 'ノ': 'の', 
+    'ナ': 'な', 'ニ': 'に', 'ヌ': 'ぬ', 'ネ': 'ね', 'ノ': 'の',
     'は': 'は', 'ひ': 'ひ', 'ふ': 'ふ', 'へ': 'へ', 'ほ': 'ほ',
     'ハ': 'は', 'ヒ': 'ひ', 'フ': 'ふ', 'ヘ': 'へ', 'ホ': 'ほ',
     'ば': 'は', 'び': 'ひ', 'ぶ': 'ふ', 'べ': 'へ', 'ぼ': 'ほ',
     'バ': 'は', 'ビ': 'ひ', 'ブ': 'ふ', 'ベ': 'へ', 'ボ': 'ほ',
     'ま': 'ま', 'み': 'み', 'む': 'む', 'め': 'め', 'も': 'も',
     'ぱ': 'は', 'ぴ': 'ひ', 'ぷ': 'ふ', 'ぺ': 'へ', 'ぽ': 'ほ',
-    'パ': 'は', 'ピ': 'ひ', 'プ': 'ふ', 'ペ': 'へ', 'ポ': 'ほ', 
-    'マ': 'ま', 'ミ': 'み', 'ム': 'む', 'メ': 'め', 'モ': 'も', 
+    'パ': 'は', 'ピ': 'ひ', 'プ': 'ふ', 'ペ': 'へ', 'ポ': 'ほ',
+    'マ': 'ま', 'ミ': 'み', 'ム': 'む', 'メ': 'め', 'モ': 'も',
     'や': 'や', 'ゆ': 'ゆ', 'よ': 'よ', 'ヤ': 'や', 'ユ': 'ゆ', 'ヨ': 'よ',
-    'ゃ': 'や', 'ゅ': 'ゆ', 'ょ': 'よ', 'ャ': 'や', 'ュ': 'ゆ', 'ョ': 'よ', 
+    'ゃ': 'や', 'ゅ': 'ゆ', 'ょ': 'よ', 'ャ': 'や', 'ュ': 'ゆ', 'ョ': 'よ',
     'ら': 'ら', 'り': 'り', 'る': 'る', 'れ': 'れ', 'ろ': 'ろ',
-    'ラ': 'ら', 'リ': 'り', 'ル': 'る', 'レ': 'れ', 'ロ': 'ろ', 
-    'わ': 'わ', 'を': 'を', 'ん': 'ん', 'ワ': 'わ', 'ヲ': 'を', 'ン': 'ん' }
+    'ラ': 'ら', 'リ': 'り', 'ル': 'る', 'レ': 'れ', 'ロ': 'ろ',
+    'わ': 'わ', 'を': 'を', 'ん': 'ん', 'ワ': 'わ', 'ヲ': 'を', 'ン': 'ん'}
+
 
 def get_word_list_from_file(config):
     if not config.kana_text_word_file: return []
@@ -674,6 +506,7 @@ def get_word_list_from_file(config):
 
     return lines
 
+
 class ExIndexRack(idxr.IndexRack):
     """
     処理概要
@@ -684,33 +517,33 @@ class ExIndexRack(idxr.IndexRack):
     4. self.sort_units() 並び替え.
     5. self.generate_genindex_data() genindex用データの生成.
     """
-    
-    UNIT_CLSF, UNIT_TERM, UNIT_SBTM, UNIT_EMPH = 0, 1, 2, 3
+
+    UNIT_CLSF, UNIT_TERM, UNIT_SBTM = 0, 1, 2
 
     def __init__(self, builder, testmode=False):
         """ExIndexUnitの取り込み、整理、並べ替え. データの生成."""
 
-        #制御情報の保存
-        self.testmode = testmode #0.24 未使用になった.
-        self._kana_catalog = {} # {term: (emphasis, kana)} #KanaText
+        # 制御情報の保存
+        self.testmode = testmode  # 0.24 未使用になった.
+        self._kana_catalog = {}   # {term: (emphasis, kana)} #KanaText
 
-        #設定で用意されたかな文字情報の登録
+        # 設定で用意されたかな文字情報の登録
         for rawword in builder.config.kana_text_word_list:
-            entry = ExIndexEntry(rawword, 'list', 'WORD_LIST', '', 'conf.py', None) #_cnfpy_
+            entry = ExIndexEntry(rawword, 'list', 'WORD_LIST', '', 'conf.py', None)  # _cnfpy_
             entry.unitclass = ExIndexUnit
             entry.packclass = ExSubterm
             index_units = entry.make_index_units()
             for iu in index_units:
-                self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
+                self.put_in_kana_catalog(iu['main'], iu.get_children())
 
-        #設定ファイルで用意されたかな文字情報の登録
+        # 設定ファイルで用意されたかな文字情報の登録
         for rawword in get_word_list_from_file(builder.config):
-            entry = ExIndexEntry(rawword, 'list', 'WORD_FILE', '', 'valuerc', None) #_rncmd_
+            entry = ExIndexEntry(rawword, 'list', 'WORD_FILE', '', 'valuerc', None)  # _rncmd_
             entry.unitclass = ExIndexUnit
             entry.packclass = ExSubterm
             index_units = entry.make_index_units()
             for iu in index_units:
-                self.put_in_kana_catalog(iu[self.UNIT_EMPH], iu.get_children())
+                self.put_in_kana_catalog(iu['main'], iu.get_children())
 
         super().__init__(builder)
 
@@ -719,11 +552,11 @@ class ExIndexRack(idxr.IndexRack):
                      ) -> List[Tuple[str, List[Tuple[str, Any]]]]:
         """IndexEntriesクラス/create_indexメソッドを置き換える."""
 
-        #入れ物の用意とリセット
-        self._kana_catalog_pre = self._kana_catalog #(注)__init__がないと前回分が残る.
-        self._kana_catalog = {} # {term: (emphasis, kana, ruby, option)}
+        # 入れ物の用意とリセット
+        self._kana_catalog_pre = self._kana_catalog  # (注)__init__がないと前回分が残る.
+        self._kana_catalog = {}  # {term: (emphasis, kana, ruby, option)}
 
-        #クラスの設定
+        # クラスの設定
         self.textclass = KanaText
         self.entryclass = ExIndexEntry
         self.unitclass = ExIndexUnit
@@ -735,36 +568,36 @@ class ExIndexRack(idxr.IndexRack):
         """
         - 全unitを見て決める更新処理のための情報収集
         """
-        #情報収集
-        self.put_in_kana_catalog(unit[self.UNIT_EMPH], unit.get_children()) 
+        # 情報収集
+        self.put_in_kana_catalog(unit['main'], unit.get_children())
         unit[self.UNIT_TERM].kana_text_on_genindex = self.config.kana_text_on_genindex
 
-        #残りの処理
+        # 残りの処理
         super().append(unit)
 
-    def put_in_kana_catalog(self, emphasis, terms): #KanaText
+    def put_in_kana_catalog(self, emphasis, terms):
         """KanaText用の処理"""
         for term in terms:
             kana, hier, ruby, spec = term.askana(), term.ashier(), term['ruby'], term['option']
             if kana and hier in self._kana_catalog:
                 item = self._kana_catalog[hier]
                 if emphasis < item[0]:
-                    #emphasisコードが異なる場合は、数字の小さい方が優先.
+                    # emphasisコードが異なる場合は、数字の小さい方が優先.
                     self._kana_catalog[hier] = (emphasis, kana, ruby, spec)
                 elif emphasis == item[0]:
-                    #emphasisコードが同じなら、かな文字の長いほうが優先.
+                    # emphasisコードが同じなら、かな文字の長いほうが優先.
                     if len(kana) > len(item[1]):
                         self._kana_catalog[hier] = (emphasis, kana, ruby, spec)
-                    #検討）かな文字の長さも同じなら、、
+                    # 検討）かな文字の長さも同じなら、、
                     elif len(kana) == len(item[1]):
-                        #'specific'に限りオプションコードが多い方を採用する.
+                        # 'specific'に限りオプションコードが多い方を採用する.
                         if ruby == 'specific' and ruby == item[2] and len(spec) > len(item[3]):
                             self._kana_catalog[hier] = (emphasis, kana, ruby, spec)
                     else:
                         pass
                 else:
-                    #その他は、先に登録された方が優先. （∵「make clean」の状態で挙動が一定になるように）
-                    pass #明示しておく.
+                    # その他は、先に登録された方が優先. （∵「make clean」の有無に依存しない）
+                    pass  # 明示しておく.
             elif kana:
                 self._kana_catalog[hier] = (emphasis, kana, ruby, spec)
 
@@ -773,43 +606,43 @@ class ExIndexRack(idxr.IndexRack):
         先頭の一文字を必要な加工をして分類子に使う.
         """
         try:
-            #パラメータに応じて変換テーブルを使い分ける.
+            # パラメータに応じて変換テーブルを使い分ける.
             if 'small' == self.config.kana_text_indexer_mode:
                 return _first_char_small[text[:1]]
             elif 'large' == self.config.kana_text_indexer_mode:
                 return _first_char_large[text[:1]]
             else:
-                #想定パラメータ以外なら基本的な処理
+                # 想定パラメータ以外なら基本的な処理
                 return text[:1].upper()
         except KeyError:
-            #変換表になければ基本的な処理
+            # 変換表になければ基本的な処理
             return text[:1].upper()
 
     def update_units(self):
         """rackに格納されている全てのunitの更新を行う."""
 
-        #__init__で貯めた情報を追加する.
+        # __init__で貯めた情報を追加する.
         self._kana_catalog.update(self._kana_catalog_pre)
 
-        #カタログ情報を使った更新/kana_text_change_tripleの反映
+        # カタログ情報を使った更新/kana_text_change_tripleの反映
         for unit in self._rack:
             assert [unit[self.UNIT_TERM]]
 
-            #各termの読みの設定（「同じ単語は同じ読み」とする）
+            # 各termの読みの設定（「同じ単語は同じ読み」とする）
 
             self.update_term_with_kana_catalog(unit[self.UNIT_TERM])
 
             for subterm in unit[self.UNIT_SBTM]._terms:
                 self.update_term_with_kana_catalog(subterm)
 
-            #kana_text_change_tripleの設定値を反映
+            # kana_text_change_tripleの設定値を反映
             unit[self.UNIT_SBTM].change_triple = self.config.kana_text_change_triple
 
         super().update_units()
 
     def get_word(self, term):
         return term.ashier()
-    
+
     def update_term_with_kana_catalog(self, term):
         if term.ashier() in self._kana_catalog:
             term[1] = self._kana_catalog[term.ashier()][1]
@@ -818,15 +651,18 @@ class ExIndexRack(idxr.IndexRack):
         else:
             pass
 
+
 class ExSubterm(idxr.Subterm):
     """subterm in IndexUnit"""
 
     def __init__(self, emphasis, *terms):
         self.change_triple = False
         super().__init__(emphasis, *terms)
+
     def __str__(self):
         """Jinja2用"""
         return nodes.unescape(self.ashier())
+
     def astext(self):
         if self._template and len(self) == 1:
             return self._template % self._terms[0].ashier()
@@ -835,6 +671,7 @@ class ExSubterm(idxr.Subterm):
         for subterm in self._terms:
             text += subterm.astext() + self._delimiter
         return text[:-len(self._delimiter)]
+
     def ashier(self):
         if self._template and len(self) == 1:
             return self._template % self._terms[0].ashier()
@@ -847,10 +684,13 @@ class ExSubterm(idxr.Subterm):
             hier += subterm.ashier() + self._delimiter
         return hier[:-len(self._delimiter)]
 
+
 class ExIndexUnit(idxr.IndexUnit):
     pass
 
-#------------------------------------------------------------
+
+# ------------------------------------------------------------
+
 
 class ExRole(docutils.SphinxRole):
     """「:kana:`かな|単語`」によるルビ表示"""
@@ -859,15 +699,19 @@ class ExRole(docutils.SphinxRole):
         node = KanaText(self.text)
         return [node], []
 
+
 def visit_kana(self, node):
     """KanaTextクラスで作成されたオブジェクトの表示処理"""
     self.body.append(node.ashtml())
+
 
 def depart_kana(self, node):
     """KanaTextクラスで作成されたオブジェクトの表示処理"""
     pass
 
-#------------------------------------------------------------
+
+# ------------------------------------------------------------
+
 
 class ExHTML5Translator(html5.HTML5Translator):
 
@@ -882,37 +726,43 @@ class ExHTML5Translator(html5.HTML5Translator):
         except TypeError as e:
             pass
         else:
-            #なくても動作しているのだけど、念の為
+            # なくても動作しているのだけど、念の為
             term.parent = node[0].parent
             term.document = node[0].document
             term.source = node[0].source
             term.line = node[0].line
             term.children = node[0].children
-            #ここまでが念の為
+            # ここまでが念の為
 
             node[0] = term
 
-        self.body.append(self.starttag(node,'dt',''))
+        self.body.append(self.starttag(node, 'dt', ''))
 
-#------------------------------------------------------------
+
+# ------------------------------------------------------------
+
 
 class ExHTMLBuilder(idxr.HTMLBuilder):
     """索引ページの日本語対応"""
 
     name = 'kana'
 
-    def index_adapter(self) -> None: #KaKkou
+    def index_adapter(self) -> None:
         """索引の作成"""
-        #自前のIndexerを使う
+        # 自前のIndexerを使う
         return ExIndexRack(self).create_index()
 
-#------------------------------------------------------------
+
+# ------------------------------------------------------------
+
 
 class ExXRefIndex(idxr.XRefIndex):
     def textclass(self, text, rawtext):
         return KanaText(text)
 
-#------------------------------------------------------------
+
+# ------------------------------------------------------------
+
 
 def setup(app) -> Dict[str, Any]:
     """各クラスや設定の登録
@@ -922,38 +772,39 @@ def setup(app) -> Dict[str, Any]:
     :return: 本Sphinx拡張の基本情報など
     :rtype: Dict[name: value]
     """
-    #「:index:`かな|単語<かな|単語>`」が使用可能になる
+    # 「:index:`かな|単語<かな|単語>`」が使用可能になる
     app.add_role('index', ExXRefIndex(), True)
 
-    #「:kana:`かな|単語^11`」が使用可能になる
+    # 「:kana:`かな|単語^11`」が使用可能になる
     app.add_role('kana', ExRole())
 
-    #glossaryディレクティブ、kanaロールの表示用
+    # glossaryディレクティブ、kanaロールの表示用
     app.add_node(KanaText, html=(visit_kana, depart_kana))
     app.add_node(ExIndexEntry, html=(visit_kana, depart_kana))
-    #索引の表示はExHTMLBuilderで行う
+    # 索引の表示はExHTMLBuilderで行う
 
-    #HTML出力
+    # HTML出力
     app.add_builder(ExHTMLBuilder)
     app.set_translator('kana', ExHTML5Translator)
 
-    #設定の登録
-    app.add_config_value('kana_text_separator', _dflt_separator, 'env') 
-    app.add_config_value('kana_text_option_marker', _dflt_option_marker, 'env') 
-    app.add_config_value('kana_text_word_file', '', 'env') 
-    app.add_config_value('kana_text_word_list', (), 'env') 
-    app.add_config_value('kana_text_indexer_mode', 'small', 'env') 
-    app.add_config_value('kana_text_on_genindex', False, 'html') 
-    app.add_config_value('kana_text_change_triple', False, 'html') 
+    # 設定の登録
+    app.add_config_value('kana_text_separator', _dflt_separator, 'env')
+    app.add_config_value('kana_text_option_marker', _dflt_option_marker, 'env')
+    app.add_config_value('kana_text_word_file', '', 'env')
+    app.add_config_value('kana_text_word_list', (), 'env')
+    app.add_config_value('kana_text_indexer_mode', 'small', 'env')
+    app.add_config_value('kana_text_on_genindex', False, 'html')
+    app.add_config_value('kana_text_change_triple', False, 'html')
 
-    #バージョンの最後は作成日（MMDDYY）
-    return {
-            'version': __version__,
+    # バージョンの最後は作成日（MMDDYY）
+    return {'version': __version__,
             'parallel_read_safe': True,
             'parallel_write_safe': True,
-        }
+            }
 
-#------------------------------------------------------------
+
+# ------------------------------------------------------------
+
 
 if __name__ == '__main__':
     import doctest
