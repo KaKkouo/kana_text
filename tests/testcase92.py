@@ -15,7 +15,7 @@ distdir = workdir + '/out'
 
 class testBuilder(unittest.TestCase):
     def test01_build(self):
-        application = Sphinx(workdir, workdir, distdir, distdir, "html")
+        application = Sphinx(workdir, workdir, distdir, distdir, "kana")
         bld = application.builder
 
         with self.assertRaises(AttributeError):
@@ -23,7 +23,9 @@ class testBuilder(unittest.TestCase):
 
         application.build(False, ['tests/index.rst'])
         bld.config.html_split_index = True
-        bld.write_genindex()
+
+        with self.assertRaises(TypeError):
+            bld.write_genindex()
 
 #-------------------------------------------------------------------
 

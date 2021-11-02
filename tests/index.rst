@@ -16,6 +16,11 @@ this is a rst file for test.
    Sphinxdexer
        Sphinx + indexer.
 
+   あまた|数多
+       たくさんの、たくさんある
+
 This is a :index:`foo<bar>`\ .
+
+夜空に\ :kana:`きらめく|煌めく^2aa`\ 数多の星々。
 
 
