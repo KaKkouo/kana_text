@@ -1,8 +1,7 @@
 #!/usr/bin/python3.8
 import sys
 import unittest
-from pprint import pprint
-sys.path.append('sphinxcontrib')
+
 from src import ExIndexRack as IndexRack
 from . import util
 
