@@ -1,3 +1,4 @@
+pip
 Sphinx
 sphindexer==0.6.0
 coverage
