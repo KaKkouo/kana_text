@@ -1,3 +1,15 @@
+.. image:: https://circleci.com/gh/KaKkouo/sphindexer.svg?style=shield
+   :target: https://circleci.com/gh/KaKkouo/kana_text
+   :alt: Build Status (CircleCI)
+
+.. image https://codecov.io/gh/KaKkouo/sphindexer/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/KaKkouo/kana_text
+   :alt: Code Coverage Status (Codecov)
+
+.. image:: https://img.shields.io/badge/License-BSD%202--Clause-blue.svg
+   :target: https://opensource.org/licenses/BSD-2-Clause
+   :alt: BSD 2 Clause
+
 This is a sphinx extention. It extends the functionality of the Text class. Any person, who uses index/glossary directives with Japanse Kanji, is to be so happy.
 
 .. image:: https://i.gyazo.com/4cbf3408c162fb2bfcc493661d35a42b.png
