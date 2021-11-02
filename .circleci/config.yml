@@ -17,6 +17,12 @@ jobs:
           pkg-manager: pip
           pip-dependency-file: requirements.txt
       - run:
+          name: upgrade pip
+          command: |
+            python -m pip install --upgrade pip
+            python -m pip install --upgrade Sphinx
+            python -m pip install --upgrade sphinxdexer
+      - run:
           name: Run Doctests
           command: |
             python src/__init__.py
