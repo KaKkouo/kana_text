@@ -425,7 +425,7 @@ class ExIndexEntry(idxr.IndexEntry):
             rubys.append(child.asruby())
         return rubys
 
-    def ashtml(self, concat=('; ', 3)):
+    def ashtml(self, concat=(', ', 3)):
         html = concat[0].join(h.ashtml() for h in self)
         return html
 
