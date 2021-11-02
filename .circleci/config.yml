@@ -24,17 +24,16 @@ jobs:
             python -m pip install --upgrade sphindexer
       - run:
           name: Run Doctests
-          command: |
-            python src/__init__.py
+          command: python src/__init__.py
       - run:
           name: Run Coverage Tests
-          command: |
-            coverage run --source=src setup.py test 
+          command: coverage run --source=src setup.py test 
       - run:
           name: Report Coverage
-          command: |
-            coverage report -m
-            codecov
+          command: coverage report -m
+      - run:
+          name: Send Report 
+          command: codecov
 
 workflows:
   default:
