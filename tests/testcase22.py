@@ -14,6 +14,7 @@ class testIndexEntry(unittest.TestCase):
                          "<KanaText: len=1 <#text: 'sphinx'>>" \
                          "<KanaText: len=1 <#text: 'python'>>" \
                          "<KanaText: len=1 <#text: 'docutils'>>>")
+        self.assertEqual(entry.ashtml(), "sphinx, python, docutils")
 
 
 if __name__ == '__main__':
