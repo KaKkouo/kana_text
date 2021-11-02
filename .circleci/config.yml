@@ -27,10 +27,13 @@ jobs:
           command: |
             python src/__init__.py
       - run:
-          name: Run tests
+          name: Run Tests
           command: |
             coverage run --source=src setup.py test 
-            coverage report
+      - run:
+          name: Report Coverage
+            coverage report -m
+            codecov
 
 workflows:
   default:
