@@ -308,7 +308,7 @@ class KanaText(nodes.Node):
             '田中はな子'
         """
         if len(self) < 1:
-            raise ValueError(self._rawword, len(self), self[0], self[1], self)
+            raise ValueError(self._rawword, repr(self))
 
         return self[0]
 
@@ -331,9 +331,7 @@ class KanaText(nodes.Node):
         ruby, option = self['ruby'], self['option']
 
         if len(self) < 1:
-            raw = self.rawsource
-            name = self.__class__.__name__
-            raise ValueError(f"{name}('{raw}')", self.children)
+            raise ValueError(self._rawword, repr(self))
         elif len(self) == 1:
             hier = self[0]
             if hier: data = [(False, hier)]
