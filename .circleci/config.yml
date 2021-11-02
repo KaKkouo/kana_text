@@ -15,6 +15,11 @@ jobs:
       - checkout
       - python/install-packages:
           pkg-manager: pip
+          pip-dependency-file: requirements.txt
+      - run:
+          name: Run Doctests
+          command: |
+            python src/__init__.py
       - run:
           name: Run tests
           command: |
@@ -22,6 +27,6 @@ jobs:
             coverage report
 
 workflows:
-  sample:
+  default:
     jobs:
       - build-and-test
