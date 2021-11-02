@@ -212,7 +212,7 @@ class KanaText(nodes.Node):
             else:
                 raise KeyError(key)
         else:
-            raise KeyError(key)
+            raise TypeError(key)
 
     def __eq__(self, other):
         """unittest用"""
