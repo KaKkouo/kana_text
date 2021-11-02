@@ -187,7 +187,7 @@ class KanaText(nodes.Node):
     def __len__(self):
         if not self['kana'] is None: return 2
         if not self['hier'] is None: return 1 #0.22.0: 'is None'を削除しても動作するように調整.
-        return 0
+        raise ValueError(repr(self))
 
     def __getitem__(self, key):
         if isinstance(key, str):
@@ -290,7 +290,7 @@ class KanaText(nodes.Node):
             'たなかはなこ'
         """
         if len(self) < 1:
-            raise ValueError(self._rawword, len(self), self[0], self[1], self)
+            raise ValueError(repr(self))
 
         if len(self) < 2:
             return ''
