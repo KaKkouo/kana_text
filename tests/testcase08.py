@@ -24,6 +24,10 @@ class testKanaText(unittest.TestCase):
         with self.assertRaises(TypeError):
             term[(1, 1)] = "よみ"
 
+    def test02_repr(self):
+        term = KanaText("", "用語零参")
+        self.assertEqual(repr(term), "<#rawtext: '用語零参'>")
+
 def main():
     unittest.main()
 

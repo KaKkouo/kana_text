@@ -172,6 +172,7 @@ class KanaText(nodes.Node):
             option_marker = _dflt_option_marker
 
         self._rawword = rawword
+        self._rawtext = rawtext
         self._delimiter = _chop.sub('', separator)
         self._separator = separator
         self._option_marker = option_marker
@@ -249,6 +250,8 @@ class KanaText(nodes.Node):
             return f"<{name}: len={len(self)} <#text: '{hier}'>>"
         elif self._rawword:
             return f"<{name}: <#rawword: '{self._rawword}'>>"
+        elif self._rawtext:
+            return f"<#rawtext: '{self._rawtext}'>"
         else:
             return "<#empty>"
 
