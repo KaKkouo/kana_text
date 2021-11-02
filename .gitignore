@@ -18,6 +18,15 @@ lib/
 lib64/
 parts/
 sdist/
+tests/out/.buildinfo
+tests/out/_sources/
+tests/out/_static/
+tests/out/environment.pickle
+tests/out/index.doctree
+tests/out/index.html
+tests/out/objects.inv
+tests/out/search.html
+tests/out/searchindex.js
 var/
 wheels/
 pip-wheel-metadata/
