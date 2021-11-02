@@ -34,6 +34,7 @@ jobs:
           name: Report Coverage
           command: |
             coverage report -m
+            codecov
 
 workflows:
   default:
