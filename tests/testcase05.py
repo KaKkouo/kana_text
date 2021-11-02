@@ -1,9 +1,8 @@
 #!/usr/bin/python
 import sys
 import unittest
-sys.path.append('sphinxcontrib')
-from src import KanaText
 
+from src import KanaText
 from . import dataset0
 
 #self.ashier()の基本チェック
