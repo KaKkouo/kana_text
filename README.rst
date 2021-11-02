@@ -1,8 +1,8 @@
-.. image:: https://circleci.com/gh/KaKkouo/sphindexer.svg?style=shield
+.. image:: https://circleci.com/gh/KaKkouo/kana_text.svg?style=shield
    :target: https://circleci.com/gh/KaKkouo/kana_text
    :alt: Build Status (CircleCI)
 
-.. image:: https://codecov.io/gh/KaKkouo/sphindexer/branch/main/graph/badge.svg
+.. image:: https://codecov.io/gh/KaKkouo/kana_text/branch/main/graph/badge.svg
    :target: https://codecov.io/gh/KaKkouo/kana_text
    :alt: Code Coverage Status (Codecov)
 
