@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.27.0a0' # 2021-11-04
+__version__ = '0.27.0a1' # 2021-11-04
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -335,7 +335,7 @@ class KanaText(nodes.Node):
         elif len(self) == 1:
             hier = self[0]
             if hier: data = [(False, hier)]
-            else   : data = None
+            else   : raise ValueError(self._rawword, repr(self))
         elif not ruby:
             hier = self[0]
             data = [(False, hier), ]
@@ -811,6 +811,6 @@ def setup(app) -> Dict[str, Any]:
 # ------------------------------------------------------------
 
 
-if __name__ == '__main__':
+if __name__ in ('__main__', 'src'):
     import doctest
     doctest.testmod()
