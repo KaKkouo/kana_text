@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.27.0.dev0' # 2021-11-04
+__version__ = '0.27.0a0' # 2021-11-04
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -535,7 +535,7 @@ class ExIndexRack(idxr.IndexRack):
             entry.packclass = ExSubterm
             index_units = entry.make_index_units()
             for iu in index_units:
-                self.put_in_kana_catalog(iu['main'], iu.get_children())
+                self.put_in_kana_catalog(iu['main'], iu.get_terms())
 
         # 設定ファイルで用意されたかな文字情報の登録
         for rawword in get_word_list_from_file(builder.config):
@@ -544,7 +544,7 @@ class ExIndexRack(idxr.IndexRack):
             entry.packclass = ExSubterm
             index_units = entry.make_index_units()
             for iu in index_units:
-                self.put_in_kana_catalog(iu['main'], iu.get_children())
+                self.put_in_kana_catalog(iu['main'], iu.get_terms())
 
         super().__init__(builder)
 
@@ -570,7 +570,7 @@ class ExIndexRack(idxr.IndexRack):
         - 全unitを見て決める更新処理のための情報収集
         """
         # 情報収集
-        self.put_in_kana_catalog(unit['main'], unit.get_children())
+        self.put_in_kana_catalog(unit['main'], unit.get_terms())
         unit[self.UNIT_TERM].kana_text_on_genindex = self.config.kana_text_on_genindex
 
         # 残りの処理
@@ -633,7 +633,7 @@ class ExIndexRack(idxr.IndexRack):
 
             self.update_term_with_kana_catalog(unit[self.UNIT_TERM])
 
-            for subterm in unit[self.UNIT_SBTM]._terms:
+            for subterm in unit[self.UNIT_SBTM]:
                 self.update_term_with_kana_catalog(subterm)
 
             # kana_text_change_tripleの設定値を反映
@@ -665,29 +665,33 @@ class ExSubterm(idxr.Subterm):
         return nodes.unescape(self.ashier())
 
     def astext(self):
-        if self._template and len(self) == 1:
-            return self._template % self._terms[0].ashier()
+        if self['template'] and len(self) == 1:
+            return self['template'] % self[0].ashier()
 
         text = ""
-        for subterm in self._terms:
-            text += subterm.astext() + self._delimiter
-        return text[:-len(self._delimiter)]
+        for subterm in self:
+            text += subterm.astext() + self['delimiter']
+        return text[:-len(self['delimiter'])]
 
     def ashier(self):
-        if self._template and len(self) == 1:
-            return self._template % self._terms[0].ashier()
+        if self['template'] and len(self) == 1:
+            return self['template'] % self[0].ashier()
 
-        if self.change_triple and len(self) == 2 and self._delimiter == ', ':
-            return self._terms[1].ashier() + self._delimiter + self._terms[0].ashier()
+        if self.change_triple and len(self) == 2 and self['delimiter'] == ', ':
+            return self[1].ashier() + self['delimiter'] + self[0].ashier()
 
         hier = ""
-        for subterm in self._terms:
-            hier += subterm.ashier() + self._delimiter
-        return hier[:-len(self._delimiter)]
+        for subterm in self:
+            hier += subterm.ashier() + self['delimiter']
+        return hier[:-len(self['delimiter'])]
 
 
 class ExIndexUnit(idxr.IndexUnit):
-    pass
+    def get_terms(self):
+        terms = [self[1]]
+        for s in self[2]:
+            terms.append(s)
+        return terms
 
 
 # ------------------------------------------------------------

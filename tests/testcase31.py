@@ -17,15 +17,15 @@ testcase01i = [
 ]
 
 testcase01o = [
-    "<ExIndexUnit: main file_name='doc1' target='id-01' <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
-    "<ExIndexUnit: main file_name='doc1' target='id-01' <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
-    "<ExIndexUnit: main file_name='doc1' target='id-01' <#empty><KanaText: len=1 <#text: '壱壱'>>>",
-    "<ExIndexUnit: main <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
-    "<ExIndexUnit: main <#empty><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
-    "<ExIndexUnit: main <#empty><KanaText: len=1 <#text: '壱壱'>>>",
-    "<ExIndexUnit: main <#empty><KanaText: len=2 <#text: 'いい|壱壱'>>>",
-    "<ExIndexUnit: main <#empty><KanaText: len=2 ruby='on' <#text: 'いい|壱壱'>>>",
-    "<ExIndexUnit: main <#empty><KanaText: len=2 ruby='specific' option='11' <#text: 'いい|壱壱'>>>",
+    "<ExIndexUnit: main file_name='doc1' target='id-01' <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
+    "<ExIndexUnit: main file_name='doc1' target='id-01' <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
+    "<ExIndexUnit: main file_name='doc1' target='id-01' <#text: ''><KanaText: len=1 <#text: '壱壱'>>>",
+    "<ExIndexUnit: main <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
+    "<ExIndexUnit: main <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
+    "<ExIndexUnit: main <#text: ''><KanaText: len=1 <#text: '壱壱'>>>",
+    "<ExIndexUnit: main <#text: ''><KanaText: len=2 <#text: 'いい|壱壱'>>>",
+    "<ExIndexUnit: main <#text: ''><KanaText: len=2 ruby='on' <#text: 'いい|壱壱'>>>",
+    "<ExIndexUnit: main <#text: ''><KanaText: len=2 ruby='specific' option='11' <#text: 'いい|壱壱'>>>",
     ]
 
 #__getitem__
@@ -35,7 +35,7 @@ testcase02i = (
 
 testcase02o = [
     4, 'doc1', 'id-02', '分類子',
-    "<#empty>",
+    "<#text: ''>",
     "<KanaText: len=2 ruby='specific' option='11' <#text: 'いい|壱壱'>>",
     "<ExSubterm: len=2 <KanaText: len=2 ruby='on' <#text: 'ろろ|弐弐'>><KanaText: len=2 ruby='specific' option='2' <#text: 'はは|参参'>>>",
 ]
