@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.27.0a1' # 2021-11-04
+__version__ = '0.27.0b0' # 2021-11-04
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
