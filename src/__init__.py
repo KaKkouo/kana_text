@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.27.0' # 2021-11-04
+__version__ = '0.27.1a0' # 2021-11-04
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -141,7 +141,7 @@ def make_specific_by_parsing_option(word, kana, option):
     return rtn
 
 
-class KanaText(nodes.Node):
+class KanaText(nodes.Element):
     """かな文字を扱うTextクラス
 
     - Jinja2のstring判定ではFalseとなるように、reprunicode(str)は継承しない.
@@ -173,47 +173,27 @@ class KanaText(nodes.Node):
 
         self._rawword = rawword
         self._rawtext = rawtext
-        self._delimiter = _chop.sub('', separator)
         self._separator = separator
         self._option_marker = option_marker
-
         self.whatiam = 'term' #in('classifier', 'term')
+
+        if rawtext:
+            rawsource = rawtext
+        else:
+            rawsource = rawword
+
+        delimiter = _chop.sub('', separator)
 
         parser = parser_for_kana_text(separator, option_marker)
         hier, kana, ruby, option = self._parse_text(rawword.strip(), parser)
 
-        self._properties = {'hier': hier, 'kana': kana, 'ruby': ruby, 'option': option,
-                            'null': not hier, 'separator':  self._delimiter, }
+        super().__init__(rawsource, hier=hier, kana=kana, ruby=ruby, option=option,
+                          null=not hier, delimiter=delimiter)
 
     def __len__(self):
         if not self['kana'] is None: return 2
         if not self['hier'] is None: return 1 #0.22.0: 'is None'を削除しても動作するように調整.
         raise ValueError(repr(self))
-
-    def __getitem__(self, key):
-        if isinstance(key, str):
-            return self._properties[key]
-        elif isinstance(key, int):
-            if key == 0: return self._properties['hier']
-            if key == 1: return self._properties['kana']
-            raise KeyError(key)
-        else:
-            raise TypeError(key)
-
-    def __setitem__(self, key, value):
-        """必要なものに限定する."""
-        if isinstance(key, str):
-            if key in ('ruby', 'option'):
-                self._properties[key] = value
-            else:
-                raise KeyError(key)
-        elif isinstance(key, int):
-            if key == 1:
-                self._properties['kana'] = value
-            else:
-                raise KeyError(key)
-        else:
-            raise TypeError(key)
 
     def __eq__(self, other):
         """unittest用"""
@@ -238,7 +218,7 @@ class KanaText(nodes.Node):
         """
         name = self.__class__.__name__
         rb, op = self['ruby'], self['option']
-        hier, kana = self[0], self[1]
+        hier, kana = self['hier'], self['kana']
         if kana:
             prop = f"<{name}: len={len(self)} "
             if len(rb) > 0: prop += f"ruby='{rb}' "
@@ -281,8 +261,8 @@ class KanaText(nodes.Node):
         return hier, kana, ruby, opt
 
     def astext(self):
-        if self[1]: return self[1] + self._delimiter + self[0]
-        if self[0]: return self[0]
+        if self['kana']: return self['kana'] + self['delimiter'] + self['hier']
+        if self['hier']: return self['hier']
         return ''
 
     def askana(self):
@@ -298,7 +278,7 @@ class KanaText(nodes.Node):
         if len(self) < 2:
             return ''
         else:
-            return self[1]
+            return self['kana']
 
     def ashier(self):
         """
@@ -310,7 +290,7 @@ class KanaText(nodes.Node):
         if len(self) < 1:
             raise ValueError(self._rawword, repr(self))
 
-        return self[0]
+        return self['hier']
 
     def asruby(self):
         """
@@ -333,18 +313,18 @@ class KanaText(nodes.Node):
         if len(self) < 1:
             raise ValueError(self._rawword, repr(self))
         elif len(self) == 1:
-            hier = self[0]
+            hier = self['hier']
             if hier: data = [(False, hier)]
             else   : raise ValueError(self._rawword, repr(self))
         elif not ruby:
-            hier = self[0]
+            hier = self['hier']
             data = [(False, hier), ]
         elif ruby == 'specific':  # 細かくルビの表示/非表示を指定する
             # アレコレがんばる
-            hier, kana = self[0], self[1]
+            hier, kana = self['hier'], self['kana']
             data = make_specific_by_parsing_option(hier, kana, option)
         elif ruby == 'on':  # ルビを付ける。文字の割当位置は気にしない。
-            hier, kana = self[0], self[1]
+            hier, kana = self['hier'], self['kana']
             data = [(True, (hier, kana))]
         else:
             # ここは通らないはずだけど、念の為
@@ -646,7 +626,7 @@ class ExIndexRack(idxr.IndexRack):
 
     def update_term_with_kana_catalog(self, term):
         if term.ashier() in self._kana_catalog:
-            term[1] = self._kana_catalog[term.ashier()][1]
+            term['kana'] = self._kana_catalog[term.ashier()][1]
             term['ruby'] = self._kana_catalog[term.ashier()][2]
             term['option'] = self._kana_catalog[term.ashier()][3]
         else:
