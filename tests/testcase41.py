@@ -2,7 +2,7 @@
 import sys
 import unittest
 
-from src import ExIndexRack as IndexRack
+from src import ExtIndexRack as IndexRack
 from . import util
 
 #-------------------------------------------------------------------

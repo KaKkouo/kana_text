@@ -1,8 +1,8 @@
 #!/usr/bin/python
 import sys
 import unittest
-sys.path.append('sphinxcontrib')
-from src import ExIndexEntry as IndexEntry
+
+from src import ExtIndexEntry as IndexEntry
 
 #正規表現による字句解析
 testcase1i = [

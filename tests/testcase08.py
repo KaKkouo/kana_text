@@ -7,7 +7,7 @@ from src import KanaText
 class testKanaText(unittest.TestCase):
     def test01_empty(self):
         term = KanaText('')
-        self.assertEqual(repr(term), "<#empty>")
+        self.assertEqual(repr(term), "<#text: ''>")
         self.assertEqual(term['kana'], None)
         self.assertEqual(term['hier'], "")
 

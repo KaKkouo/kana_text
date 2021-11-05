@@ -233,7 +233,7 @@ class KanaText(nodes.Element):
         elif self._rawtext:
             return f"<#rawtext: '{self._rawtext}'>"
         else:
-            return "<#empty>"
+            return "<#text: ''>"
 
     def _parse_text(self, text, parser):
         """
@@ -352,29 +352,77 @@ class KanaText(nodes.Element):
 # ------------------------------------------------------------
 
 
+class ExtSubterm(idxr.Subterm):
+    """subterm in IndexUnit"""
+
+    def __init__(self, emphasis, *terms):
+        self.change_triple = False
+        super().__init__(emphasis, *terms)
+
+    def __str__(self):
+        """Jinja2用"""
+        return nodes.unescape(self.ashier())
+
+    def astext(self):
+        if self['template'] and len(self) == 1:
+            return self['template'] % self[0].ashier()
+
+        text = ""
+        for subterm in self:
+            text += subterm.astext() + self['delimiter']
+        return text[:-len(self['delimiter'])]
+
+    def ashier(self):
+        if self['template'] and len(self) == 1:
+            return self['template'] % self[0].ashier()
+
+        if self.change_triple and len(self) == 2 and self['delimiter'] == ', ':
+            return self[1].ashier() + self['delimiter'] + self[0].ashier()
+
+        hier = ""
+        for subterm in self:
+            hier += subterm.ashier() + self['delimiter']
+        return hier[:-len(self['delimiter'])]
+
+
+class ExtIndexUnit(idxr.IndexUnit):
+    def get_terms(self):
+        terms = [self[1]]
+        for s in self[2]:
+            terms.append(s)
+        return terms
+
+
+# ------------------------------------------------------------
+
+
 _each_words = re.compile(r' *; +')
 
 
-class ExIndexEntry(idxr.IndexEntry):
+class ExtIndexEntry(idxr.IndexEntry):
+
+    textclass = KanaText
+    packclass = ExtSubterm
+    unitclass = ExtIndexUnit
 
     def __init__(self, rawtext, entry_type='single', file_name=None, target=None, main='',
-                 index_key='', textclass=None):
+                 index_key=''):
 
-        super().__init__(rawtext, entry_type, file_name, target, main, index_key, KanaText)
+        super().__init__(rawtext, entry_type, file_name, target, main, index_key)
 
     def __repr__(self):
         """
         doctest:
 
-            >>> ktext = ExIndexEntry('壱壱; 弐弐')
+            >>> ktext = Ext[:wIndexEntry('壱壱; 弐弐')
             >>> ktext
-            <ExIndexEntry: entry_type='single' <KanaText: len=1 <#text: '壱壱'>><KanaText: len=1 <#text: '弐弐'>>>
-            >>> ktext = ExIndexEntry('ああ|壱壱^')
+            <Ext[:wIndexEntry: entry_type='single' <KanaText: len=1 <#text: '壱壱'>><KanaText: len=1 <#text: '弐弐'>>>
+            >>> ktext = Ext[:wIndexEntry('ああ|壱壱^')
             >>> ktext
-            <ExIndexEntry: entry_type='single' <KanaText: len=2 ruby='on' <#text: 'ああ|壱壱'>>>
-            >>> ktext = ExIndexEntry('あ|壱^1')
+            <Ext[:wIndexEntry: entry_type='single' <KanaText: len=2 ruby='on' <#text: 'ああ|壱壱'>>>
+            >>> ktext = Ext[:wIndexEntry('あ|壱^1')
             >>> ktext
-            <ExIndexEntry: entry_type='single' <KanaText: len=2 ruby='specific' option='1' <#text: 'あ|壱'>>>
+            <ExtIndexEntry: entry_type='single' <KanaText: len=2 ruby='specific' option='1' <#text: 'あ|壱'>>>
         """
 
         name = self.__class__.__name__
@@ -396,7 +444,7 @@ class ExIndexEntry(idxr.IndexEntry):
     def asruby(self):
         """
         doctest:
-            >>> kanatext = ExIndexEntry('ああ|壱壱; いい|弐弐^; うう|参参')
+            >>> kanatext = ExtIndexEntry('ああ|壱壱; いい|弐弐^; うう|参参')
             >>> kanatext.asruby()
             [[(False, '壱壱')], [(True, ('弐弐', 'いい'))], [(False, '参参')]]
         """
@@ -488,12 +536,12 @@ def get_word_list_from_file(config):
     return lines
 
 
-class ExIndexRack(idxr.IndexRack):
+class ExtIndexRack(idxr.IndexRack):
     """
     処理概要
 
     1. self.__init__() 初期化. 設定からの読み込み.
-    2. self.append() ExIndexUnitの取り込み. self.update()の準備.
+    2. self.append() ExtIndexUnitの取り込み. self.update()の準備.
     3. self.update_units() 各unitの更新、並び替えの準備.
     4. self.sort_units() 並び替え.
     5. self.generate_genindex_data() genindex用データの生成.
@@ -501,8 +549,13 @@ class ExIndexRack(idxr.IndexRack):
 
     UNIT_CLSF, UNIT_TERM, UNIT_SBTM = 0, 1, 2
 
+    textclass = KanaText
+    packclass = ExtSubterm
+    unitclass = ExtIndexUnit
+    entryclass = ExtIndexEntry
+
     def __init__(self, builder, testmode=False):
-        """ExIndexUnitの取り込み、整理、並べ替え. データの生成."""
+        """ExtIndexUnitの取り込み、整理、並べ替え. データの生成."""
 
         # 制御情報の保存
         self.testmode = testmode  # 0.24 未使用になった.
@@ -510,18 +563,14 @@ class ExIndexRack(idxr.IndexRack):
 
         # 設定で用意されたかな文字情報の登録
         for rawword in builder.config.kana_text_word_list:
-            entry = ExIndexEntry(rawword, 'list', 'WORD_LIST', '', 'conf.py', None)  # _cnfpy_
-            entry.unitclass = ExIndexUnit
-            entry.packclass = ExSubterm
+            entry = ExtIndexEntry(rawword, 'list', 'WORD_LIST', '', 'conf.py', None)  # _cnfpy_
             index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu['main'], iu.get_terms())
 
         # 設定ファイルで用意されたかな文字情報の登録
         for rawword in get_word_list_from_file(builder.config):
-            entry = ExIndexEntry(rawword, 'list', 'WORD_FILE', '', 'rcfile', None)  # _rncmd_
-            entry.unitclass = ExIndexUnit
-            entry.packclass = ExSubterm
+            entry = ExtIndexEntry(rawword, 'list', 'WORD_FILE', '', 'rcfile', None)  # _rncmd_
             index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu['main'], iu.get_terms())
@@ -536,12 +585,6 @@ class ExIndexRack(idxr.IndexRack):
         # 入れ物の用意とリセット
         self._kana_catalog_pre = self._kana_catalog  # (注)__init__がないと前回分が残る.
         self._kana_catalog = {}  # {term: (emphasis, kana, ruby, option)}
-
-        # クラスの設定
-        self.textclass = KanaText
-        self.entryclass = ExIndexEntry
-        self.unitclass = ExIndexUnit
-        self.packclass = ExSubterm
 
         return super().create_index(group_entries, _fixre)
 
@@ -633,51 +676,10 @@ class ExIndexRack(idxr.IndexRack):
             pass
 
 
-class ExSubterm(idxr.Subterm):
-    """subterm in IndexUnit"""
-
-    def __init__(self, emphasis, *terms):
-        self.change_triple = False
-        super().__init__(emphasis, *terms)
-
-    def __str__(self):
-        """Jinja2用"""
-        return nodes.unescape(self.ashier())
-
-    def astext(self):
-        if self['template'] and len(self) == 1:
-            return self['template'] % self[0].ashier()
-
-        text = ""
-        for subterm in self:
-            text += subterm.astext() + self['delimiter']
-        return text[:-len(self['delimiter'])]
-
-    def ashier(self):
-        if self['template'] and len(self) == 1:
-            return self['template'] % self[0].ashier()
-
-        if self.change_triple and len(self) == 2 and self['delimiter'] == ', ':
-            return self[1].ashier() + self['delimiter'] + self[0].ashier()
-
-        hier = ""
-        for subterm in self:
-            hier += subterm.ashier() + self['delimiter']
-        return hier[:-len(self['delimiter'])]
-
-
-class ExIndexUnit(idxr.IndexUnit):
-    def get_terms(self):
-        terms = [self[1]]
-        for s in self[2]:
-            terms.append(s)
-        return terms
-
-
 # ------------------------------------------------------------
 
 
-class ExRole(docutils.SphinxRole):
+class ExtRole(docutils.SphinxRole):
     """「:kana:`かな|単語`」によるルビ表示"""
 
     def run(self):
@@ -698,7 +700,7 @@ def depart_kana(self, node):
 # ------------------------------------------------------------
 
 
-class ExHTML5Translator(html5.HTML5Translator):
+class ExtHTML5Translator(html5.HTML5Translator):
 
     def visit_term(self, node: Element) -> None:
         """
@@ -727,7 +729,7 @@ class ExHTML5Translator(html5.HTML5Translator):
 # ------------------------------------------------------------
 
 
-class ExHTMLBuilder(idxr.HTMLBuilder):
+class ExtHTMLBuilder(idxr.HTMLBuilder):
     """索引ページの日本語対応"""
 
     name = 'kana'
@@ -735,13 +737,13 @@ class ExHTMLBuilder(idxr.HTMLBuilder):
     def index_adapter(self) -> None:
         """索引の作成"""
         # 自前のIndexerを使う
-        return ExIndexRack(self).create_index()
+        return ExtIndexRack(self).create_index()
 
 
 # ------------------------------------------------------------
 
 
-class ExXRefIndex(idxr.XRefIndex):
+class ExtXRefIndex(idxr.XRefIndex):
     def textclass(self, text, rawtext):
         return KanaText(text)
 
@@ -758,19 +760,19 @@ def setup(app) -> Dict[str, Any]:
     :rtype: Dict[name: value]
     """
     # 「:index:`かな|単語<かな|単語>`」が使用可能になる
-    app.add_role('index', ExXRefIndex(), True)
+    app.add_role('index', ExtXRefIndex(), True)
 
     # 「:kana:`かな|単語^11`」が使用可能になる
-    app.add_role('kana', ExRole())
+    app.add_role('kana', ExtRole())
 
     # glossaryディレクティブ、kanaロールの表示用
     app.add_node(KanaText, html=(visit_kana, depart_kana))
-    app.add_node(ExIndexEntry, html=(visit_kana, depart_kana))
-    # 索引の表示はExHTMLBuilderで行う
+    app.add_node(ExtIndexEntry, html=(visit_kana, depart_kana))
+    # 索引の表示はExtHTMLBuilderで行う
 
     # HTML出力
-    app.add_builder(ExHTMLBuilder)
-    app.set_translator('kana', ExHTML5Translator)
+    app.add_builder(ExtHTMLBuilder)
+    app.set_translator('kana', ExtHTML5Translator)
 
     # 設定の登録
     app.add_config_value('kana_text_separator', _dflt_separator, 'env')

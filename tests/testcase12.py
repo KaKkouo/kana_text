@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys
 import unittest
-sys.path.append('sphinxcontrib')
+
 from src import KanaText
 
 #オプションと文字データの文字数の多少

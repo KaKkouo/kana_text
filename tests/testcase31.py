@@ -2,7 +2,7 @@
 import sys
 import unittest
 sys.path.append('sphinxcontrib')
-from src import ExIndexUnit as IndexUnit, ExSubterm as sb, KanaText as kt
+from src import ExtIndexUnit as IndexUnit, ExtSubterm as sb, KanaText as kt
 
 testcase01i = [
     (kt('壱壱'), sb('5', kt('似似'), kt('参参')),'2' , '5', 'doc1', 'id-01', '分類子'),
@@ -17,15 +17,15 @@ testcase01i = [
 ]
 
 testcase01o = [
-    "<ExIndexUnit: main file_name='doc1' target='id-01' <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
-    "<ExIndexUnit: main file_name='doc1' target='id-01' <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
-    "<ExIndexUnit: main file_name='doc1' target='id-01' <#text: ''><KanaText: len=1 <#text: '壱壱'>>>",
-    "<ExIndexUnit: main <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
-    "<ExIndexUnit: main <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExSubterm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
-    "<ExIndexUnit: main <#text: ''><KanaText: len=1 <#text: '壱壱'>>>",
-    "<ExIndexUnit: main <#text: ''><KanaText: len=2 <#text: 'いい|壱壱'>>>",
-    "<ExIndexUnit: main <#text: ''><KanaText: len=2 ruby='on' <#text: 'いい|壱壱'>>>",
-    "<ExIndexUnit: main <#text: ''><KanaText: len=2 ruby='specific' option='11' <#text: 'いい|壱壱'>>>",
+    "<ExtIndexUnit: main file_name='doc1' target='id-01' <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExtSubterm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
+    "<ExtIndexUnit: main file_name='doc1' target='id-01' <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExtSubterm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
+    "<ExtIndexUnit: main file_name='doc1' target='id-01' <#text: ''><KanaText: len=1 <#text: '壱壱'>>>",
+    "<ExtIndexUnit: main <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExtSubterm: len=2 <KanaText: len=1 <#text: '似似'>><KanaText: len=1 <#text: '参参'>>>>",
+    "<ExtIndexUnit: main <#text: ''><KanaText: len=1 <#text: '壱壱'>><ExtSubterm: len=1 <KanaText: len=1 <#text: '似似'>>>>",
+    "<ExtIndexUnit: main <#text: ''><KanaText: len=1 <#text: '壱壱'>>>",
+    "<ExtIndexUnit: main <#text: ''><KanaText: len=2 <#text: 'いい|壱壱'>>>",
+    "<ExtIndexUnit: main <#text: ''><KanaText: len=2 ruby='on' <#text: 'いい|壱壱'>>>",
+    "<ExtIndexUnit: main <#text: ''><KanaText: len=2 ruby='specific' option='11' <#text: 'いい|壱壱'>>>",
     ]
 
 #__getitem__
@@ -37,7 +37,7 @@ testcase02o = [
     4, 'doc1', 'id-02', '分類子',
     "<#text: ''>",
     "<KanaText: len=2 ruby='specific' option='11' <#text: 'いい|壱壱'>>",
-    "<ExSubterm: len=2 <KanaText: len=2 ruby='on' <#text: 'ろろ|弐弐'>><KanaText: len=2 ruby='specific' option='2' <#text: 'はは|参参'>>>",
+    "<ExtSubterm: len=2 <KanaText: len=2 ruby='on' <#text: 'ろろ|弐弐'>><KanaText: len=2 ruby='specific' option='2' <#text: 'はは|参参'>>>",
 ]
 
 
