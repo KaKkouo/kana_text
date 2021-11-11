@@ -265,6 +265,11 @@ class KanaText(nodes.Element):
         if self['hier']: return self['hier']
         return ''
 
+    def assort(self):
+        if self['kana']: return self['kana'] + self['delimiter'] + self['hier']
+        if self['hier']: return self['hier']
+        return ''
+
     def askana(self):
         """
         doctest:
