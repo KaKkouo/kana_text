@@ -13,15 +13,15 @@ jobs:
       - image: cimg/python:3.8
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip
-          pip-dependency-file: requirements.txt
       - run:
           name: upgrade pip
           command: |
             python -m pip install --upgrade pip
             python -m pip install --upgrade Sphinx
             python -m pip install --upgrade sphindexer
+      - python/install-packages:
+          pkg-manager: pip
+          pip-dependency-file: requirements.txt
       - run:
           name: Run Doctests
           command: python src/__init__.py
