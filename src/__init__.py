@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.29.0.dev0' # 2021-11-04
+__version__ = '0.29.0' # 2021-11-12
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -261,11 +261,12 @@ class KanaText(nodes.Element):
         return hier, kana, ruby, opt
 
     def astext(self):
-        if self['kana']: return self['kana'] + self['delimiter'] + self['hier']
-        if self['hier']: return self['hier']
-        return ''
+        return self._as_default()
 
     def assort(self):
+        return self._as_default()
+
+    def _as_default(self):
         if self['kana']: return self['kana'] + self['delimiter'] + self['hier']
         if self['hier']: return self['hier']
         return ''
@@ -714,7 +715,7 @@ class ExtHTML5Translator(html5.HTML5Translator):
         """
 
         try:
-            term = KanaText(node[0].astext())
+            term = KanaText(node[0].rawsource)
         except TypeError as e:
             pass
         else:
