@@ -48,7 +48,7 @@ class testKanaText(unittest.TestCase):
             KanaText.config = util.config()
             KanaText.config.kana_text_option_marker = r'\#'
             term = KanaText(t)
-            rslt = term.astext()
+            rslt = term.assort()
             self.assertEqual(e, rslt)
             KanaText.config.kana_text_option_marker = r'\^'
 
