@@ -43,10 +43,10 @@ testcase1o = [   #想定する結果
 
 class testKanaText(unittest.TestCase):
     #正規表現による字句解析
-    def test01_astext(self):
+    def test01_assort(self):
         for t, e in zip(testcase1i, testcase1o):
             term = KanaText(t)
-            rslt = term.astext()
+            rslt = term.assort()
             self.assertEqual(e, rslt)
 
 def main():
