@@ -48,7 +48,7 @@ class testKanaText(unittest.TestCase):
             KanaText.config = util.config()
             KanaText.config.kana_text_separator = '、'
             term = KanaText(t)
-            rslt = term.astext()
+            rslt = term.assort()
             self.assertEqual(e, rslt)
 
 def main():
