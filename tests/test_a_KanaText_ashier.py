@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import sys
-import unittest
+import pytest
 
 from src import KanaText
 from . import dataset0
@@ -17,16 +17,9 @@ testcase01o = [   #想定する結果
     "用語６", "用語７", "用語８", "用語９", "用語Ａ",
     "", "", ""]
 
-class testKanaText(unittest.TestCase):
-    #ashierの基本チェック
-    def test01_ashier(self):
-        for t, e in zip(testcase01i, testcase01o):
-            term = KanaText(t)
-            rslt = term.ashier()
-            self.assertEqual(e, rslt)
-
-def main():
-    unittest.main()
-
-if __name__ == '__main__':
-    unittest.main()
+#ashierの基本チェック
+def test01_ashier():
+    for t, e in zip(testcase01i, testcase01o):
+        term = KanaText(t)
+        rslt = term.ashier()
+        assert rslt == e

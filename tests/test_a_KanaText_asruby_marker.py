@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import sys
-import unittest
+import pytest
 
 from src import KanaText
 
@@ -30,16 +30,9 @@ testcase01o = [   #想定する結果
     [(False, '用語９')],
     [(False, '用語Ａ')], ]
 
-class testKanaText(unittest.TestCase):
-    #オプションの処理
-    def test01_asruby(self):
-        for t, e in zip(testcase01i, testcase01o):
-            term = KanaText(t)
-            rslt = term.asruby()
-            self.assertEqual(e, rslt)
-
-def main():
-    unittest.main()
-
-if __name__ == '__main__':
-    unittest.main()
+#オプションの処理
+def test01_asruby():
+    for t, e in zip(testcase01i, testcase01o):
+        term = KanaText(t)
+        rslt = term.asruby()
+        assert rslt == e

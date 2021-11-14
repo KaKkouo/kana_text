@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys
-import unittest
-sys.path.append('sphinxcontrib')
+import pytest
+
 from src import KanaText
 
 #非表示指定の「a-i」「q-y」の動作
@@ -90,16 +90,9 @@ testcase01o = [
         (False, '五六七八九拾壱弐参四五')],
 ]
 
-class testKanaText(unittest.TestCase):
-    #非表示指定の「a-i」「q-y」の動作
-    def test01_asruby(self):
-        for t, e in zip(testcase01i, testcase01o):
-            term = KanaText(t)
-            rslt = term.asruby()
-            self.assertEqual(e, rslt)
-
-def main():
-    unittest.main()
-
-if __name__ == '__main__':
-    unittest.main()
+#非表示指定の「a-i」「q-y」の動作
+def test01_asruby():
+    for t, e in zip(testcase01i, testcase01o):
+        term = KanaText(t)
+        rslt = term.asruby()
+        assert rslt == e

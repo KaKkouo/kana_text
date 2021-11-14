@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import sys
-import unittest
+import pytest
 
 from src import KanaText
 
@@ -51,16 +51,9 @@ testcase01o = [   #期待する結果
     [(True, ('壱', 'いろはにほ')), (True, ('弐', 'へと')), (False, '参四五六七八九')],
 ]
 
-class testKanaText(unittest.TestCase):
-    #オプションと文字データの文字数の多少
-    def test01_asruby(self):
-        for t, e in zip(testcase01i, testcase01o):
-            term = KanaText(t)
-            rslt = term.asruby()
-            self.assertEqual(e, rslt)
-
-def main():
-    unittest.main()
-
-if __name__ == '__main__':
-    unittest.main()
+#オプションと文字データの文字数の多少
+def test01_asruby():
+    for t, e in zip(testcase01i, testcase01o):
+        term = KanaText(t)
+        rslt = term.asruby()
+        assert rslt == e
