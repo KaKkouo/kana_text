@@ -5,7 +5,7 @@ import pytest
 from src import KanaText
 from . import dataset0
 
-#self.ashier()の基本チェック
+#self.asideo()の基本チェック
 testcase01i = dataset0.dataset
 
 testcase01o = [   #想定する結果
@@ -17,9 +17,9 @@ testcase01o = [   #想定する結果
     "用語６", "用語７", "用語８", "用語９", "用語Ａ",
     "", "", ""]
 
-#ashierの基本チェック
-def test01_ashier():
+#asideoの基本チェック
+def test01_asideo():
     for t, e in zip(testcase01i, testcase01o):
         term = KanaText(t)
-        rslt = term.ashier()
+        rslt = term.asideo()
         assert rslt == e

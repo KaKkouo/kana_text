@@ -8,7 +8,7 @@ def test01_empty():
     term = KanaText('')
     assert repr(term) == "<#text: ''>"
     assert term['kana'] == None
-    assert term['hier'] == ""
+    assert term['ideo'] == ""
 
 def test02_raise():
     term = KanaText('用語零弐')

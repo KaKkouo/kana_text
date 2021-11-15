@@ -44,7 +44,7 @@ testcase1o = [   #想定する結果
 #正規表現による字句解析
 def test01_marker():
     for t, e in zip(testcase1i, testcase1o):
-        KanaText.config = util.config()
+        KanaText.config = util.Config()
         KanaText.config.kana_text_option_marker = r'\#'
         term = KanaText(t)
         rslt = term.assort()
