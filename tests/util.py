@@ -1,17 +1,17 @@
 from src import ExtIndexRack as IndexRack
 
-class domain(object):
+class Domain(object):
     def __init__(self, entries):
         self.entries = entries
 
-class env(object):
+class Env(object):
     def __init__(self, entries):
         self.domain = {}
-        self.domain['index'] = domain(entries)
+        self.domain['index'] = Domain(entries)
     def get_domain(self, domain_type):
         return self.domain[domain_type]
 
-class config(object):
+class Config(object):
     def __init__(self):
         self.kana_text_separator = r'\|'
         self.kana_text_option_marker = r'\^'
@@ -22,10 +22,10 @@ class config(object):
         self.kana_text_change_triple = False
 
 class builder(object):
-    def __init__(self, env):
-        self.env = env
-        self.get_domain = env.get_domain
-        self.config = config()
+    def __init__(self, entries):
+        self.env = Env(entries)
+        self.get_domain = self.env.get_domain
+        self.config = Config()
     def get_relative_uri(self, uri_type, file_name):
         return f'{file_name}.html'
 
