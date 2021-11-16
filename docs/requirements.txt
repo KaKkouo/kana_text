@@ -1,0 +1,4 @@
+funcparserlib == 1.0.0a0
+sphinxcontrib-actdiag
+sphinxcontrib-seqdiag
+sphindexer
