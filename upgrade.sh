@@ -1,6 +1,9 @@
 #!/usr/bin/bash -x
 
-.tox/py36/bin/python -m pip install --upgrade pytest sphindexer
-.tox/py37/bin/python -m pip install --upgrade pytest sphindexer
-.tox/py38/bin/python -m pip install --upgrade pytest sphindexer
+readonly LIST="py36 py37 py38"
+
+for v in $LIST
+do
+	.tox/${v}/bin/python -m pip install --upgrade pytest pytest-cov sphindexer
+done
 
