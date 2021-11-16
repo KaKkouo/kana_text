@@ -17,6 +17,7 @@ jobs:
           name: Upgrade PyPI
           command: |
             python -m pip install --upgrade pip
+            python -m pip install --upgrade pytest
             python -m pip install --upgrade Sphinx
             python -m pip install --upgrade sphindexer
       - python/install-packages:
