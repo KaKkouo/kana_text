@@ -1,8 +1,8 @@
 #!/usr/bin/python3.8
 import sys
-import unittest
+import pytest
 from pprint import pprint
-sys.path.append('sphinxcontrib')
+
 from src import ExtIndexRack as IndexRack
 from . import util
 
@@ -138,62 +138,44 @@ testcase06out = [
 
 #-------------------------------------------------------------------
 
-class testIndexRack(unittest.TestCase):
-    def test01_function_catalog(self):
-        self.maxDiff = None
-        env = util.env(testcase01in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'small'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase01out)
+def test01_function_catalog():
+    bld = util.builder(testcase01in)
+    bld.config.kana_text_indexer_mode = 'small'
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase01out
 
-    def test02_function_catalog(self):
-        self.maxDiff = None
-        env = util.env(testcase02in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'small'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase02out)
+def test02_function_catalog():
+    bld = util.builder(testcase02in)
+    bld.config.kana_text_indexer_mode = 'small'
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase02out
 
-    def test03_function_catalog(self):
-        self.maxDiff = None
-        env = util.env(testcase03in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'small'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase03out)
+def test03_function_catalog():
+    bld = util.builder(testcase03in)
+    bld.config.kana_text_indexer_mode = 'small'
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase03out
 
-    def test04_function_catalog(self):
-        self.maxDiff = None
-        env = util.env(testcase04in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'small'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase04out)
+def test04_function_catalog():
+    bld = util.builder(testcase04in)
+    bld.config.kana_text_indexer_mode = 'small'
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase04out
 
-    def test05_function_catalog(self):
-        self.maxDiff = None
-        env = util.env(testcase05in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'small'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase05out)
+def test05_function_catalog():
+    bld = util.builder(testcase05in)
+    bld.config.kana_text_indexer_mode = 'small'
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase05out
 
-    def test06_function_catalog(self):
-        self.maxDiff = None
-        env = util.env(testcase06in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'small'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase06out)
-
-#-------------------------------------------------------------------
-
-if __name__ == '__main__':
-    unittest.main()
+def test06_function_catalog():
+    bld = util.builder(testcase06in)
+    bld.config.kana_text_indexer_mode = 'small'
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase06out

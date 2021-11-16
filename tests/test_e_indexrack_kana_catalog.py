@@ -1,8 +1,8 @@
 #!/usr/bin/python3.8
 import sys
-import unittest
+import pytest
 from pprint import pprint
-sys.path.append('sphinxcontrib')
+
 from src import ExtIndexRack as IndexRack
 from . import util
 
@@ -64,14 +64,14 @@ testcase01out = [
      None]),
    ('むむ|検証０５',
     [[],
-     [('むむ|検証０５',
+     [('検証０５',
        [('main', 'doc05b.html#id-05b'),
         ('', 'doc05a.html#id-05a'),
         ('', 'doc05c.html#id-05c')])],
      None]),
    ('むむ|検証０７',
     [[],
-     [('むむ|検証０７',
+     [('検証０７',
        [('main', 'doc07b.html#id-07b'),
         ('main', 'doc07b.html#id-07b'),
         ('', 'doc07a.html#id-07a'),
@@ -81,14 +81,14 @@ testcase01out = [
      None]),
    ('めめ|検証０６',
     [[],
-     [('めめ|検証０６',
+     [('検証０６',
        [('main', 'doc06b.html#id-06b'),
         ('', 'doc06a.html#id-06a'),
         ('', 'doc06c.html#id-06c')])],
      None]),
    ('めめ|検証０８',
     [[],
-     [('めめ|検証０８',
+     [('検証０８',
        [('main', 'doc08b.html#id-08b'),
         ('main', 'doc08b.html#id-08b'),
         ('', 'doc08a.html#id-08a'),
@@ -112,28 +112,28 @@ testcase02out = [
 ('ま',
   [('むむ|球球球',
     [[],
-     [('むむ|球球球 むむ|球球球', #seeのデリミタ仕様
+     [('球球球 球球球', #seeのデリミタ仕様
        [('main', 'doc09b.html#id-09b'),
         ('main', 'doc09b.html#id-09b'),
         ('', 'doc09a.html#id-09a'),
         ('', 'doc09a.html#id-09a'),
         ('', 'doc09c.html#id-09c'),
         ('', 'doc09c.html#id-09c')]),
-      ('むむ|球球球, むむ|球球球', #seealsoのデリミタ仕様
+      ('球球球, 球球球', #seealsoのデリミタ仕様
        [('main', 'doc09b.html#id-09b'),
         ('', 'doc09a.html#id-09a'),
         ('', 'doc09c.html#id-09c')])],
      None]),
    ('めめ|拾拾拾',
     [[],
-     [('めめ|拾拾拾 めめ|拾拾拾', #seeのデリミタ仕様
+     [('拾拾拾 拾拾拾', #seeのデリミタ仕様
        [('main', 'doc10b.html#id-10b'),
         ('main', 'doc10b.html#id-10b'),
         ('', 'doc10a.html#id-10a'),
         ('', 'doc10a.html#id-10a'),
         ('', 'doc10c.html#id-10c'),
         ('', 'doc10c.html#id-10c')]),
-      ('めめ|拾拾拾, めめ|拾拾拾', #seealsoのデリミタ仕様
+      ('拾拾拾, 拾拾拾', #seealsoのデリミタ仕様
        [('main', 'doc10b.html#id-10b'),
         ('', 'doc10a.html#id-10a'),
         ('', 'doc10c.html#id-10c')])],
@@ -156,13 +156,13 @@ testcase03out = [
   [('ああ|球球球',
     [[],
      [('see 球球球', []),
-      ('ああ|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]), ],
+      ('球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')]), ],
      None])]),
 ('た',
   [('たた|拾拾拾',
     [[],
      [('see also 拾拾拾', []),
-      ('たた|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]), ],
+      ('拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')]), ],
      None])])
 ]
 
@@ -181,13 +181,13 @@ testcase04out = [
   [('ののの|球球球',
     [[],
      [('see 球球球', []),
-     ('ののの|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')])],
+     ('球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')])],
      None])]),
  ('ら',
   [('れれれ|拾拾拾',
     [[],
      [('see also 拾拾拾', []),
-      ('れれれ|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')])],
+      ('拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')])],
      None])])]
 
 #kana_text_word_listの上書き
@@ -205,71 +205,54 @@ testcase05out = [
   [('ねねね|拾拾拾',
     [[],
      [('see also 拾拾拾', []),
-      ('ねねね|拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')])],
+      ('拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')])],
      None])]),
  ('ら',
   [('るるる|球球球',
     [[],
      [('see 球球球', []),
-      ('るるる|球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')])],
+      ('球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')])],
      None])])
  ]
 
 #-------------------------------------------------------------------
 
-class testIndexRack(unittest.TestCase):
+def test01_kana_catalog():
+    bld = util.builder(testcase01in)
+    bld.config.kana_text_indexer_mode = 'small'
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase01out
 
-    def test01_kana_catalog(self):
-        self.maxDiff = None
-        env = util.env(testcase01in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'small'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase01out)
+def test02_kana_catalog():
+    bld = util.builder(testcase02in)
+    bld.config.kana_text_indexer_mode = 'small'
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase02out
 
-    def test02_kana_catalog(self):
-        self.maxDiff = None
-        env = util.env(testcase02in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'small'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase02out)
+def test03_kana_catalog():
+    bld = util.builder(testcase03in)
+    bld.config.kana_text_indexer_mode = 'small'
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase03out
 
-    def test03_kana_catalog(self):
-        self.maxDiff = None
-        env = util.env(testcase03in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'small'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase03out)
+def test04_kana_catalog():
+    bld = util.builder(testcase04in)
+    bld.config.kana_text_word_list = ['ののの|球球球^', 'れれれ|拾拾拾^']
+    bld.config.kana_text_indexer_mode = 'small'
+    bld.config.html_kana_text_on_genindex = True
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase04out
 
-    def test04_kana_catalog(self):
-        self.maxDiff = None
-        env = util.env(testcase04in)
-        bld = util.builder(env)
-        bld.config.kana_text_word_list = ['ののの|球球球^', 'れれれ|拾拾拾^']
-        bld.config.kana_text_indexer_mode = 'small'
-        bld.config.html_kana_text_on_genindex = True
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase04out)
-
-    def test05_kana_catalog(self):
-        self.maxDiff = None
-        env = util.env(testcase05in)
-        bld = util.builder(env)
-        bld.config.kana_text_word_list = []
-        bld.config.kana_text_word_file = 'tests/word_list.txt'
-        bld.config.kana_text_indexer_mode = 'small'
-        bld.config.html_kana_text_on_genindex = True
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase05out)
-
-#-------------------------------------------------------------------
-
-if __name__ == '__main__':
-    unittest.main()
+def test05_kana_catalog():
+    bld = util.builder(testcase05in)
+    bld.config.kana_text_word_list = []
+    bld.config.kana_text_word_file = 'tests/word_list.txt'
+    bld.config.kana_text_indexer_mode = 'small'
+    bld.config.html_kana_text_on_genindex = True
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase05out

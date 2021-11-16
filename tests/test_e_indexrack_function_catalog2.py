@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import unittest
+import pytest
 from src import ExtIndexRack as IndexRack
 from . import util 
 
@@ -77,29 +77,22 @@ testcase04o = [
 
 #-------------------------------------------------------------------
 
-class testIndexEntries(unittest.TestCase):
-    def test01_classifier(self):
-        env = util.env(testcase01i)
-        bld = util.builder(env)
-        gidx = IndexRack(bld).create_index()
-        self.assertEqual(testcase01o, gidx)
-    def test02_see_and_seealso(self):
-        env = util.env(testcase02i)
-        bld = util.builder(env)
-        gidx = IndexRack(bld).create_index()
-        self.assertEqual(testcase02o, gidx)
-    def test03_homonymous_function(self):
-        env = util.env(testcase03i)
-        bld = util.builder(env)
-        gidx = IndexRack(bld).create_index()
-        self.assertEqual(testcase03o, gidx)
-    def test04_homonymous_function(self):
-        env = util.env(testcase04i)
-        bld = util.builder(env)
-        gidx = IndexRack(bld).create_index()
-        self.assertEqual(testcase04o, gidx)
+def test01_classifier():
+    bld = util.builder(testcase01i)
+    gidx = IndexRack(bld).create_index()
+    assert gidx == testcase01o
 
-#-------------------------------------------------------------------
+def test02_see_and_seealso():
+    bld = util.builder(testcase02i)
+    gidx = IndexRack(bld).create_index()
+    assert gidx == testcase02o
 
-if __name__ == '__main__':
-    unittest.main()
+def test03_homonymous_function():
+    bld = util.builder(testcase03i)
+    gidx = IndexRack(bld).create_index()
+    assert gidx == testcase03o
+
+def test04_homonymous_function():
+    bld = util.builder(testcase04i)
+    gidx = IndexRack(bld).create_index()
+    assert gidx == testcase04o
