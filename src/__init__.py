@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.29.1.dev0' # 2021-11-12
+__version__ = '0.29.1a0' # 2021-11-12
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -43,7 +43,8 @@ _dflt_separator = r'\|'
 _dflt_option_marker = r'\^'
 
 def parser_for_kana_text(separator, option_marker):
-    """「かな|単語^オプション」を取り出す正規表現を作る.
+    """
+    かな|単語^オプション」を取り出す正規表現を作る.
 
     :param separator: 「かな」と「単語」を分ける文字の指定.
     :type separator: str
@@ -145,7 +146,7 @@ class KanaText(nodes.Element):
     """かな文字を扱うTextクラス
 
     - Jinja2のstring判定ではFalseとなるように、reprunicode(str)は継承しない.
-    - __str__はText.astext()と同じ挙動としてashier()を使う.
+    - __str__はText.astext()と同じ挙動としてasideo()を使う.
     - KanaText.astext()は簡易IDとして扱う.
     """
 
@@ -185,26 +186,29 @@ class KanaText(nodes.Element):
         delimiter = _chop.sub('', separator)
 
         parser = parser_for_kana_text(separator, option_marker)
-        hier, kana, ruby, option = self._parse_text(rawword.strip(), parser)
+        ideo, kana, ruby, option = self._parse_text(rawword.strip(), parser)
 
-        super().__init__(rawsource, hier=hier, kana=kana, ruby=ruby, option=option,
-                          null=not hier, delimiter=delimiter)
+        super().__init__(rawsource, ideo=ideo, kana=kana, ruby=ruby, option=option,
+                          null=not ideo, delimiter=delimiter)
 
     def __len__(self):
         if not self['kana'] is None: return 2
-        if not self['hier'] is None: return 1 #0.22.0: 'is None'を削除しても動作するように調整.
+        if not self['ideo'] is None: return 1 #0.22.0: 'is None'を削除しても動作するように調整.
         raise ValueError(repr(self))
 
     def __eq__(self, other):
         """unittest用"""
-        return self.astext() == other
+        try:
+            return self.assort() == other.assort()
+        except AttributeError:
+            return self.assort() == other
 
     def __str__(self):
         """jinja2用"""
         if self.whatiam == 'term' and self.kana_text_on_genindex:
             return self.ashtml()
         else:
-            return self.ashier()
+            return self.astext()
 
     def __repr__(self):
         return self.entity_of_repr()
@@ -218,16 +222,16 @@ class KanaText(nodes.Element):
         """
         name = self.__class__.__name__
         rb, op = self['ruby'], self['option']
-        hier, kana = self['hier'], self['kana']
+        ideo, kana = self['ideo'], self['kana']
         if kana:
             prop = f"<{name}: len={len(self)} "
             if len(rb) > 0: prop += f"ruby='{rb}' "
             if len(op) > 0: prop += f"option='{op}' "
-            prop += f"<#text: '{kana}|{hier}'>>"
+            prop += f"<#text: '{kana}|{ideo}'>>"
 
             return prop
-        elif hier:
-            return f"<{name}: len={len(self)} <#text: '{hier}'>>"
+        elif ideo:
+            return f"<{name}: len={len(self)} <#text: '{ideo}'>>"
         elif self._rawword:
             return f"<{name}: <#rawword: '{self._rawword}'>>"
         elif self._rawtext:
@@ -248,7 +252,7 @@ class KanaText(nodes.Element):
         if not match:
             raise ValueError(self._rawword)
 
-        _, _, kana, hier, _, marker, opt = match.groups()
+        _, _, kana, ideo, _, marker, opt = match.groups()
 
         # display mode of ruby
         if not kana  : ruby = ''  # off
@@ -258,17 +262,21 @@ class KanaText(nodes.Element):
 
         if not opt: opt = ''
 
-        return hier, kana, ruby, opt
+        return ideo, kana, ruby, opt
 
     def astext(self):
-        return self._as_default()
+        return self._as_standard()
 
     def assort(self):
-        return self._as_default()
+        return self._as_identifier()
 
-    def _as_default(self):
-        if self['kana']: return self['kana'] + self['delimiter'] + self['hier']
-        if self['hier']: return self['hier']
+    def _as_standard(self):
+        if self['ideo']: return self['ideo']
+        return ''
+
+    def _as_identifier(self):
+        if self['kana']: return self['kana'] + self['delimiter'] + self['ideo']
+        if self['ideo']: return self['ideo']
         return ''
 
     def askana(self):
@@ -286,17 +294,17 @@ class KanaText(nodes.Element):
         else:
             return self['kana']
 
-    def ashier(self):
+    def asideo(self):
         """
         doctest:
             >>> kana = KanaText('たなかはなこ|田中はな子^12b1')
-            >>> kana.ashier()
+            >>> kana.asideo()
             '田中はな子'
         """
         if len(self) < 1:
             raise ValueError(self._rawword, repr(self))
 
-        return self['hier']
+        return self['ideo']
 
     def asruby(self):
         """
@@ -319,19 +327,19 @@ class KanaText(nodes.Element):
         if len(self) < 1:
             raise ValueError(self._rawword, repr(self))
         elif len(self) == 1:
-            hier = self['hier']
-            if hier: data = [(False, hier)]
+            ideo = self['ideo']
+            if ideo: data = [(False, ideo)]
             else   : raise ValueError(self._rawword, repr(self))
         elif not ruby:
-            hier = self['hier']
-            data = [(False, hier), ]
+            ideo = self['ideo']
+            data = [(False, ideo), ]
         elif ruby == 'specific':  # 細かくルビの表示/非表示を指定する
             # アレコレがんばる
-            hier, kana = self['hier'], self['kana']
-            data = make_specific_by_parsing_option(hier, kana, option)
+            ideo, kana = self['ideo'], self['kana']
+            data = make_specific_by_parsing_option(ideo, kana, option)
         elif ruby == 'on':  # ルビを付ける。文字の割当位置は気にしない。
-            hier, kana = self['hier'], self['kana']
-            data = [(True, (hier, kana))]
+            ideo, kana = self['ideo'], self['kana']
+            data = [(True, (ideo, kana))]
         else:
             # ここは通らないはずだけど、念の為
             raise ValueError(repr(self))
@@ -367,28 +375,31 @@ class ExtSubterm(idxr.Subterm):
 
     def __str__(self):
         """Jinja2用"""
-        return nodes.unescape(self.ashier())
+        return nodes.unescape(self.astext())
 
     def astext(self):
         if self['template'] and len(self) == 1:
-            return self['template'] % self[0].ashier()
+            return self['template'] % self[0].astext()
+
+        if self.change_triple and len(self) == 2 and self['delimiter'] == ', ':
+            return self[1].astext() + self['delimiter'] + self[0].astext()
 
         text = ""
         for subterm in self:
             text += subterm.astext() + self['delimiter']
         return text[:-len(self['delimiter'])]
 
-    def ashier(self):
+    def assort(self):
         if self['template'] and len(self) == 1:
-            return self['template'] % self[0].ashier()
+            return self['template'] % self[0].assort()
 
         if self.change_triple and len(self) == 2 and self['delimiter'] == ', ':
-            return self[1].ashier() + self['delimiter'] + self[0].ashier()
+            return self[1].assort() + self['delimiter'] + self[0].assort()
 
-        hier = ""
+        text = ""
         for subterm in self:
-            hier += subterm.ashier() + self['delimiter']
-        return hier[:-len(self['delimiter'])]
+            text += subterm.assort() + self['delimiter']
+        return text[:-len(self['delimiter'])]
 
 
 class ExtIndexUnit(idxr.IndexUnit):
@@ -446,22 +457,6 @@ class ExtIndexEntry(idxr.IndexEntry):
         prop += children + ">"
 
         return prop
-
-    def asruby(self):
-        """
-        doctest:
-            >>> kanatext = ExtIndexEntry('ああ|壱壱; いい|弐弐^; うう|参参')
-            >>> kanatext.asruby()
-            [[(False, '壱壱')], [(True, ('弐弐', 'いい'))], [(False, '参参')]]
-        """
-        rubys = []
-        for child in self:
-            rubys.append(child.asruby())
-        return rubys
-
-    def ashtml(self, concat=(', ', 3)):
-        html = concat[0].join(h.ashtml() for h in self)
-        return html
 
 
 # ------------------------------------------------------------
@@ -608,33 +603,34 @@ class ExtIndexRack(idxr.IndexRack):
     def put_in_kana_catalog(self, emphasis, terms):
         """KanaText用の処理"""
         for term in terms:
-            kana, hier, ruby, spec = term.askana(), term.ashier(), term['ruby'], term['option']
-            if kana and hier in self._kana_catalog:
-                item = self._kana_catalog[hier]
+            kana, ideo, ruby, spec = term.askana(), term.asideo(), term['ruby'], term['option']
+            if kana and ideo in self._kana_catalog:
+                item = self._kana_catalog[ideo]
                 if emphasis < item[0]:
                     # emphasisコードが異なる場合は、数字の小さい方が優先.
-                    self._kana_catalog[hier] = (emphasis, kana, ruby, spec)
+                    self._kana_catalog[ideo] = (emphasis, kana, ruby, spec)
                 elif emphasis == item[0]:
                     # emphasisコードが同じなら、かな文字の長いほうが優先.
                     if len(kana) > len(item[1]):
-                        self._kana_catalog[hier] = (emphasis, kana, ruby, spec)
+                        self._kana_catalog[ideo] = (emphasis, kana, ruby, spec)
                     # 検討）かな文字の長さも同じなら、、
                     elif len(kana) == len(item[1]):
                         # 'specific'に限りオプションコードが多い方を採用する.
                         if ruby == 'specific' and ruby == item[2] and len(spec) > len(item[3]):
-                            self._kana_catalog[hier] = (emphasis, kana, ruby, spec)
+                            self._kana_catalog[ideo] = (emphasis, kana, ruby, spec)
                     else:
                         pass
                 else:
                     # その他は、先に登録された方が優先. （∵「make clean」の有無に依存しない）
                     pass  # 明示しておく.
             elif kana:
-                self._kana_catalog[hier] = (emphasis, kana, ruby, spec)
+                self._kana_catalog[ideo] = (emphasis, kana, ruby, spec)
 
-    def make_classifier_from_first_letter(self, text):
+    def make_classifier_from_first_letter(self, term):
         """
         先頭の一文字を必要な加工をして分類子に使う.
         """
+        text = term.assort()
         try:
             # パラメータに応じて変換テーブルを使い分ける.
             if 'small' == self.config.kana_text_indexer_mode:
@@ -670,14 +666,11 @@ class ExtIndexRack(idxr.IndexRack):
 
         super().update_units()
 
-    def get_word(self, term):
-        return term.ashier()
-
     def update_term_with_kana_catalog(self, term):
-        if term.ashier() in self._kana_catalog:
-            term['kana'] = self._kana_catalog[term.ashier()][1]
-            term['ruby'] = self._kana_catalog[term.ashier()][2]
-            term['option'] = self._kana_catalog[term.ashier()][3]
+        if term.asideo() in self._kana_catalog:
+            term['kana'] = self._kana_catalog[term.asideo()][1]
+            term['ruby'] = self._kana_catalog[term.asideo()][2]
+            term['option'] = self._kana_catalog[term.asideo()][3]
         else:
             pass
 
