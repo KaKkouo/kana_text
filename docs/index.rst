@@ -1,15 +1,15 @@
 Sphindexer Project
 ==================
 
-.. image:: https://readthedocs.org/projects/sphindexer/badge/?version=latest
+.. image https://readthedocs.org/projects/sphindexer/badge/?version=latest
    :target: https://sphindexer.readthedocs.io/en/latest/
    :alt: Documentation Status
 
-.. image:: https://circleci.com/gh/KaKkouo/sphindexer.svg?style=shield
+.. image:: https://circleci.com/gh/KaKkouo/kana-text.svg?style=shield
    :target: https://circleci.com/gh/KaKkouo/sphindexer
    :alt: Build Status (CircleCI)
 
-.. image:: https://codecov.io/gh/KaKkouo/sphindexer/branch/main/graph/badge.svg
+.. image:: https://codecov.io/gh/KaKkouo/kana-text/branch/main/graph/badge.svg
    :target: https://codecov.io/gh/KaKkouo/sphindexer
    :alt: Code Coverage Status (Codecov)
 
@@ -19,9 +19,8 @@ Sphindexer Project
 
 .. toctree::
 
-   seqdiag
-   actdiag
-   structure
+   overview
+   codecov
 
 Indices and Tables
 ------------------

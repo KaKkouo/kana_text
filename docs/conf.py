@@ -4,24 +4,19 @@
 import sphinx_rtd_theme
 
 
-project = 'Sphindexer Project'
+project = 'Sphinx Kana Text Project'
 copyright = '2021, @KoKekkoh, @Kakkouo'
 author = 'Kakkouo'
-release = '0.2.0'
+release = '0.1.0'
 
 
 extensions = [
-    'sphindexer',
-    'sphinxcontrib.actdiag',
-    'sphinxcontrib.seqdiag',
-    #'sphinxcontrib.blockdiag',
-    #'sphinxcontrib.nwdiag',
-    #'sphinxcontrib.rackdiag',
+    'sphinxcontrib.kana_text',
     ]
 
 
 templates_path = ['_templates']
-language = 'en'
+language = 'ja'
 exclude_patterns = []
 
 
