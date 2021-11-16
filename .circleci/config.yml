@@ -18,6 +18,7 @@ jobs:
           command: |
             python -m pip install --upgrade pip
             python -m pip install --upgrade pytest
+            python -m pip install --upgrade pytest-cov
             python -m pip install --upgrade Sphinx
             python -m pip install --upgrade sphindexer
       - python/install-packages:
@@ -28,7 +29,7 @@ jobs:
           command: python src/__init__.py
       - run:
           name: Run Coverage Tests
-          command: pytest --cov=src --cov-report=term-missing
+          command: pytest --cov=src --cov-report=term-missing tests
       - run:
           name: Report Coverage
           command: coverage report -m
