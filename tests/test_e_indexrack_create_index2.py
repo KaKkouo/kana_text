@@ -1,6 +1,6 @@
 #!/usr/bin/python3.8
 import sys
-import unittest
+import pytest
 
 from src import ExtIndexRack as IndexRack
 from . import util
@@ -336,199 +336,63 @@ testcase03in = { #テストパターン
     ],
 }
 
-testcase03out = [
- ('あ', [('あああ|太郎', [[('', 'doc1.html#id-311')], [], None])]),
- ('い',
-  [('いいい|はな子', [[], [('くくく|森の熊', [('main', 'doc1.html#id-343')])], None])]),
- ('う', [('ううう|手紙', [[], [('かかか|狸と狐', [('', 'doc1.html#id-321')])], None])]),
- ('え',
-  [('えええ|犬猫', [[], [('かかか|子鹿 さささ|急須', [('', 'doc1.html#id-331')])], None])]),
- ('か',
-  [('かかか|子鹿', [[], [('さささ|急須, えええ|犬猫', [('', 'doc1.html#id-331')])], None]),
-   ('かかか|東京', [[], [('くくく|戦斧', [('main', 'doc3.html#id-148')])], None]),
-   ('かかか|狸と狐', [[], [('ううう|手紙', [('', 'doc1.html#id-321')])], None]),
-   ('かかか|男爵', [[], [('さささ|機関室, けけけ|花見', [('', 'doc3.html#id-131')])], None])]),
- ('き', [('ききき|満月', [[], [('くくく|騎士', [('', 'doc3.html#id-143')])], None])]),
- ('く',
-  [('くくく|伯爵', [[], [('くくく|月光', [('', 'doc3.html#id-123')])], None]),
-   ('くくく|月光', [[], [('くくく|伯爵', [('', 'doc3.html#id-123')])], None])]),
- ('け',
-  [('けけけ|花見', [[], [('かかか|男爵 さささ|機関室', [('', 'doc3.html#id-131')])], None])]),
- ('さ',
-  [('さささ|急須', [[], [('えええ|犬猫 かかか|子鹿', [('', 'doc1.html#id-331')])], None]),
-   ('さささ|機関室', [[], [('けけけ|花見 かかか|男爵', [('', 'doc3.html#id-131')])], None])])]
-
-#ひらがなにまとめる
-testcase04in = { #テストパターン
-    'doc1': [
-        ('single','ナナナ|太郎','id-311','',None),
-        ('single','ニニニ|はな子; フフフ|森の熊','id-343','main',None),
-        ('pair','ヌヌヌ|手紙; ハハハ|狸と狐','id-321','',None),
-        ('triple','ネネネ|犬猫; ハハハ|子鹿; さささ|急須','id-331','',None),
-    ],
-    'doc3': [
-        ('single','かかか|東京; くくく|戦斧','id-148','main',None),
-        ('single','ききき|満月; くくく|騎士','id-143','',None),
-        ('pair','くくく|月光; くくく|伯爵','id-123','',None),
-        ('triple','けけけ|花見; かかか|男爵; さささ|機関室','id-131','',None),
-    ],
-}
-
-testcase04out = [
-  ('か',
-   [('かかか|東京', [[], [('くくく|戦斧', [('main', 'doc3.html#id-148')])], None]),
-    ('かかか|男爵', [[], [('さささ|機関室, けけけ|花見', [('', 'doc3.html#id-131')])], None])]),
-  ('き', [('ききき|満月', [[], [('くくく|騎士', [('', 'doc3.html#id-143')])], None])]),
-  ('く',
-   [('くくく|伯爵', [[], [('くくく|月光', [('', 'doc3.html#id-123')])], None]),
-    ('くくく|月光', [[], [('くくく|伯爵', [('', 'doc3.html#id-123')])], None])]),
-  ('け',
-   [('けけけ|花見', [[], [('かかか|男爵 さささ|機関室', [('', 'doc3.html#id-131')])], None])]),
-  ('さ',
-   [('さささ|急須', [[], [('ネネネ|犬猫 ハハハ|子鹿', [('', 'doc1.html#id-331')])], None]),
-    ('さささ|機関室', [[], [('けけけ|花見 かかか|男爵', [('', 'doc3.html#id-131')])], None])]),
-  ('な', [('ナナナ|太郎', [[('', 'doc1.html#id-311')], [], None])]),
-  ('に',
-   [('ニニニ|はな子', [[], [('フフフ|森の熊', [('main', 'doc1.html#id-343')])], None])]),
-  ('ぬ', [('ヌヌヌ|手紙', [[], [('ハハハ|狸と狐', [('', 'doc1.html#id-321')])], None])]),
-  ('ね',
-   [('ネネネ|犬猫', [[], [('ハハハ|子鹿 さささ|急須', [('', 'doc1.html#id-331')])], None])]),
-  ('は',
-   [('ハハハ|子鹿', [[], [('さささ|急須, ネネネ|犬猫', [('', 'doc1.html#id-331')])], None]),
-    ('ハハハ|狸と狐', [[], [('ヌヌヌ|手紙', [('', 'doc1.html#id-321')])], None])])
-]
-
-#あかさたな…にまとめる
-testcase05in = { #テストパターン
-    'doc1': [
-        ('single','ナナナ|太郎','id-311','',None),
-        ('single','ニニニ|はな子; フフフ|森の熊','id-343','main',None),
-        ('pair','ヌヌヌ|手紙; ハハハ|狸と狐','id-321','',None),
-        ('triple','ネネネ|犬猫; ハハハ|子鹿; さささ|急須','id-331','',None),
-    ],
-    'doc3': [
-        ('single','かかか|東京; くくく|戦斧','id-148','main',None),
-        ('single','ききき|満月; くくく|騎士','id-143','',None),
-        ('pair','くくく|月光; くくく|伯爵','id-123','',None),
-        ('triple','けけけ|花見; かかか|男爵; さささ|機関室','id-131','',None),
-    ],
-}
-
-testcase05out = [
-  ('か',
-   [('かかか|東京', [[], [('くくく|戦斧', [('main', 'doc3.html#id-148')])], None]),
-    ('かかか|男爵', [[], [('さささ|機関室, けけけ|花見', [('', 'doc3.html#id-131')])], None]),
-    ('ききき|満月', [[], [('くくく|騎士', [('', 'doc3.html#id-143')])], None]),
-    ('くくく|伯爵', [[], [('くくく|月光', [('', 'doc3.html#id-123')])], None]),
-    ('くくく|月光', [[], [('くくく|伯爵', [('', 'doc3.html#id-123')])], None]),
-    ('けけけ|花見', [[], [('かかか|男爵 さささ|機関室', [('', 'doc3.html#id-131')])], None])]),
-  ('さ',
-   [('さささ|急須', [[], [('ネネネ|犬猫 ハハハ|子鹿', [('', 'doc1.html#id-331')])], None]),
-    ('さささ|機関室', [[], [('けけけ|花見 かかか|男爵', [('', 'doc3.html#id-131')])], None])]),
-  ('な',
-   [('ナナナ|太郎', [[('', 'doc1.html#id-311')], [], None]),
-    ('ニニニ|はな子', [[], [('フフフ|森の熊', [('main', 'doc1.html#id-343')])], None]),
-    ('ヌヌヌ|手紙', [[], [('ハハハ|狸と狐', [('', 'doc1.html#id-321')])], None]),
-    ('ネネネ|犬猫', [[], [('ハハハ|子鹿 さささ|急須', [('', 'doc1.html#id-331')])], None])]),
-  ('は',
-   [('ハハハ|子鹿', [[], [('さささ|急須, ネネネ|犬猫', [('', 'doc1.html#id-331')])], None]),
-    ('ハハハ|狸と狐', [[], [('ヌヌヌ|手紙', [('', 'doc1.html#id-321')])], None])])
-]
-
-#「ぱ」が「は」の項目に表示される.
-testcase06in = { #テストパターン
-'doc1': [ ('single','ナナナ|太郎','id-311','',None), ],
-'doc2': [ ('single','ニニニ|はな子; フフフ|森の熊','id-343','main',None), ], #KaKkou
-'doc3': [ ('pair','ヌヌヌ|手紙; ハハハ|狸と狐','id-321','',None), ],
-'doc4': [ ('triple','ネネネ|犬猫; ハハハ|子鹿; さささ|急須','id-331','',None), ], #KaKkou
-'doc5': [ ('single','かかか|東京; くくく|戦斧','id-148','main',None), ],
-'doc6': [ ('single','ききき|満月; くくく|騎士','id-143','',None), ],
-'doc7': [ ('single','ぱなぱな|はな子; ほほ|野良熊','id-343','main',None), ], #KaKkou
-'doc8': [ ('pair','くくく|月光; くくく|伯爵','id-123','',None), ],
-'doc9': [ ('triple','けけけ|花見; かかか|男爵; さささ|機関室','id-131','',None), ], #KaKkou
-}
-
-#「はなこ」だけ確認できればOK
-testcase06out = [
-('か',
- [('かかか|東京', [[], [('くくく|戦斧', [('main', 'doc5.html#id-148')])], None]),
-  ('かかか|男爵', [[], [('さささ|機関室, けけけ|花見', [('', 'doc9.html#id-131')])], None]),
-  ('ききき|満月', [[], [('くくく|騎士', [('', 'doc6.html#id-143')])], None]),
-  ('くくく|伯爵', [[], [('くくく|月光', [('', 'doc8.html#id-123')])], None]),
-  ('くくく|月光', [[], [('くくく|伯爵', [('', 'doc8.html#id-123')])], None]),
-  ('けけけ|花見', [[], [('かかか|男爵 さささ|機関室', [('', 'doc9.html#id-131')])], None])]),
-('さ',
- [('さささ|急須', [[], [('ネネネ|犬猫 ハハハ|子鹿', [('', 'doc4.html#id-331')])], None]),
-  ('さささ|機関室', [[], [('けけけ|花見 かかか|男爵', [('', 'doc9.html#id-131')])], None])]),
-('な',
- [('ナナナ|太郎', [[('', 'doc1.html#id-311')], [], None]),
-  ('ヌヌヌ|手紙', [[], [('ハハハ|狸と狐', [('', 'doc3.html#id-321')])], None]),
-  ('ネネネ|犬猫', [[], [('ハハハ|子鹿 さささ|急須', [('', 'doc4.html#id-331')])], None])]),
-('は',
- [('ぱなぱな|はな子',
-   [[],
-    [('ほほ|野良熊', [('main', 'doc7.html#id-343')]),
-     ('フフフ|森の熊', [('main', 'doc2.html#id-343')])],
-    None]),
-  ('ハハハ|子鹿', [[], [('さささ|急須, ネネネ|犬猫', [('', 'doc4.html#id-331')])], None]),
-  ('ハハハ|狸と狐', [[], [('ヌヌヌ|手紙', [('', 'doc3.html#id-321')])], None])])
-]
 
 #-------------------------------------------------------------------
 
-class testIndexRack(unittest.TestCase):
-    def test01_create_index(self):
-        self.maxDiff = None
-        env = util.env(testcase01in)
-        bld = util.builder(env)
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase01out)
+def test01_create_index():
+    bld = util.builder(testcase01in)
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert len(gidx) == 1
+    assert gidx == testcase01out
 
-    def test02_create_index(self):
-        self.maxDiff = None
-        env = util.env(testcase02in)
-        bld = util.builder(env)
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase02out)
+def test02_create_index():
+    bld = util.builder(testcase02in)
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert len(gidx) == 3 
+    assert gidx == testcase02out
 
-    def test03_create_index(self):
-        self.maxDiff = None
-        env = util.env(testcase03in)
-        bld = util.builder(env)
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase03out)
-
-    def test04_first_letter_of_term(self):
-        self.maxDiff = None
-        env = util.env(testcase04in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'large'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase04out)
-
-    def test05_first_letter_of_term(self):
-        self.maxDiff = None
-        env = util.env(testcase05in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'small'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase05out)
-
-    def test06_first_letter_of_term(self):
-        self.maxDiff = None
-        env = util.env(testcase06in)
-        bld = util.builder(env)
-        bld.config.kana_text_indexer_mode = 'small'
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase06out)
-
-#-------------------------------------------------------------------
-
-if __name__ == '__main__':
-    unittest.main()
+def test03_create_index():
+    bld = util.builder(testcase03in)
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert len(gidx) == 9
+    assert gidx[0][0] == 'あ'
+    assert gidx[0][1] == [('あああ|太郎', [[('', 'doc1.html#id-311')], [], None])]
+    assert gidx[1][0] == 'い'
+    assert gidx[1][1] == [('いいい|はな子',
+                           [[], [('森の熊', [('main', 'doc1.html#id-343')])], None])]
+    assert gidx[2][0] == 'う'
+    assert gidx[2][1] == [('ううう|手紙',
+                           [[], [('狸と狐', [('', 'doc1.html#id-321')])], None])]
+    assert gidx[3][0] == 'え'
+    assert gidx[3][1] == [('えええ|犬猫',
+                           [[], [('子鹿 急須', [('', 'doc1.html#id-331')])], None])]
+    assert gidx[4][0] == 'か'
+    assert gidx[4][1] == [('かかか|子鹿',
+                           [[], [('急須, 犬猫', [('', 'doc1.html#id-331')])], None]),
+                          ('かかか|東京',
+                           [[], [('戦斧', [('main', 'doc3.html#id-148')])], None]),
+                          ('かかか|狸と狐',
+                           [[], [('手紙', [('', 'doc1.html#id-321')])], None]),
+                          ('かかか|男爵',
+                           [[], [('機関室, 花見', [('', 'doc3.html#id-131')])], None])]
+    assert gidx[5][0] == 'き'
+    assert gidx[5][1] == [('ききき|満月',
+                           [[], [('騎士', [('', 'doc3.html#id-143')])], None])]
+    assert gidx[6][0] == 'く'
+    assert gidx[6][1] == [('くくく|伯爵',
+                           [[], [('月光', [('', 'doc3.html#id-123')])], None]),
+                          ('くくく|月光',
+                           [[], [('伯爵', [('', 'doc3.html#id-123')])], None])]
+    assert gidx[7][0] == 'け'
+    assert gidx[7][1] == [('けけけ|花見',
+                           [[],
+                            [('男爵 機関室', [('', 'doc3.html#id-131')])],
+                            None])]
+    assert gidx[8][0] == 'さ'
+    assert gidx[8][1] == [('さささ|急須',
+                           [[], [('犬猫 子鹿', [('', 'doc1.html#id-331')])], None]),
+                          ('さささ|機関室',
+                           [[], [('花見 男爵', [('', 'doc3.html#id-131')])], None])]

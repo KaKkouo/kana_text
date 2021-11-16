@@ -1,6 +1,6 @@
 #!/usr/bin/python3.8
 import sys
-import unittest
+import pytest
 
 from src import ExtIndexRack as IndexRack
 from . import util
@@ -27,17 +27,8 @@ testcase01out = [
 #-------------------------------------------------------------------
 
 
-class testIndexRack(unittest.TestCase):
-    def test01_create_index(self):
-        self.maxDiff = None
-        env = util.env(testcase01in)
-        bld = util.builder(env)
-        idx = IndexRack(bld)
-        gidx = idx.create_index()
-        self.assertEqual(gidx, testcase01out)
-
-
-#-------------------------------------------------------------------
-
-if __name__ == '__main__':
-    unittest.main()
+def test01_create_index():
+    bld = util.builder(testcase01in)
+    idx = IndexRack(bld)
+    gidx = idx.create_index()
+    assert gidx == testcase01out
