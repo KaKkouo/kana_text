@@ -1,4 +1,6 @@
 Sphinx
 sphindexer
+pytest
+pytest-cov
 coverage
 codecov

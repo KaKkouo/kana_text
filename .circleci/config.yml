@@ -14,8 +14,6 @@ jobs:
     steps:
       - checkout
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install --upgrade pytest
-      - run: python -m pip install --upgrade pytest-cov
       - run: python -m pip install --upgrade Sphinx
       - run: python -m pip install --upgrade sphindexer
       - python/install-packages:
