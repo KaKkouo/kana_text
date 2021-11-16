@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.29.1a1' # 2021-11-12
+__version__ = '0.29.1b0' # 2021-11-12
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -55,7 +55,7 @@ def parser_for_kana_text(separator, option_marker):
     doctest::
 
        >>> parser_for_kana_text(r'\|', r'\^')
-       re.compile(r'([ \\u3000]*)((.*?)\\\\|)*([^\\\\^]*)((\\\\^)([0-9a-z]*)?)?')
+       re.compile('([ \\u3000]*)((.*?)\\\\|)*([^\\\\^]*)((\\\\^)([0-9a-z]*)?)?')
     """
 
     ahead = r'([ 　]*)'
@@ -426,13 +426,13 @@ class ExtIndexEntry(idxr.IndexEntry):
         """
         doctest:
 
-            >>> ktext = Ext[:wIndexEntry('壱壱; 弐弐')
+            >>> ktext = ExtIndexEntry('壱壱; 弐弐')
             >>> ktext
-            <Ext[:wIndexEntry: entry_type='single' <KanaText: len=1 <#text: '壱壱'>><KanaText: len=1 <#text: '弐弐'>>>
-            >>> ktext = Ext[:wIndexEntry('ああ|壱壱^')
+            <ExtIndexEntry: entry_type='single' <KanaText: len=1 <#text: '壱壱'>><KanaText: len=1 <#text: '弐弐'>>>
+            >>> ktext = ExtIndexEntry('ああ|壱壱^')
             >>> ktext
-            <Ext[:wIndexEntry: entry_type='single' <KanaText: len=2 ruby='on' <#text: 'ああ|壱壱'>>>
-            >>> ktext = Ext[:wIndexEntry('あ|壱^1')
+            <ExtIndexEntry: entry_type='single' <KanaText: len=2 ruby='on' <#text: 'ああ|壱壱'>>>
+            >>> ktext = ExtIndexEntry('あ|壱^1')
             >>> ktext
             <ExtIndexEntry: entry_type='single' <KanaText: len=2 ruby='specific' option='1' <#text: 'あ|壱'>>>
         """
@@ -738,8 +738,7 @@ class ExtHTMLBuilder(idxr.HTMLBuilder):
 
 
 class ExtXRefIndex(idxr.XRefIndex):
-    def textclass(self, text, rawtext):
-        return KanaText(text)
+    textclass = KanaText
 
 
 # ------------------------------------------------------------
