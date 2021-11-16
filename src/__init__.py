@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.29.1a0' # 2021-11-12
+__version__ = '0.29.1a1' # 2021-11-12
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -43,8 +43,7 @@ _dflt_separator = r'\|'
 _dflt_option_marker = r'\^'
 
 def parser_for_kana_text(separator, option_marker):
-    """
-    かな|単語^オプション」を取り出す正規表現を作る.
+    """かな|単語^オプション」を取り出す正規表現を作る.
 
     :param separator: 「かな」と「単語」を分ける文字の指定.
     :type separator: str
@@ -56,7 +55,7 @@ def parser_for_kana_text(separator, option_marker):
     doctest::
 
        >>> parser_for_kana_text(r'\|', r'\^')
-       re.compile('([ \\u3000]*)((.*?)\\\\|)*([^\\\\^]*)((\\\\^)([0-9a-z]*)?)?')
+       re.compile(r'([ \\u3000]*)((.*?)\\\\|)*([^\\\\^]*)((\\\\^)([0-9a-z]*)?)?')
     """
 
     ahead = r'([ 　]*)'
@@ -286,13 +285,11 @@ class KanaText(nodes.Element):
             >>> kana.askana()
             'たなかはなこ'
         """
-        if len(self) < 1:
-            raise ValueError(repr(self))
-
-        if len(self) < 2:
-            return ''
-        else:
+        if len(self) == 2:
             return self['kana']
+        if len(self) == 1:
+            return ''
+        # len(self) < 1の時は、__len__内でValueErrorが発生する
 
     def asideo(self):
         """
@@ -301,10 +298,8 @@ class KanaText(nodes.Element):
             >>> kana.asideo()
             '田中はな子'
         """
-        if len(self) < 1:
-            raise ValueError(self._rawword, repr(self))
-
-        return self['ideo']
+        if len(self) > 0:
+            return self['ideo']
 
     def asruby(self):
         """
@@ -324,12 +319,12 @@ class KanaText(nodes.Element):
 
         ruby, option = self['ruby'], self['option']
 
-        if len(self) < 1:
-            raise ValueError(self._rawword, repr(self))
-        elif len(self) == 1:
+        if len(self) == 1:
             ideo = self['ideo']
-            if ideo: data = [(False, ideo)]
-            else   : raise ValueError(self._rawword, repr(self))
+            if ideo:
+                data = [(False, ideo)]
+            else:
+                raise ValueError(self._rawword, repr(self))
         elif not ruby:
             ideo = self['ideo']
             data = [(False, ideo), ]
