@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import pytest
+import os, pytest
 from docutils.parsers.rst.states import Inliner
 from sphinx.application import Sphinx
 from sphinx.errors import SphinxError
@@ -10,10 +10,16 @@ inliner = Inliner()
 
 workdir = 'tests'
 distdir = workdir + '/out'
+htmfile = distdir + '/index.html'
 
 #-------------------------------------------------------------------
 
 def test01_build():
+    try:
+        os.remove(htmfile)
+    except FileNotFoundError:
+        pass
+
     application = Sphinx(workdir, workdir, distdir, distdir, "kana")
     bld = application.builder
 
