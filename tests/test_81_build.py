@@ -10,13 +10,13 @@ inliner = Inliner()
 
 workdir = 'tests'
 distdir = workdir + '/out'
-htmfile = distdir + '/index.html'
+doctree = distdir + '/index.doctree'
 
 #-------------------------------------------------------------------
 
 def test01_build():
     try:
-        os.remove(htmfile)
+        os.remove(doctree)
     except FileNotFoundError:
         pass
 
