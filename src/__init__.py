@@ -405,53 +405,11 @@ class ExtIndexUnit(idxr.IndexUnit):
         return terms
 
 
-# ------------------------------------------------------------
-
-
-_each_words = re.compile(r' *; +')
-
-
 class ExtIndexEntry(idxr.IndexEntry):
 
     textclass = KanaText
     packclass = ExtSubterm
     unitclass = ExtIndexUnit
-
-    def __init__(self, rawtext, entry_type='single', file_name=None, target=None, main='',
-                 index_key=''):
-
-        super().__init__(rawtext, entry_type, file_name, target, main, index_key)
-
-    def __repr__(self):
-        """
-        doctest:
-
-            >>> ktext = ExtIndexEntry('壱壱; 弐弐')
-            >>> ktext
-            <ExtIndexEntry: entry_type='single' <KanaText: len=1 <#text: '壱壱'>><KanaText: len=1 <#text: '弐弐'>>>
-            >>> ktext = ExtIndexEntry('ああ|壱壱^')
-            >>> ktext
-            <ExtIndexEntry: entry_type='single' <KanaText: len=2 ruby='on' <#text: 'ああ|壱壱'>>>
-            >>> ktext = ExtIndexEntry('あ|壱^1')
-            >>> ktext
-            <ExtIndexEntry: entry_type='single' <KanaText: len=2 ruby='specific' option='1' <#text: 'あ|壱'>>>
-        """
-
-        name = self.__class__.__name__
-        prop = f"<{name}: "
-
-        etype, ikey = self['entry_type'], self['index_key']
-        main, fn, tid = self['main'], self['file_name'], self['target']
-        if etype: prop += f"entry_type='{etype}' "
-        if main : prop += f"main='{main}' "
-        if fn   : prop += f"file_name='{fn}' "
-        if tid  : prop += f"target='{tid}' "
-        if ikey : prop += f"index_key='{ikey}' "
-
-        children = ''.join([c.entity_of_repr() for c in self])
-        prop += children + ">"
-
-        return prop
 
 
 # ------------------------------------------------------------
