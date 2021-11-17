@@ -4,7 +4,6 @@ import unittest
 from pprint import pprint
 from jinja2 import Template
 
-sys.path.append('sphinxcontrib')
 from src import ExtIndexRack as IndexRack
 from . import util
 
