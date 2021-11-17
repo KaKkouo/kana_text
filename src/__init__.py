@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.29.2a2' # 2021-11-17
+__version__ = '0.29.2a3' # 2021-11-17
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -274,7 +274,7 @@ class KanaText(nodes.Element):
         key = self.as_identifier()
         if len(key) != 1:
             return (1, key)
-        elif key.isascii():
+        elif _a2z.match(key) or key.isnumeric():
             return (2, key)
         else:
             return (1, key)
