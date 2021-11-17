@@ -30,6 +30,7 @@ from sphinx.util.nodes import process_index_entry
 from sphinx.writers import html5
 
 import sphindexer as idxr
+from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 
 logger = logging.getLogger(__name__)
 
@@ -501,8 +502,6 @@ class ExtIndexRack(idxr.IndexRack):
     5. self.generate_genindex_data() genindex用データの生成.
     """
 
-    UNIT_CLSF, UNIT_TERM, UNIT_SBTM = 0, 1, 2
-
     textclass = KanaText
     packclass = ExtSubterm
     unitclass = ExtIndexUnit
@@ -548,7 +547,7 @@ class ExtIndexRack(idxr.IndexRack):
         """
         # 情報収集
         self.put_in_kana_catalog(unit['main'], unit.get_terms())
-        unit[self.UNIT_TERM].kana_text_on_genindex = self.config.kana_text_on_genindex
+        unit[UNIT_TERM].kana_text_on_genindex = self.config.kana_text_on_genindex
 
         # 残りの処理
         super().append(unit)
@@ -605,17 +604,17 @@ class ExtIndexRack(idxr.IndexRack):
 
         # カタログ情報を使った更新/kana_text_change_tripleの反映
         for unit in self._rack:
-            assert [unit[self.UNIT_TERM]]
+            assert [unit[UNIT_TERM]]
 
             # 各termの読みの設定（「同じ単語は同じ読み」とする）
 
-            self.update_term_with_kana_catalog(unit[self.UNIT_TERM])
+            self.update_term_with_kana_catalog(unit[UNIT_TERM])
 
-            for subterm in unit[self.UNIT_SBTM]:
+            for subterm in unit[UNIT_SBTM]:
                 self.update_term_with_kana_catalog(subterm)
 
             # kana_text_change_tripleの設定値を反映
-            unit[self.UNIT_SBTM].change_triple = self.config.kana_text_change_triple
+            unit[UNIT_SBTM].change_triple = self.config.kana_text_change_triple
 
         super().update_units()
 
