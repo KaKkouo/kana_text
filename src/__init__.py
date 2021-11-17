@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.29.2a0' # 2021-11-12
+__version__ = '0.29.2a1' # 2021-11-17
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -199,9 +199,9 @@ class KanaText(nodes.Element):
     def __eq__(self, other):
         """unittest用"""
         try:
-            return self.assort() == other.assort()
+            return self.as_identifier() == other.as_identifier()
         except AttributeError:
-            return self.assort() == other
+            return self.as_identifier() == other
 
     def __str__(self):
         """jinja2用"""
@@ -268,13 +268,22 @@ class KanaText(nodes.Element):
         return self._as_standard()
 
     def assort(self):
-        return self._as_identifier()
+        if self.whatiam != 'classifier':
+            return self.as_identifier()
+
+        key = self.as_identifier()
+        if len(key) != 1:
+            return (1, key)
+        elif key.isascii():
+            return (2, key)
+        else:
+            return (1, key)
 
     def _as_standard(self):
         if self['ideo']: return self['ideo']
         return ''
 
-    def _as_identifier(self):
+    def as_identifier(self):
         if self['kana']: return self['kana'] + self['delimiter'] + self['ideo']
         if self['ideo']: return self['ideo']
         return ''
