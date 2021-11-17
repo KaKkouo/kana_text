@@ -9,7 +9,7 @@ Class, Function
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.29.2a3' # 2021-11-17
+__version__ = '0.29.2a4' # 2021-11-17
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 import re, pathlib
@@ -71,7 +71,7 @@ def parser_for_kana_text(separator, option_marker):
     return re.compile(ahead + re_kana + re_word + re_mark)
 
 #オプションに「a-z」があるか
-_a2z = re.compile(r'[a-z]')
+_a2z = re.compile(r'[a-zA-Z]')
 
 #「かな|単語^オプション」のオプションの変換用
 _s2i_each_together = {
