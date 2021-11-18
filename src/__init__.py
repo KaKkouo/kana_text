@@ -29,7 +29,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.0.dev2' # 2021-11-19
+__version__ = '0.30.0.dev3' # 2021-11-19
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 logger = logging.getLogger(__name__)
@@ -695,8 +695,8 @@ class ExtHTMLBuilder(idxr.HTMLBuilder):
 
     name = 'kana'
 
-    def build(self, docnames, summary, method):
-        super().build(docnames, summary = None, method = 'update')
+    def build(self, docnames, summary = None, method = 'update'):
+        super().build(docnames, summary, method)
         nodes.Text = KanaText
 
     def index_adapter(self) -> None:
