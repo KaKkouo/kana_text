@@ -6,12 +6,6 @@ Class, Function
 ===============
 """
 
-__copyright__ = 'Copyright (C) 2021 @koKkekoh'
-__license__ = 'BSD 2-Clause License'
-__author__  = '@koKekkoh'
-__version__ = '0.29.2' # 2021-11-17
-__url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
-
 import re, pathlib
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Pattern, Type, cast
 
@@ -31,6 +25,12 @@ from sphinx.writers import html5
 
 import sphindexer as idxr
 from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
+
+__copyright__ = 'Copyright (C) 2021 @koKkekoh'
+__license__ = 'BSD 2-Clause License'
+__author__  = '@koKekkoh'
+__version__ = '0.30.0.dev1' # 2021-11-19
+__url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 logger = logging.getLogger(__name__)
 
@@ -161,6 +161,7 @@ class KanaText(nodes.Element):
             >>> kana
             <KanaText: len=2 ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
         """
+        print("rawword:", rawword)
 
         if self.config and _dflt_separator != self.config.kana_text_separator:
             separator = self.config.kana_text_separator
@@ -694,6 +695,10 @@ class ExtHTMLBuilder(idxr.HTMLBuilder):
 
     name = 'kana'
 
+    def build(self, docname, summary, method):
+        super().build(docname, summary, method)
+        nodes.Text = KanaText
+
     def index_adapter(self) -> None:
         """索引の作成"""
         # 自前のIndexerを使う
@@ -731,7 +736,7 @@ def setup(app) -> Dict[str, Any]:
 
     # HTML出力
     app.add_builder(ExtHTMLBuilder)
-    app.set_translator('kana', ExtHTML5Translator)
+    #app.set_translator('kana', ExtHTML5Translator)
 
     # 設定の登録
     app.add_config_value('kana_text_separator', _dflt_separator, 'env')
