@@ -29,7 +29,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.0.dev4' # 2021-11-19 delete HTMLTranslator
+__version__ = '0.30.0.dev5' # 2021-11-19
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 logger = logging.getLogger(__name__)
@@ -161,7 +161,7 @@ class KanaText(nodes.Element):
             >>> kana
             <KanaText: len=2 ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
         """
-        #print("rawword:", rawword)
+        print("rawword:", rawword)
 
         if self.config and _dflt_separator != self.config.kana_text_separator:
             separator = self.config.kana_text_separator
@@ -661,14 +661,44 @@ def depart_kana(self, node):
 # ------------------------------------------------------------
 
 
+class ExtHTML5Translator(html5.HTML5Translator):
+
+    def visit_term(self, node: Element) -> None:
+        """
+        目的の文字列をKanaTextクラスにするための対応.
+        後は、add_nodeで割り当てたメソッドが行う.
+        """
+
+        try:
+            term = KanaText(node[0].rawsource)
+        except TypeError as e:
+            pass
+        else:
+            # なくても動作しているのだけど、念の為
+            term.parent = node[0].parent
+            term.document = node[0].document
+            term.source = node[0].source
+            term.line = node[0].line
+            term.children = node[0].children
+            # ここまでが念の為
+
+            node[0] = term
+
+        self.body.append(self.starttag(node, 'dt', ''))
+
+
+# ------------------------------------------------------------
+
+
 class ExtHTMLBuilder(idxr.HTMLBuilder):
     """索引ページの日本語対応"""
 
     name = 'kana'
 
-    def build(self, docnames, summary = None, method = 'update'):
-        super().build(docnames, summary, method)
-        nodes.Text = KanaText
+    #def build(self, docnames, summary = None, method = 'update'):
+    #    super().build(docnames, summary, method)
+    #    nodes.Text = KanaText
+    #エラーにならないだけで、HTMLTranslatorの代わりにはならない.
 
     def index_adapter(self) -> None:
         """索引の作成"""
@@ -707,6 +737,7 @@ def setup(app) -> Dict[str, Any]:
 
     # HTML出力
     app.add_builder(ExtHTMLBuilder)
+    app.set_translator('kana', ExtHTML5Translator)
 
     # 設定の登録
     app.add_config_value('kana_text_separator', _dflt_separator, 'env')
@@ -717,7 +748,7 @@ def setup(app) -> Dict[str, Any]:
     app.add_config_value('kana_text_on_genindex', False, 'html')
     app.add_config_value('kana_text_change_triple', False, 'html')
 
-    # バージョン情報（x.y.z[.n[.YYYYMMDD]]）
+    # バージョン情報（x.y.z.[.n[.YYYYMMDD]]）
     return {'version': __version__,
             'parallel_read_safe': True,
             'parallel_write_safe': True,
