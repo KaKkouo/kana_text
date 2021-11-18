@@ -10,27 +10,23 @@ import re, pathlib
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Pattern, Type, cast
 
 from docutils import nodes
-from docutils.nodes import Node, Text, Element, system_message
 
-from sphinx import addnodes
-import sphinx.builders.html as builders
-from sphinx.config import Config
-from sphinx.domains.index import IndexDomain, IndexRole
+from sphinx.domains.index import IndexRole
 from sphinx.errors import NoUri
-from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.locale import _, __
 from sphinx.util import logging, split_into, docutils
-from sphinx.util.nodes import process_index_entry
 from sphinx.writers import html5
 
 import sphindexer as idxr
 from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 
+
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.0.dev5' # 2021-11-19
+__version__ = '0.30.0.dev6' # 2021-11-19
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
+
 
 logger = logging.getLogger(__name__)
 
@@ -73,15 +69,16 @@ def parser_for_kana_text(separator, option_marker):
 #オプションに「a-z」があるか
 _a2z = re.compile(r'[a-zA-Z]')
 
-#「かな|単語^オプション」のオプションの変換用
-_s2i_each_together = {
-    'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5,
-    'f': 6, 'g': 7, 'h': 8, 'i': 9
+#「かな|単語^オプション」の「オプション」の変換用
+class _s2i:
+    each_together = {
+        'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5,
+        'f': 6, 'g': 7, 'h': 8, 'i': 9
     }
 
-_s2i_step_by_step = {
-    'q': 1, 'r': 2, 's': 3, 't': 4, 'u': 5,
-    'v': 6, 'w': 7, 'x': 8, 'y': 9
+    step_by_step = {
+        'q': 1, 'r': 2, 's': 3, 't': 4, 'u': 5,
+        'v': 6, 'w': 7, 'x': 8, 'y': 9
     }
 
 def make_html_with_ruby(word: str, kana: str) -> str:
@@ -115,13 +112,13 @@ def make_specific_by_parsing_option(word, kana, option):
     for o in opt:
         if not word[t_s:] or not kana[r_s:]: #文字がない
             break
-        elif o in _s2i_each_together: #ルビとしては使用しない
-            t_end = t_s + _s2i_each_together[o]
-            r_end = r_s + _s2i_each_together[o]
+        elif o in _s2i.each_together: #ルビとしては使用しない
+            t_end = t_s + _s2i.each_together[o]
+            r_end = r_s + _s2i.each_together[o]
             rtn.append((False,word[t_s:t_end]))
-        elif o in _s2i_step_by_step: #ルビとしては使用しない
+        elif o in _s2i.step_by_step: #ルビとしては使用しない
             t_end = t_s + 1
-            r_end = r_s + _s2i_step_by_step[o]
+            r_end = r_s + _s2i.step_by_step[o]
             rtn.append((False,word[t_s:t_end]))
         elif _a2z.match(o): #上記以外の文字は無視する
             continue
@@ -663,7 +660,7 @@ def depart_kana(self, node):
 
 class ExtHTML5Translator(html5.HTML5Translator):
 
-    def visit_term(self, node: Element) -> None:
+    def visit_term(self, node: nodes.Element) -> None:
         """
         目的の文字列をKanaTextクラスにするための対応.
         後は、add_nodeで割り当てたメソッドが行う.
