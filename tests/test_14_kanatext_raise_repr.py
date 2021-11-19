@@ -23,4 +23,4 @@ def test02_raise():
 
 def test02_repr():
     term = KanaText("", "用語零参")
-    assert repr(term) == "<#rawtext: '用語零参'>"
+    assert repr(term) == "<#rawsource: '用語零参'>"

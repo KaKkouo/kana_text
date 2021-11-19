@@ -21,5 +21,5 @@ testcase01o = [   #想定する結果
 def test01_asideo():
     for t, e in zip(testcase01i, testcase01o):
         term = KanaText(t)
-        rslt = term.asideo()
+        rslt = term.astext()
         assert rslt == e

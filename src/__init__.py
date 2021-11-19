@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.0.dev6' # 2021-11-19
+__version__ = '0.30.0.dev7' # 2021-11-20
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -142,15 +142,15 @@ def make_specific_by_parsing_option(word, kana, option):
 class KanaText(nodes.Element):
     """かな文字を扱うTextクラス
 
-    - Jinja2のstring判定ではFalseとなるように、reprunicode(str)は継承しない.
-    - __str__はText.astext()と同じ挙動としてasideo()を使う.
-    - KanaText.astext()は簡易IDとして扱う.
+    - 内部表現としては「よみ|記載文字」をIDとして、他の情報は属性値として扱う.
+    - 表示に於いては「記載文字」が同じであれば、同じ「読み」として処理する.
+    - self.astext()を「表示すべき標準的な記載文字」を返すメソッドとする.
     """
 
     children = () #これでTextクラスと同じ扱いになる.
     config = None
 
-    def __init__(self, rawword, rawtext=''):
+    def __init__(self, rawword, rawsource=''):
         """
         doctest:
 
@@ -171,14 +171,11 @@ class KanaText(nodes.Element):
             option_marker = _dflt_option_marker
 
         self._rawword = rawword
-        self._rawtext = rawtext
         self._separator = separator
         self._option_marker = option_marker
         self.whatiam = 'term' #in('classifier', 'term')
 
-        if rawtext:
-            rawsource = rawtext
-        else:
+        if not rawsource:
             rawsource = rawword
 
         delimiter = _chop.sub('', separator)
@@ -203,37 +200,41 @@ class KanaText(nodes.Element):
 
     def __str__(self):
         """jinja2用"""
-        if self.whatiam == 'term' and self.kana_text_on_genindex:
+        try:
+            # IndexRackで初めて設定されるので、タイミングによっては存在しない.
+            parameter = self.kana_text_on_genindex
+        except AttributeError:
+            return self.astext()
+
+        if self.whatiam == 'term' and parameter:
             return self.ashtml()
         else:
             return self.astext()
 
     def __repr__(self):
-        return self.entity_of_repr()
-
-    def entity_of_repr(self):
         """
         doctest:
             >>> kana = KanaText('はなこ|はな子^b1')
             >>> kana
             <KanaText: len=2 ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
         """
-        name = self.__class__.__name__
-        rb, op = self['ruby'], self['option']
-        ideo, kana = self['ideo'], self['kana']
-        if kana:
-            prop = f"<{name}: len={len(self)} "
-            if len(rb) > 0: prop += f"ruby='{rb}' "
-            if len(op) > 0: prop += f"option='{op}' "
-            prop += f"<#text: '{kana}|{ideo}'>>"
+        return self.asrepr()
 
+    def asrepr(self):
+        name = self.__class__.__name__
+        if self['ideo']:
+            prop = f"<{name}: len={len(self)} "
+            if self['kana']:
+                if len(self['ruby']) > 0:
+                    prop += f"ruby='{self['ruby']}' "
+                if len(self['option']) > 0:
+                    prop += f"option='{self['option']}' "
+                prop += f"<#text: '{self['kana']}|{self['ideo']}'>>"
+            else:
+                prop += f"<#text: '{self['ideo']}'>>"
             return prop
-        elif ideo:
-            return f"<{name}: len={len(self)} <#text: '{ideo}'>>"
-        elif self._rawword:
-            return f"<{name}: <#rawword: '{self._rawword}'>>"
-        elif self._rawtext:
-            return f"<#rawtext: '{self._rawtext}'>"
+        elif self.rawsource:
+            return f"<#rawsource: '{self.rawsource}'>"
         else:
             return "<#text: ''>"
 
@@ -263,7 +264,8 @@ class KanaText(nodes.Element):
         return ideo, kana, ruby, opt
 
     def astext(self):
-        return self._as_standard()
+        if self['ideo']: return self['ideo']
+        return ''
 
     def assort(self):
         if self.whatiam != 'classifier':
@@ -276,10 +278,6 @@ class KanaText(nodes.Element):
             return (2, key)
         else:
             return (1, key)
-
-    def _as_standard(self):
-        if self['ideo']: return self['ideo']
-        return ''
 
     def as_identifier(self):
         if self['kana']: return self['kana'] + self['delimiter'] + self['ideo']
@@ -298,16 +296,6 @@ class KanaText(nodes.Element):
         if len(self) == 1:
             return ''
         # len(self) < 1の時は、__len__内でValueErrorが発生する
-
-    def asideo(self):
-        """
-        doctest:
-            >>> kana = KanaText('たなかはなこ|田中はな子^12b1')
-            >>> kana.asideo()
-            '田中はな子'
-        """
-        if len(self) > 0:
-            return self['ideo']
 
     def asruby(self):
         """
@@ -562,7 +550,7 @@ class ExtIndexRack(idxr.IndexRack):
     def put_in_kana_catalog(self, emphasis, terms):
         """KanaText用の処理"""
         for term in terms:
-            kana, ideo, ruby, spec = term.askana(), term.asideo(), term['ruby'], term['option']
+            kana, ideo, ruby, spec = term.askana(), term.astext(), term['ruby'], term['option']
             if kana and ideo in self._kana_catalog:
                 item = self._kana_catalog[ideo]
                 if emphasis < item[0]:
@@ -626,10 +614,10 @@ class ExtIndexRack(idxr.IndexRack):
         super().update_units()
 
     def update_term_with_kana_catalog(self, term):
-        if term.asideo() in self._kana_catalog:
-            term['kana'] = self._kana_catalog[term.asideo()][1]
-            term['ruby'] = self._kana_catalog[term.asideo()][2]
-            term['option'] = self._kana_catalog[term.asideo()][3]
+        if term.astext() in self._kana_catalog:
+            term['kana'] = self._kana_catalog[term.astext()][1]
+            term['ruby'] = self._kana_catalog[term.astext()][2]
+            term['option'] = self._kana_catalog[term.astext()][3]
         else:
             pass
 
