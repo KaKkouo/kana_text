@@ -1,0 +1,20 @@
+[い]
+term: 壱壱
+sub: 参参/doc01.html#id-11
+[に]
+term: 四四
+sub: 六六/doc02.html#id-21
+[は]
+term: 参参
+sub: 壱壱/doc01.html#id-11
+sub: 弐弐/doc01.html#id-11
+[へ]
+term: 六六
+sub: 四四/doc02.html#id-21
+sub: 五五/doc02.html#id-21
+[ほ]
+term: 五五
+sub: 六六/doc02.html#id-21
+[ろ]
+term: 弐弐
+sub: 参参/doc01.html#id-11

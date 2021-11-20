@@ -1,0 +1,12 @@
+[あ]
+term: 壱壱
+sub: 逆引きのお題１/doc01.html#id-11
+[な]
+term: 四四
+sub: 逆引きのお題２/doc02.html#id-21
+[は]
+term: 参参
+sub: 逆引きのお題２/doc02.html#id-21
+[ら]
+term: 弐弐
+sub: 逆引きのお題１/doc01.html#id-11
