@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.0.dev9' # 2021-11-20
+__version__ = '0.30.0.dev10' # 2021-11-20
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -404,6 +404,41 @@ class ExtIndexEntry(idxr.IndexEntry):
     textclass = KanaText
     packclass = ExtSubterm
     unitclass = ExtIndexUnit
+
+    def make_index_units(self):
+
+        if self['entry_type'] != 'keys':
+            return super().make_index_units()
+
+        fn = self['file_name']
+        tid = self['target']
+        main = self['main']
+        index_key = self['index_key']
+
+        def _index_unit(term, sub1, sub2):
+            link = self.type2link('uri')
+            emphasis = self.main2code(main)
+
+            if not sub1:
+                sub1 = self.textclass('')
+            if not sub2:
+                sub2 = self.textclass('')
+            subterm = self.packclass(link, sub1, sub2)
+
+            index_unit = self.unitclass(term, subterm, link, emphasis, fn, tid, index_key)
+            return index_unit
+
+        index_units = []
+        try:
+            last = len(self) - 1
+            for i in range(last):
+                index_units.append(_index_unit(self[i], self[last], ''))
+        except IndexError as err:
+            raise IndexError(str(err), repr(self))
+        except ValueError as err:
+            logger.warning(str(err), location=fn)
+
+        return index_units
 
 
 # ------------------------------------------------------------
