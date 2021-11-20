@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.0.dev7' # 2021-11-20
+__version__ = '0.30.0.dev8' # 2021-11-20
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -158,8 +158,6 @@ class KanaText(nodes.Element):
             >>> kana
             <KanaText: len=2 ruby='specific' option='b1' <#text: 'はなこ|はな子'>>
         """
-        print("rawword:", rawword)
-
         if self.config and _dflt_separator != self.config.kana_text_separator:
             separator = self.config.kana_text_separator
         else:
