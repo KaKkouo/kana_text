@@ -1,20 +1,20 @@
 [い]
-term: 壱壱
+term: <ruby><rb>壱壱</rb><rp>（</rp><rt>いい</rt><rp>）</rp></ruby>
 sub: 参参/doc01.html#id-11
 [に]
-term: 四四
+term: <ruby><rb>四四</rb><rp>（</rp><rt>にに</rt><rp>）</rp></ruby>
 sub: 六六/doc02.html#id-21
 [は]
-term: 参参
+term: <ruby><rb>参参</rb><rp>（</rp><rt>はは</rt><rp>）</rp></ruby>
 sub: 壱壱/doc01.html#id-11
 sub: 弐弐/doc01.html#id-11
 [へ]
-term: 六六
+term: <ruby><rb>六六</rb><rp>（</rp><rt>へへ</rt><rp>）</rp></ruby>
 sub: 四四/doc02.html#id-21
 sub: 五五/doc02.html#id-21
 [ほ]
-term: 五五
+term: <ruby><rb>五五</rb><rp>（</rp><rt>ほほ</rt><rp>）</rp></ruby>
 sub: 六六/doc02.html#id-21
 [ろ]
-term: 弐弐
+term: <ruby><rb>弐弐</rb><rp>（</rp><rt>ろろ</rt><rp>）</rp></ruby>
 sub: 参参/doc01.html#id-11

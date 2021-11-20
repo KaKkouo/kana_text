@@ -1,12 +1,12 @@
 [あ]
-term: 壱壱
+term: <ruby><rb>壱壱</rb><rp>（</rp><rt>いい</rt><rp>）</rp></ruby>
 sub: 逆引きのお題１/doc01.html#id-11
 [な]
-term: 四四
+term: <ruby><rb>四四</rb><rp>（</rp><rt>にに</rt><rp>）</rp></ruby>
 sub: 逆引きのお題２/doc02.html#id-21
 [は]
-term: 参参
+term: <ruby><rb>参参</rb><rp>（</rp><rt>はは</rt><rp>）</rp></ruby>
 sub: 逆引きのお題２/doc02.html#id-21
 [ら]
-term: 弐弐
+term: <ruby><rb>弐弐</rb><rp>（</rp><rt>ろろ</rt><rp>）</rp></ruby>
 sub: 逆引きのお題１/doc01.html#id-11

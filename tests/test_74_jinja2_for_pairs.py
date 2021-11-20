@@ -10,12 +10,11 @@ from . import util
 #-------------------------------------------------------------------
 
 testcase01in = {
-'doc01': [('pairs','いい|壱壱^11; ろろ|弐弐^11; はは|参参^11','id-11','',None)],
-'doc02': [('pairs','にに|四四^11; ほほ|五五^11; へへ|六六^11','id-21','',None)],
+'doc01': [('pairs','いい|壱壱^; ろろ|弐弐^; はは|参参^','id-11','',None)],
+'doc02': [('pairs','にに|四四^; ほほ|五五^; へへ|六六^','id-21','',None)],
 }
 
 testcase02in = testcase01in
-testcase03in = testcase01in
 
 testcase01str = "tests/result74_01.txt"
 testcase02str = "tests/result74_02.txt"
@@ -34,21 +33,22 @@ def get_template(file_name):
 
 template = get_template('tests/genindex.tpl')
 
-def test01_jinja2_for_triple():
+def test01_jinja2_for_pairs():
     bld = util.builder(testcase01in)
     bld.config.kana_text_indexer_mode = 'small'
+    bld.config.kana_text_on_genindex = True
     idx = IndexRack(bld)
     gidx = idx.create_index()
     text = template.render({'genindexentries': gidx})
     rslt = get_result(testcase01str)
     assert rslt == text
 
-def test02_jinja2_for_triple():
+def test02_jinja2_for_pairs():
     bld = util.builder(testcase02in)
     bld.config.kana_text_indexer_mode = 'large'
+    bld.config.kana_text_on_genindex = True
     idx = IndexRack(bld)
     gidx = idx.create_index()
-    #self.assertEqual(testcase01out, gidx)
     text = template.render({'genindexentries': gidx})
     rslt = get_result(testcase02str)
     assert rslt == text
