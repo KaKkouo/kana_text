@@ -11,7 +11,7 @@ from . import util
 #-------------------------------------------------------------------
 
 #kana_text_on_genindex = True
-testcase07in = {
+testcase01in = {
 'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
 'doc03': [('single','にに|四四^11; ほほ|五五^11','id-03','', '分類子')],
 'doc02': [('single','いい|壱壱^11; はは|参参^11','id-02','',None)],
@@ -19,27 +19,27 @@ testcase07in = {
 }
 
 #kana_text_on_genindex = True
-testcase08in = {
+testcase02in = {
 'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
 }
 
 #kana_text_on_genindex = True
-testcase09in = {
+testcase03in = {
 'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
 'doc03': [('single','にに|四四^11; ほほ|五五^11','id-03','', '分類子')],
 }
 
 #kana_text_on_genindex = True
-testcase10in = {
+testcase04in = {
 'doc04': [('single','にに|四四^11; へへ|六六^11','id-04','',None)],
 'doc03': [('single','にに|四四^11','id-03','', '分類子')],
 'doc02': [('single','いい|壱壱^11; はは|参参^11','id-02','',None)],
 }
 
-testcase07str = "tests/result81_07.txt"
-testcase08str = "tests/result81_08.txt"
-testcase09str = "tests/result81_09.txt"
-testcase10str = "tests/result81_10.txt"
+testcase01str = "tests/result76_01.txt"
+testcase02str = "tests/result76_02.txt"
+testcase03str = "tests/result76_03.txt"
+testcase04str = "tests/result76_04.txt"
 
 #-------------------------------------------------------------------
 
@@ -55,38 +55,38 @@ def get_template(file_name):
 
 template = get_template('tests/genindex.tpl')
 
-def test07_jinja2_without_reading():
-    bld = util.builder(testcase07in)
+def test01_jinja2_without_reading():
+    bld = util.builder(testcase01in)
     bld.config.kana_text_indexer_mode = 'small'
     idx = IndexRack(bld)
     gidx = idx.create_index()
     text = template.render({'genindexentries': gidx})
-    rslt = get_result(testcase07str)
+    rslt = get_result(testcase01str)
     assert rslt == text
 
-def test08_jinja2_without_reading():
-    bld = util.builder(testcase08in)
+def test02_jinja2_without_reading():
+    bld = util.builder(testcase02in)
     bld.config.kana_text_indexer_mode = 'small'
     idx = IndexRack(bld)
     gidx = idx.create_index()
     text = template.render({'genindexentries': gidx})
-    rslt = get_result(testcase08str)
+    rslt = get_result(testcase02str)
     assert rslt == text
 
-def test09_jinja2_without_reading():
-    bld = util.builder(testcase09in)
+def test03_jinja2_without_reading():
+    bld = util.builder(testcase03in)
     bld.config.kana_text_indexer_mode = 'small'
     idx = IndexRack(bld)
     gidx = idx.create_index()
     text = template.render({'genindexentries': gidx})
-    rslt = get_result(testcase09str)
+    rslt = get_result(testcase03str)
     assert rslt == text
 
-def test10_jinja2_without_reading():
-    bld = util.builder(testcase10in)
+def test04_jinja2_without_reading():
+    bld = util.builder(testcase04in)
     bld.config.kana_text_indexer_mode = 'small'
     idx = IndexRack(bld)
     gidx = idx.create_index()
     text = template.render({'genindexentries': gidx})
-    rslt = get_result(testcase10str)
+    rslt = get_result(testcase04str)
     assert rslt == text

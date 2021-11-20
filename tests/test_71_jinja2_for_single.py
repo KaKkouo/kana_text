@@ -35,10 +35,10 @@ testcase04in = {
 'doc02': [('single','いい|壱壱^11; はは|参参^11','id-02','',None)],
 }
 
-testcase01str = "tests/result81_01.txt"
-testcase02str = "tests/result81_02.txt"
-testcase03str = "tests/result81_03.txt"
-testcase04str = "tests/result81_04.txt"
+testcase01str = "tests/result71_01.txt"
+testcase02str = "tests/result71_02.txt"
+testcase03str = "tests/result71_03.txt"
+testcase04str = "tests/result71_04.txt"
 
 #-------------------------------------------------------------------
 

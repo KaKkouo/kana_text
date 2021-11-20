@@ -11,7 +11,7 @@ from . import util
 #-------------------------------------------------------------------
 
 #kana_text_word_listの上書き
-testcase05in = {
+testcase01in = {
 'doc01': [('single','ああ|球球球; いい|球球球','id-01','',None)],
 'doc02': [('see','かか|球球球; めめ|球球球','id-02','',None)],
 'doc03': [('single','ささ|球球球; んん|球球球','id-03','',None)],
@@ -21,7 +21,7 @@ testcase05in = {
 }
 
 #kana_text_word_listの上書き
-testcase06in = {
+testcase02in = {
 'doc01': [('single','ああ|球球球; いい|球球球','id-01','',None)],
 'doc02': [('see','かか|球球球; めめ|球球球','id-02','',None)],
 'doc03': [('single','ささ|球球球; んん|球球球','id-03','',None)],
@@ -30,8 +30,8 @@ testcase06in = {
 'doc06': [('single','おお|拾拾拾','id-06','',None)],
 }
 
-testcase05str = "tests/result81_05.txt"
-testcase06str = "tests/result81_06.txt"
+testcase01str = "tests/result75_01.txt"
+testcase02str = "tests/result75_02.txt"
 
 #-------------------------------------------------------------------
 
@@ -47,24 +47,24 @@ def get_template(file_name):
 
 template = get_template('tests/genindex.tpl')
 
-def test05_jinja2_for_see_seealso():
-    bld = util.builder(testcase05in)
+def test01_jinja2_for_see_seealso():
+    bld = util.builder(testcase01in)
     bld.config.kana_text_indexer_mode = 'small'
     bld.config.kana_text_on_genindex = True
     idx = IndexRack(bld)
     gidx = idx.create_index()
     #self.assertEqual(testcase01out, gidx)
     text = template.render({'genindexentries': gidx})
-    rslt = get_result(testcase05str)
+    rslt = get_result(testcase01str)
     assert rslt == text
 
-def test06_jinja2_for_see_seealso():
-    bld = util.builder(testcase06in)
+def test02_jinja2_for_see_seealso():
+    bld = util.builder(testcase02in)
     bld.config.kana_text_indexer_mode = 'small'
     bld.config.kana_text_on_genindex = True
     idx = IndexRack(bld)
     gidx = idx.create_index()
     #self.assertEqual(testcase01out, gidx)
     text = template.render({'genindexentries': gidx})
-    rslt = get_result(testcase06str)
+    rslt = get_result(testcase02str)
     assert rslt == text
