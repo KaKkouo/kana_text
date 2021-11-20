@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.0.dev10' # 2021-11-20
+__version__ = '0.30.0.dev11' # 2021-11-20
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -407,7 +407,7 @@ class ExtIndexEntry(idxr.IndexEntry):
 
     def make_index_units(self):
 
-        if self['entry_type'] != 'keys':
+        if self['entry_type'] not in ('keys', 'pairs'):
             return super().make_index_units()
 
         fn = self['file_name']
@@ -432,6 +432,8 @@ class ExtIndexEntry(idxr.IndexEntry):
         try:
             last = len(self) - 1
             for i in range(last):
+                if self['entry_type'] == 'pairs':
+                    index_units.append(_index_unit(self[last], self[i], ''))
                 index_units.append(_index_unit(self[i], self[last], ''))
         except IndexError as err:
             raise IndexError(str(err), repr(self))
