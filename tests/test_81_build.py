@@ -20,7 +20,7 @@ def test01_build():
     except FileNotFoundError:
         pass
 
-    application = Sphinx(workdir, workdir, distdir, distdir, "kana")
+    application = Sphinx(workdir, workdir, distdir, distdir, "html")
     bld = application.builder
 
     with pytest.raises(AttributeError):
