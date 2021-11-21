@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.0b5' # 2021-11-21
+__version__ = '0.30.0b6' # 2021-11-21
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -66,7 +66,7 @@ def parser_for_kana_text(separator, option_marker):
 
     return re.compile(ahead + re_kana + re_word + re_mark)
 
-#オプションに「a-z」があるか
+#オプションに英字があるか
 _a2z = re.compile(r'[a-zA-Z]')
 
 #「かな|単語^オプション」の「オプション」の変換用
@@ -240,9 +240,9 @@ class KanaText(nodes.Element):
         """
         doctest:
 
-            >>> kana = KanaText('たなかひさみつ|田中ひさみつ^12d')
+            >>> kana = KanaText('たなかはなこ|田中はな子^12b1')
             >>> kana
-            <KanaText: len=2 ruby='specific' option='12d' <#text: 'たなかひさみつ|田中ひさみつ'>>
+            <KanaText: len=2 ruby='specific' option='12b1' <#text: 'たなかはなこ|田中はな子'>>
         """
         match = parser.match(text)
 
@@ -405,10 +405,22 @@ class ExtIndexEntry(idxr.IndexEntry):
     packclass = ExtSubterm
     unitclass = ExtIndexUnit
 
+    testmode = False
+
     def make_index_units(self):
+        """
+        sphinx/util/nodes.py
+        
+        - process_index_entryが参照するindextypesをしないと機能しないメソッド.
+        - いずれどうにかしたいので、コードは残しておく.
+        """
 
         if self['entry_type'] not in ('keys', 'pairs'):
             return super().make_index_units()
+
+        if not self.testmode:
+            message = 'see: process_index_entry and indextypes in sphinx/util/nodes.py'
+            raise NotImplementedError(message)
 
         fn = self['file_name']
         tid = self['target']
@@ -530,7 +542,7 @@ class ExtIndexRack(idxr.IndexRack):
     処理概要
 
     1. self.__init__() 初期化. 設定からの読み込み.
-    2. self.append() ExtIndexUnitの取り込み. self.update()の準備.
+    2. self.append() ExtIndexUnitの取り込み. self.update_units()の準備.
     3. self.update_units() 各unitの更新、並び替えの準備.
     4. self.sort_units() 並び替え.
     5. self.generate_genindex_data() genindex用データの生成.
@@ -542,7 +554,7 @@ class ExtIndexRack(idxr.IndexRack):
     entryclass = ExtIndexEntry
 
     def __init__(self, builder, testmode=False):
-        """ExtIndexUnitの取り込み、整理、並べ替え. データの生成."""
+        """rstファイル外にある読み仮名情報の取り込み."""
 
         # 制御情報の保存
         self.testmode = testmode  # 0.24 未使用になった.
@@ -577,13 +589,13 @@ class ExtIndexRack(idxr.IndexRack):
 
     def append(self, unit):
         """
-        - 全unitを見て決める更新処理のための情報収集
+        - 更新処理のための全てのunitから情報を収集する.
         """
-        # 情報収集
+        # かな情報の収集
         self.put_in_kana_catalog(unit['main'], unit.get_terms())
         unit[UNIT_TERM].kana_text_on_genindex = self.config.kana_text_on_genindex
 
-        # 残りの処理
+        # 残りの情報収集とrackへの格納.
         super().append(unit)
 
     def put_in_kana_catalog(self, emphasis, terms):
@@ -599,7 +611,7 @@ class ExtIndexRack(idxr.IndexRack):
                     # emphasisコードが同じなら、かな文字の長いほうが優先.
                     if len(kana) > len(item[1]):
                         self._kana_catalog[ideo] = (emphasis, kana, ruby, spec)
-                    # 検討）かな文字の長さも同じなら、、
+                    # かな文字の長さも同じなら、、
                     elif len(kana) == len(item[1]):
                         # 'specific'に限りオプションコードが多い方を採用する.
                         if ruby == 'specific' and ruby == item[2] and len(spec) > len(item[3]):
@@ -650,6 +662,7 @@ class ExtIndexRack(idxr.IndexRack):
             # kana_text_change_tripleの設定値を反映
             unit[UNIT_SBTM].change_triple = self.config.kana_text_change_triple
 
+        # 残りの更新処理
         super().update_units()
 
     def update_term_with_kana_catalog(self, term):
@@ -731,6 +744,7 @@ class ExtHTMLBuilder(idxr.HTMLBuilder):
 
 
 class NormalHTMLBuilder(idxr.HTMLBuilder):
+    """日本語対応なし版"""
 
     name = 'nokana'
 

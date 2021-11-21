@@ -38,17 +38,29 @@ def test01_jinja2_for_pairs():
     bld.config.kana_text_indexer_mode = 'small'
     bld.config.kana_text_on_genindex = True
     idx = IndexRack(bld)
+    idx.entryclass.testmode = True
     gidx = idx.create_index()
     text = template.render({'genindexentries': gidx})
     rslt = get_result(testcase01str)
     assert rslt == text
+    idx.entryclass.testmode = False
 
 def test02_jinja2_for_pairs():
     bld = util.builder(testcase02in)
     bld.config.kana_text_indexer_mode = 'large'
     bld.config.kana_text_on_genindex = True
     idx = IndexRack(bld)
+    idx.entryclass.testmode = True
     gidx = idx.create_index()
     text = template.render({'genindexentries': gidx})
     rslt = get_result(testcase02str)
     assert rslt == text
+    idx.entryclass.testmode = False
+
+def test03_jinja2_for_pairs():
+    bld = util.builder(testcase01in)
+    bld.config.kana_text_indexer_mode = 'small'
+    bld.config.kana_text_on_genindex = True
+    idx = IndexRack(bld)
+    with pytest.raises(NotImplementedError):
+        gidx = idx.create_index()

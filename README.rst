@@ -71,7 +71,7 @@ build:
 
 .. code-block:: sh
 
-   $ make kana
+   $ make html
 
 genindex.html
 -------------
