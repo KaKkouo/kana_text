@@ -1,16 +1,16 @@
-Sphindexer Project
+Kana Text Project
 ==================
 
 .. image https://readthedocs.org/projects/sphindexer/badge/?version=latest
    :target: https://sphindexer.readthedocs.io/en/latest/
    :alt: Documentation Status
 
-.. image:: https://circleci.com/gh/KaKkouo/kana-text.svg?style=shield
-   :target: https://circleci.com/gh/KaKkouo/sphindexer
+.. image:: https://circleci.com/gh/KaKkouo/kana_text.svg?style=shield
+   :target: https://circleci.com/gh/KaKkouo/kana_text
    :alt: Build Status (CircleCI)
 
-.. image:: https://codecov.io/gh/KaKkouo/kana-text/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/KaKkouo/sphindexer
+.. image:: https://codecov.io/gh/KaKkouo/kana_text/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/KaKkouo/kana_text
    :alt: Code Coverage Status (Codecov)
 
 .. image:: https://img.shields.io/badge/License-BSD%202--Clause-blue.svg
