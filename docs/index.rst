@@ -1,6 +1,3 @@
-Kana Text Project
-==================
-
 .. image:: https://readthedocs.org/projects/kana_text/badge/?version=latest
    :target: https://kana_text.readthedocs.io/en/latest/
    :alt: Documentation Status
@@ -16,6 +13,9 @@ Kana Text Project
 .. image:: https://img.shields.io/badge/License-BSD%202--Clause-blue.svg
    :target: https://opensource.org/licenses/BSD-2-Clause
    :alt: BSD 2 Clause
+
+Kana Text Project
+==================
 
 .. toctree::
    :caption: Japanese User's Guide

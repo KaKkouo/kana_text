@@ -1,3 +1,7 @@
+.. image:: https://readthedocs.org/projects/kana_text/badge/?version=latest
+   :target: https://kana_text.readthedocs.io/en/latest/
+   :alt: Documentation Status
+
 .. image:: https://circleci.com/gh/KaKkouo/kana_text.svg?style=shield
    :target: https://circleci.com/gh/KaKkouo/kana_text
    :alt: Build Status (CircleCI)
