@@ -1,8 +1,8 @@
 Kana Text Project
 ==================
 
-.. image https://readthedocs.org/projects/sphindexer/badge/?version=latest
-   :target: https://sphindexer.readthedocs.io/en/latest/
+.. image:: https://readthedocs.org/projects/kana_text/badge/?version=latest
+   :target: https://kana_text.readthedocs.io/en/latest/
    :alt: Documentation Status
 
 .. image:: https://circleci.com/gh/KaKkouo/kana_text.svg?style=shield
@@ -18,6 +18,7 @@ Kana Text Project
    :alt: BSD 2 Clause
 
 .. toctree::
+   :caption: Japanese User's Guide
 
    overview
    codecov
