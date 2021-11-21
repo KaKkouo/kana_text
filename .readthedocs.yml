@@ -18,5 +18,5 @@ python:
         - docs
 
 sphinx:
-  builder: kana
+  builder: html
   configuration: docs/conf.py

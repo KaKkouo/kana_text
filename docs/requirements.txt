@@ -1,5 +1,4 @@
 sphindexer
-sphinxcontrib.kana_text
 funcparserlib == 1.0.0a0
 sphinxcontrib-actdiag
 sphinxcontrib-seqdiag
