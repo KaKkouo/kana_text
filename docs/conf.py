@@ -11,7 +11,7 @@ release = '0.1.0'
 
 
 extensions = [
-    #'sphinxcontrib.kana_text',
+    'sphinxcontrib.kana_text',
     ]
 
 
