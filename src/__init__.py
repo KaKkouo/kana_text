@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.0b1' # 2021-11-21
+__version__ = '0.30.0b2' # 2021-11-21
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -717,7 +717,7 @@ class ExtHTML5Translator(html5.HTML5Translator):
 class ExtHTMLBuilder(idxr.HTMLBuilder):
     """索引ページの日本語対応"""
 
-    name = 'kana'
+    name = 'html'
 
     #def build(self, docnames, summary = None, method = 'update'):
     #    super().build(docnames, summary, method)
@@ -760,8 +760,11 @@ def setup(app) -> Dict[str, Any]:
     # 索引の表示はExtHTMLBuilderで行う
 
     # HTML出力
-    app.add_builder(ExtHTMLBuilder)
-    app.set_translator('kana', ExtHTML5Translator)
+    app.add_builder(ExtHTMLBuilder, True)
+    app.set_translator('html', ExtHTML5Translator)
+
+    # HTML出力/sphindexer/"make idxr"
+    app.add_builder(idxr.HTMLBuilder)
 
     # 設定の登録
     app.add_config_value('kana_text_separator', _dflt_separator, 'env')
