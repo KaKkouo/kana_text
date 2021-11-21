@@ -1,7 +1,9 @@
+#######################
 sphinxcontrib.kana_text
-=======================
+#######################
+
 参考情報
---------
+========
 - https://www.sphinx-doc.org/ja/master/usage/restructuredtext/basics.html
 - https://www.sphinx-doc.org/ja/master/development/tutorials/helloworld.html
 
@@ -127,10 +129,26 @@ KanaTextクラス
 - かな表示を可能にする.
 - 「.. index::」「..glossary::」「:index:」「:kana:」で使用.
 
-ExIndexEntryクラス
+ExtSubtermクラス
+
+- ExtIndexUnitクラス内のsubtermオブジェクトのクラス.
+- KanaTextを最大で二つ持つ.
+
+ExtIndexUnitクラス
+
+- 索引ページで表示される各項目に対応したオブジェクトのクラス.
+
+ExtIndexEntryクラス
 
 - 「.. index::」でsingle/pair/tripleと一緒に書かれている用語に対応.
 - ExIndexUnittクラスに乗る前のKanaTextオブジェクトを保持する.
+
+ExtIndexRackクラス/create_geindex_entriesメソッド
+
+- IndexEntriesクラス/create_indexメソッドを置き換える.
+- 可能な限り、内部的な処理順に依存しないようにした.
+- オリジナルは「func() (クラス名やモジュール名)」の集約処理が説明した通りではない.
+- 「see/seealso」の表示順がオリジナルと異なる.
 
 visit_kana/depart_kanaメソッド
 
@@ -139,31 +157,15 @@ visit_kana/depart_kanaメソッド
 
     - 本来の調整場所はGlossaryクラスだが、コード量の少ないvisit_termメソッドを選択.
 
-ExHTML5Translatorクラス/visit_termメソッド
+ExtHTML5Translatorクラス/visit_termメソッド
 
 - 目的のTextノードをKanaTextノードに変更する.
 
     - visit_termメソッドはglossaryで定義された単語（termクラス）が通る.
 
-ExIndexRackクラス/create_geindex_entriesメソッド
+ExtHTMLBuilderクラス/create_indexメソッド
 
-- IndexEntriesクラス/create_indexメソッドを置き換える.
-- 可能な限り、内部的な処理順に依存しないようにした.
-- オリジナルは「func() (クラス名やモジュール名)」の集約処理が説明した通りではない.
-- 「see/seealso」の表示順がオリジナルと異なる.
-
-ExIndexUnitクラス
-
-- 索引ページで表示される各項目に対応したオブジェクトのクラス.
-
-ExSubtermクラス
-
-- ExIndexUnitクラス内のsubtermオブジェクトのクラス.
-- KanaTextを最大で二つ持つ.
-
-ExHTMLBuilderクラス/create_indexメソッド
-
-- 索引ページの表示、ソート処理前の「^オプション」の削除を行う.
+- 索引ページの表示
 
 備忘録
 ======
