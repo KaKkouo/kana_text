@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.0b2' # 2021-11-21
+__version__ = '0.30.0b3' # 2021-11-21
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -764,7 +764,7 @@ def setup(app) -> Dict[str, Any]:
     app.set_translator('html', ExtHTML5Translator)
 
     # HTML出力/sphindexer/"make idxr"
-    app.add_builder(idxr.HTMLBuilder)
+    app.add_builder(idxr.HTMLBuilder, True)
 
     # 設定の登録
     app.add_config_value('kana_text_separator', _dflt_separator, 'env')
