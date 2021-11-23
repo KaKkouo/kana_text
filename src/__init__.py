@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.0' # 2021-11-23
+__version__ = '0.30.1a0' # 2021-11-23
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -295,17 +295,17 @@ class KanaText(nodes.Element):
             return ''
         # len(self) < 1の時は、__len__内でValueErrorが発生する
 
-    def asruby(self):
+    def aslist(self):
         """
         doctest:
             >>> kana = KanaText('たなかはなこ|田中はな子^12b1')
-            >>> kana.asruby()
+            >>> kana.aslist()
             [(True, ('田', 'た')), (True, ('中', 'なか')), (False, 'はな'), (True, ('子', 'こ'))]
             >>> kana = KanaText('たなかはなこ|田中はな子^')
-            >>> kana.asruby()
+            >>> kana.aslist()
             [(True, ('田中はな子', 'たなかはなこ'))]
             >>> kana = KanaText('たなかはなこ|田中はな子')
-            >>> kana.asruby()
+            >>> kana.aslist()
             [(False, '田中はな子')]
         """
 
@@ -344,7 +344,7 @@ class KanaText(nodes.Element):
         """
 
         html = ""
-        for isruby, value in self.asruby():
+        for isruby, value in self.aslist():
             if isruby:
                 html += make_html_with_ruby(value[0], value[1])
             else:

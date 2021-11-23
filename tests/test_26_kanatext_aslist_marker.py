@@ -31,8 +31,8 @@ testcase01o = [   #想定する結果
     [(False, '用語Ａ')], ]
 
 #オプションの処理
-def test01_asruby():
+def test01_aslist():
     for t, e in zip(testcase01i, testcase01o):
         term = KanaText(t)
-        rslt = term.asruby()
+        rslt = term.aslist()
         assert rslt == e

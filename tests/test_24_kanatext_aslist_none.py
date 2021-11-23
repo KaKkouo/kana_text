@@ -14,8 +14,8 @@ testcase01i = [
 testcase01o = [None, None, None, None]
 
 #非表示指定の「a-i」「q-y」の動作
-def test01_asruby():
+def test01_aslist():
     for t, e in zip(testcase01i, testcase01o):
         term = KanaText(t)
-        rslt = term.asruby()
+        rslt = term.aslist()
         assert rslt == e

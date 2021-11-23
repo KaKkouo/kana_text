@@ -52,8 +52,8 @@ testcase01o = [   #期待する結果
 ]
 
 #オプションと文字データの文字数の多少
-def test01_asruby():
+def test01_aslist():
     for t, e in zip(testcase01i, testcase01o):
         term = KanaText(t)
-        rslt = term.asruby()
+        rslt = term.aslist()
         assert rslt == e
