@@ -21,7 +21,7 @@ sphinxcontrib.kana_text
 
 使い方
 ------
-次のように「かな|」を文字列の前方に付記する
+次のように「かな|」を記載文字の前方に付記する
 
 .. code-block:: rst
 
@@ -48,11 +48,12 @@ sphinxcontrib.kana_text
 - 「かな|単語^オプション」とする
 - 「^」以降はソート処理では無視される
 
-    - see: ExIndexRack.sort_units
-
 指定方法
 
 - 「かな|単語^」は読み仮名の表示。「^」がないと非表示
+
+    - 索引ページでの並び順を優先しているので、記述が少ない時の振る舞いは「ルビ非表示」とした。
+
 - 「かな|単語^2312」と数字が続く場合は、単語の各１文字に当てる読みの数
 - 「かな|単語^2a1b」とアルファベットがある場合は、ルビ表示に使わない
 
@@ -80,7 +81,7 @@ kana_text_option_marker
 kana_text_word_file
 
 - 「かな|言葉^11」の書式で記載された設定ファイルの指定.
-- 指定したファイルがないとmakeがエラーで止まる.
+- 設定で指定したファイルがないとmakeがエラーで止まる.
 
 kana_text_word_list
 
@@ -102,9 +103,17 @@ kana_text_change_triple
 
 - tripleでの「3rd, 1st」の表示を「1st, 3rd」に変更する. 省略時はFalse.
 
+kana_text_see_behavior（案）
+
+- エントリータイプ「see」の振る舞いを、「keys」もしくは「pair」に変更する.
+
+    - 実装は容易だけど、後々のrstのメンテが大変なので現状は保留.
+    - indextypesの改変を模索するほうが素直な対応.
+
 genindex.htmlの作り方
 ---------------------
-コマンド「sphinx-kana-genindex」の実行で、以下の内容のファイルがカレントディレクトリに作成される.
+コマンド「sphinx-kana-genindex」の実行で、
+以下の内容のファイルがカレントディレクトリに作成される.
 
 1. sphinx/themes/basic/genindex.html をプロジェクトの「_templates」にコピーする.
 2. indexentriesマクロにある二つの「{{ firstname|e }}」から「|e」を取り除く。
@@ -122,12 +131,26 @@ genindex.htmlの作り方
 - 「make clean」後の「make kana」で安定する挙動として.
 - 恐らくstd.pyでの登録データの方が、index.pyの登録データより処理が先.
 
+設定中のかな情報v.s.ドキュメントファイル内のかな情報
+
+- 現状は前者が優先される.
+- 「絶対の設定を個別の記述で上書き」という考えなら、後者を優先すべき.
+
 実装においての要点
 ------------------ 
 KanaTextクラス
 
 - かな表示を可能にする.
 - 「.. index::」「..glossary::」「:index:」「:kana:」で使用.
+- 「KanaWord」クラスに変更しようか悩み中.
+
+KanaXxxクラス（案）
+
+- HTML5Traslatorのvisit_Textで使おうと思っているクラス.
+- Textクラスが持っている文字列を解析して、かな情報を持つ文字列を拾い上げる.
+
+    - 処理前）Text('文字列１ かな|記載文字 文字列２')
+    - 処理後）Text('文字列１'), KanaText('かな|記載文字'), Text('文字列')
 
 ExtSubtermクラス
 
@@ -142,6 +165,7 @@ ExtIndexEntryクラス
 
 - 「.. index::」でsingle/pair/tripleと一緒に書かれている用語に対応.
 - ExIndexUnittクラスに乗る前のKanaTextオブジェクトを保持する.
+- see: sphinx/util/nodes.py, process_index_entry.
 
 ExtIndexRackクラス/create_geindex_entriesメソッド
 
@@ -161,7 +185,11 @@ ExtHTML5Translatorクラス/visit_termメソッド
 
 - 目的のTextノードをKanaTextノードに変更する.
 
-    - visit_termメソッドはglossaryで定義された単語（termクラス）が通る.
+    - visit_termメソッドはglossaryで定義された用語（termクラス）が通る.
+
+- 本来であればGlossaryクラスで対応すべき内容.
+
+    - ２～３行の変更のためにほぼ同じコードを丸々書くことになるので避けている.
 
 ExtHTMLBuilderクラス/create_indexメソッド
 
