@@ -97,6 +97,9 @@ kana_text_indexer_mode
 kana_text_on_genindex
 
 - 索引ページでのかな表示を有効にする. 省略時は非表示. 推奨はTrue.
+
+    - かな表示は用語（主）のみ.分類子、用語（副）は非表示.
+
 - 対応した「genidex.html」が必要. コマンド「sphinx-kana-genindex」で作成される.
 
 kana_text_change_triple
