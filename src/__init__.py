@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.1' # 2021-11-24
+__version__ = '0.30.2a0' # 2021-11-25
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -266,16 +266,37 @@ class KanaText(nodes.Element):
         return ''
 
     def assort(self):
+        """表示順の調整
+
+        classifierの場合
+        1. 記号
+        2. ２文字以上、英数字始まり
+        3. １文字、日本語
+        4. ２文字以上、かな文字
+        5. １文字、英数字
+        6. ２文字以上、英数字・かな文字以外（ほぼ漢字）
+        """
         if self.whatiam != 'classifier':
             return self.as_identifier()
 
         key = self.as_identifier()
-        if len(key) != 1:
+        if not key[0].upper().isalpha() and not key.startswith('_'):
             return (1, key)
-        elif _a2z.match(key) or key.isnumeric():
-            return (2, key)
-        else:
-            return (1, key)
+
+        if len(key) > 1:
+            if _a2z.match(key[0]) or key[0].isnumeric():
+                return (2, key)
+            if key[0] in _first_char.small:
+                return (4, key)
+
+            return (6, key)
+        elif len(key) == 1:
+            if _a2z.match(key) or key.isnumeric():
+                return (5, key)
+            else:
+                return (3, key)
+
+        raise ValueError(key)
 
     def as_identifier(self):
         if self['kana']: return self['kana'] + self['delimiter'] + self['ideo']
