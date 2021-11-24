@@ -18,10 +18,10 @@ testcase02in = testcase01in
 testcase03in = testcase01in
 testcase04in = testcase01in
 
-testcase01str = "tests/result72_01.txt"
-testcase02str = "tests/result72_02.txt"
-testcase03str = "tests/result72_03.txt"
-testcase04str = "tests/result72_04.txt"
+testcase01str = "tests/jinja2/result72_01.txt"
+testcase02str = "tests/jinja2/result72_02.txt"
+testcase03str = "tests/jinja2/result72_03.txt"
+testcase04str = "tests/jinja2/result72_04.txt"
 
 #-------------------------------------------------------------------
 

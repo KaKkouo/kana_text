@@ -16,8 +16,8 @@ testcase01in = {
 
 testcase02in = testcase01in
 
-testcase01str = "tests/result74_01.txt"
-testcase02str = "tests/result74_02.txt"
+testcase01str = "tests/jinja2/result74_01.txt"
+testcase02str = "tests/jinja2/result74_02.txt"
 
 #-------------------------------------------------------------------
 

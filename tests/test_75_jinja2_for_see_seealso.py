@@ -30,8 +30,8 @@ testcase02in = {
 'doc06': [('single','おお|拾拾拾','id-06','',None)],
 }
 
-testcase01str = "tests/result75_01.txt"
-testcase02str = "tests/result75_02.txt"
+testcase01str = "tests/jinja2/result75_01.txt"
+testcase02str = "tests/jinja2/result75_02.txt"
 
 #-------------------------------------------------------------------
 
