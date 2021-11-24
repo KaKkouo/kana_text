@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.2a1' # 2021-11-25
+__version__ = '0.30.2a2' # 2021-11-25
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -280,7 +280,7 @@ class KanaText(nodes.Element):
             return self.as_identifier()
 
         key = self.as_identifier()
-        if not key[0].upper().isalpha() and not key.startswith('_'):
+        if not key[0].isnumeric() and not key[0].upper().isalpha() and not key.startswith('_'):
             return (1, key)
 
         if len(key) > 1:
