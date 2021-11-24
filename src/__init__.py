@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.2a2' # 2021-11-25
+__version__ = '0.30.2b0' # 2021-11-25
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -271,7 +271,7 @@ class KanaText(nodes.Element):
         classifierの場合
         1. 記号
         2. ２文字以上、英数字始まり
-        3. １文字、日本語
+        3. １文字、日本語（英数字と記号以外）
         4. ２文字以上、かな文字
         5. １文字、英数字
         6. ２文字以上、英数字・かな文字以外（ほぼ漢字）
