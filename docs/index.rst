@@ -21,6 +21,7 @@ Kana Text Project
    :caption: Japanese User's Guide
 
    overview
+   sphindexer
    codecov
 
 Indices and Tables

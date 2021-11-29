@@ -2,6 +2,9 @@
 sphinxcontrib.kana_text
 #######################
 
+.. contents::
+   :local:
+
 参考情報
 ========
 - https://www.sphinx-doc.org/ja/master/usage/restructuredtext/basics.html
