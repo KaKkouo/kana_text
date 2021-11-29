@@ -20,8 +20,9 @@ Kana Text Project
 .. toctree::
    :caption: Japanese User's Guide
 
-   overview
-   codecov
+   kana_text
+   sphindexer
+   others
 
 Indices and Tables
 ------------------

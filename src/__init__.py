@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.2.1a0' # 2021-11-25
+__version__ = '0.30.2.1' # 2021-11-29
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
