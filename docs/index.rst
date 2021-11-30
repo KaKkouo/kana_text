@@ -22,6 +22,7 @@ Kana Text Project
 
    kana_text
    sphindexer
+   tips
    others
 
 Indices and Tables
