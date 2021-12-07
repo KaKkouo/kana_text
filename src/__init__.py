@@ -19,12 +19,13 @@ from sphinx.writers import html5
 
 import sphindexer as idxr
 from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
+from sphindexer.glossary import BaseGlossary
 
 
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.30.2.1' # 2021-11-29
+__version__ = '0.31.0a0' # 2021-12-07
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -796,6 +797,9 @@ def setup(app) -> Dict[str, Any]:
     app.add_node(KanaText, html=(visit_kana, depart_kana))
     app.add_node(ExtIndexEntry, html=(visit_kana, depart_kana))
     # 索引の表示はExtHTMLBuilderで行う
+
+    # glossaryディレクティブ
+    app.add_directive("glossary2", BaseGlossary)
 
     # HTML出力
     app.add_builder(ExtHTMLBuilder, True)
