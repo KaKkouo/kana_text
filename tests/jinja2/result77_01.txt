@@ -4,8 +4,6 @@ term: !七七/doc07.html#id-071
 term: !&六六ロク/doc06.html#id-061
 [数字]
 term: !八八/doc08.html#id-081
-[英字]
-term: !九九/doc09.html#id-091
 [あ]
 term: !壱壱/doc01.html#id-011
 [ら]
@@ -18,5 +16,7 @@ term: !4四四四四/doc04.html#id-041
 term: !fifth五五/doc05.html#id-051
 [参]
 term: !参参参参_/doc03.html#id-031
+[英字]
+term: !九九/doc09.html#id-091
 [漢字]
 term: !拾壱/doc11.html#id-101

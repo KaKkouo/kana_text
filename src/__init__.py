@@ -25,7 +25,7 @@ from sphindexer.glossary import BaseGlossary
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.31.1' # 2021-12-08
+__version__ = '0.31.2' # 2021-12-09
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -271,11 +271,13 @@ class KanaText(nodes.Element):
 
         classifierの場合
         1. 記号
-        2. ２文字以上、英数字始まり
+        2. ２文字以上、数字始まり
         3. １文字、日本語（英数字と記号以外）
         4. ２文字以上、かな文字
         5. １文字、英数字
-        6. ２文字以上、英数字・かな文字以外（ほぼ漢字）
+        6. ２文字以上、数字・かな文字以外（ほぼ漢字、英字）
+
+        * 漢数字の位置に注意.
         """
         if self.whatiam != 'classifier':
             return self.as_identifier()
@@ -285,7 +287,7 @@ class KanaText(nodes.Element):
             return (1, key)
 
         if len(key) > 1:
-            if _a2z.match(key[0]) or key[0].isnumeric():
+            if key[0].isnumeric():
                 return (2, key)
             if key[0] in _first_char.small:
                 return (4, key)
