@@ -21,6 +21,7 @@ Kana Text Project
    :caption: Japanese User's Guide
 
    kana_text
+   idea
    sphindexer
    tips
    others
