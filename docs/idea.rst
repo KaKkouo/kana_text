@@ -8,7 +8,7 @@ attribute
 ---------
 記載例
 
-.. code-blok:: rst
+.. code-block:: rst
 
    .. index::
       attribute: main; attr1; attr2; attr3; ...; attrN
@@ -29,7 +29,7 @@ keys
 ----
 記載例
 
-.. code-blok:: rst
+.. code-block:: rst
 
    .. index::
       keys: main; key1; key2; key3; ...; keyN
