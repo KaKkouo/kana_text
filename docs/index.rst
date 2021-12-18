@@ -19,10 +19,11 @@ Kana Text Project
 
 .. toctree::
    :caption: Japanese User's Guide
+   :numberd: 2
 
    kana_text
-   idea
    sphindexer
+   idea
    tips
    others
 
