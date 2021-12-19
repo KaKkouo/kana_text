@@ -91,4 +91,9 @@ see, seealso
 ------------
 「foobarを参照」の同じページ内での該当箇所へのリンクを付与する.
 
-- 「index-N」はページないユニークのはずだから、これが使えるはず.
+- 「index-N」の利用条件はページ内ユニークのはずだから、これを使う.
+- IndexRack/generate_genidex_data内で取ると２回回す必要がある. できれば避けたい.
+
+   - see/seealsoの対象をglossaryの限定すれば「main」で決め打ちできる.
+   - ただし、一意性が現状は保証されていないので微妙.
+   - 一意性を保証するには、Glossaryクラスでのmake_glossary_term関数前後のケアが必要.
