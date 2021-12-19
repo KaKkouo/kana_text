@@ -2,8 +2,12 @@
 ############
 思いついた機能を書き出しておく.
 
-索引タイプ
-==========
+索引のエントリータイプ
+======================
+文章量が増えた時に有効そうなもの.
+アマチュア小説家のツールとしての利用を想定した場合、
+文章中に登場するキャラや地名などの設定管理に使えそうな気がする.
+
 attribute
 ---------
 記載例
@@ -11,19 +15,19 @@ attribute
 .. code-block:: rst
 
    .. index::
-      attribute: main; attr1; attr2; attr3; ...; attrN
+      attribute: word; attr1; attr2; attr3; ...; attrN
 
 以下の記述と同値
 
 .. code-block:: rst
 
    .. index::
-      single: main
-      single: attr1; main
-      single: attr2; main
-      single: attr3; main
+      single: word
+      single: attr1; word
+      single: attr2; word
+      single: attr3; word
       …
-      single: attrN; main
+      single: attrN; word
 
 keys
 ----
@@ -32,18 +36,43 @@ keys
 .. code-block:: rst
 
    .. index::
-      keys: main; key1; key2; key3; ...; keyN
+      keys: key1; key2; key3; ...; keyN; title
 
 以下の記述と同値
 
 .. code-block:: rst
 
    .. index::
-      pair: main; key1
-      pair: main; key2
-      pair: main; key3
+      single: key1; title
+      single: key2; title
+      single: key3; title
       …
-      pair: main; keyN
+      single: keyN; title
+
+記述時の位置が異なるだけで、attributeと機能は同じ.
+文字列が文になるなら「tilte」で、単語に収まるなら「word」と見なす.
+
+pairs
+-----
+記載例
+
+.. code-block:: rst
+
+   .. index::
+      keys: key1; key2; key3; ...; keyN; word
+
+以下の記述と同値
+
+.. code-block:: rst
+
+   .. index::
+      pair: key1; word
+      pair: key2; word
+      pair: key3; word
+      …
+      pair: keyN; word
+
+どのような状況で役に立つのかは失念.
 
 下拵え
 ------
@@ -97,3 +126,23 @@ see, seealso
    - see/seealsoの対象をglossaryの限定すれば「main」で決め打ちできる.
    - ただし、一意性が現状は保証されていないので微妙.
    - 一意性を保証するには、Glossaryクラスでのmake_glossary_term関数前後のケアが必要.
+
+表記順
+------
+現状
+
+- 各文字のコード順の表示を土台として、大分類（のようなもの）だけを調整している.
+
+ASISから派生する不都合
+
+- 例えば「かきくけこ…がぎぐげご…カキクケコ…ガギグゲゴ」というコード順が、一般的な辞書の表記順と異なる.
+
+対処案
+
+- 「かたかな→ひらがな」変換についてはコード値の加減算で対応可能らしい.
+- 「濁音、撥音」の処理をどうするか（コード値の加減算、辞書）が要検討.
+
+備考
+
+- 商用として展開するデータとして使わない限りは大きな不都合はないので、現状は対応予定なし.
+- 今後のモチベーション次第では手を付けるかもしれない.
