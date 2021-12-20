@@ -59,18 +59,18 @@ pairs
 .. code-block:: rst
 
    .. index::
-      keys: key1; key2; key3; ...; keyN; word
+      pairs: word; key1; key2; key3; ...; keyN
 
 以下の記述と同値
 
 .. code-block:: rst
 
    .. index::
-      pair: key1; word
-      pair: key2; word
-      pair: key3; word
+      pair: word; key1
+      pair: word; key2
+      pair: word; key3
       …
-      pair: keyN; word
+      pair: word; keyN
 
 どのような状況で役に立つのかは失念.
 
