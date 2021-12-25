@@ -41,7 +41,7 @@ _dflt_separator = r'\|'
 _dflt_option_marker = r'\^'
 
 def parser_for_kana_text(separator, option_marker):
-    """かな|単語^オプション」を取り出す正規表現を作る.
+    r"""かな|単語^オプション」を取り出す正規表現を作る.
 
     :param separator: 「かな」と「単語」を分ける文字の指定.
     :type separator: str
@@ -53,7 +53,7 @@ def parser_for_kana_text(separator, option_marker):
     doctest::
 
        >>> parser_for_kana_text(r'\|', r'\^')
-       re.compile('([ \\u3000]*)((.*?)\\\\|)*([^\\\\^]*)((\\\\^)([0-9a-z]*)?)?')
+       re.compile('([ \u3000]*)((.*?)\\|)*([^\\^]*)((\\^)([0-9a-z]*)?)?')
     """
 
     ahead = r'([ 　]*)'
