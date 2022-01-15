@@ -19,7 +19,7 @@ Kana Text Project
 
 .. toctree::
    :caption: Japanese User's Guide
-   :numbered: 2
+   :numbered: 3
 
    kana_text
    sphindexer
