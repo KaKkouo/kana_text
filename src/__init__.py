@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.31.3' # 2022-02-24
+__version__ = '0.31.4' # 2022-02-24
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -800,7 +800,7 @@ def setup(app) -> Dict[str, Any]:
     # 索引の表示はExtHTMLBuilderで行う
 
     # glossaryディレクティブ
-    #app.add_directive_to_domain("std", "glossary", idxr.Glossary, True)
+    app.add_directive_to_domain("std", "glossary", idxr.Glossary, True)
 
     # HTML出力
     app.add_builder(ExtHTMLBuilder, True)
