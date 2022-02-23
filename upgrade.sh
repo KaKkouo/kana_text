@@ -1,6 +1,6 @@
 #!/usr/bin/bash -x
 
-readonly LIST="py36 py37 py38"
+readonly LIST="py36 py37 py38 py39"
 
 for v in $LIST
 do
