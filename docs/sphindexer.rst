@@ -56,6 +56,8 @@ create_indexがやっていること
 
 5. データの作成（generate_genindex_data）
 
+   - ここはテストケースで担保しているので、それほど理解する必要はない.
+
 拡張性ためのコツ
 ----------------
 他のクラスは直接使うのではなく、クラス変数（textclass, packclass, unitclass, entryclass）を介して使う.
