@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.31.4' # 2022-02-24
+__version__ = '0.32.0a1' # 2022-02-27
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -71,12 +71,12 @@ _a2z = re.compile(r'[a-zA-Z]')
 
 #「かな|単語^オプション」の「オプション」の変換用
 class _s2i:
-    each_together = {
+    ruby_on = {
         'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 5,
         'f': 6, 'g': 7, 'h': 8, 'i': 9
     }
 
-    step_by_step = {
+    ruby_off = {
         'q': 1, 'r': 2, 's': 3, 't': 4, 'u': 5,
         'v': 6, 'w': 7, 'x': 8, 'y': 9
     }
@@ -109,26 +109,31 @@ def make_html_with_ruby(word: str, kana: str) -> str:
 
 def make_specific_by_parsing_option(word, kana, option):
     rtn, opt, t_s, t_end, r_s, r_end = [], list(option), 0, 0, 0, 0
+    slen, state = 0, 1  # state) 1: ruby on, 0: ruby off
     for o in opt:
         if not word[t_s:] or not kana[r_s:]: #文字がない
             break
-        elif o in _s2i.each_together: #ルビとしては使用しない
-            t_end = t_s + _s2i.each_together[o]
-            r_end = r_s + _s2i.each_together[o]
-            rtn.append((False,word[t_s:t_end]))
-        elif o in _s2i.step_by_step: #ルビとしては使用しない
-            t_end = t_s + 1
-            r_end = r_s + _s2i.step_by_step[o]
-            rtn.append((False,word[t_s:t_end]))
+        elif o in _s2i.ruby_on:  # n:m対応でのルビ表示準備
+            slen = _s2i.ruby_on[o] - 1
+            state = 1
+            continue
+        elif o in _s2i.ruby_off:  # n:mでのルビ非表示準備
+            slen = _s2i.ruby_off[o] - 1
+            state = 0
+            continue
         elif _a2z.match(o): #上記以外の文字は無視する
             continue
         elif o == '0': #'0'の時はかなを消費せずに、１文字処理する
             t_end = t_s + 1
             rtn.append((False,word[t_s:t_end]))
-        else: #ルビとして表示する
-            t_end = t_s + 1
+        else:
             r_end = r_s + int(o)
-            rtn.append((True, (word[t_s:t_end], kana[r_s:r_end])))
+            t_end = t_s + 1 + slen
+            if state:  #ルビとして表示する
+                rtn.append((True, (word[t_s:t_end], kana[r_s:r_end])))
+            else:      #ルビとして表示しない
+                rtn.append((False, word[t_s:t_end]))
+            slen, state = 0, 1
 
         #次のループに入る前に位置情報を更新
         t_s, r_s = t_end, r_end
