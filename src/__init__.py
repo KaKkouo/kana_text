@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_TERM, UNIT_SBTM, Convert
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.32.0a2' # 2022-02-27
+__version__ = '0.32.0a3' # 2022-02-27
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -426,8 +426,8 @@ class ExtIndexUnit(idxr.IndexUnit):
 
 
 class ExtConvert(Convert):
-    main_to_code = {'conf.py': 1, 'rcfile': 2, 'main': 3, '': 4}
-    code_to_main = {1: 'conf.py', 2: 'rcfile', 3: 'main', 4: ''}
+    _main_to_code = {'conf.py': 1, 'rcfile': 2, 'main': 3, '': 4}
+    _code_to_main = {1: 'conf.py', 2: 'rcfile', 3: 'main', 4: ''}
 
 
 class ExtIndexEntry(ExtConvert, idxr.IndexEntry):
@@ -459,8 +459,8 @@ class ExtIndexEntry(ExtConvert, idxr.IndexEntry):
         index_key = self['index_key']
 
         def _index_unit(term, sub1, sub2):
-            link = self.type2link('uri')
-            emphasis = self.main2code(main)
+            link = self._type2link('uri')
+            emphasis = self._main2code(main)
 
             if not sub1:
                 sub1 = self.textclass('')
