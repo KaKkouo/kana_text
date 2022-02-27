@@ -18,13 +18,13 @@ from sphinx.util import logging, split_into, docutils
 from sphinx.writers import html5
 
 import sphindexer as idxr
-from sphindexer.rack import UNIT_CLSF, UNIT_TERM, UNIT_SBTM
+from sphindexer.rack import UNIT_TERM, UNIT_SBTM, Convert
 
 
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.32.0a1' # 2022-02-27
+__version__ = '0.32.0a2' # 2022-02-27
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -425,7 +425,12 @@ class ExtIndexUnit(idxr.IndexUnit):
         return terms
 
 
-class ExtIndexEntry(idxr.IndexEntry):
+class ExtConvert(Convert):
+    main_to_code = {'conf.py': 1, 'rcfile': 2, 'main': 3, '': 4}
+    code_to_main = {1: 'conf.py', 2: 'rcfile', 3: 'main', 4: ''}
+
+
+class ExtIndexEntry(ExtConvert, idxr.IndexEntry):
 
     textclass = KanaText
     packclass = ExtSubterm
@@ -563,7 +568,7 @@ def get_word_list_from_file(config):
     return lines
 
 
-class ExtIndexRack(idxr.IndexRack):
+class ExtIndexRack(ExtConvert, idxr.IndexRack):
     """
     処理概要
 
