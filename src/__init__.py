@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_TERM, UNIT_SBTM, Convert
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.32.0a4' # 2022-02-27
+__version__ = '0.32.0a5' # 2022-02-27
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -425,9 +425,11 @@ class ExtIndexUnit(idxr.IndexUnit):
         return terms
 
 
+CODE_UPPER_LIMIT = 3
+
 class ExtConvert(Convert):
-    _main_to_code = {'conf.py': 1, 'rcfile': 2, 'main': 3, '': 4}
-    _code_to_main = {1: 'conf.py', 2: 'rcfile', 3: 'main', 4: ''}
+    _main_to_code = {'設定ファイル': 1, 'main': 2, '辞書ファイル': 3, '': 4}
+    _code_to_main = {1: '設定ファイル', 2: 'main', 3: '辞書ファイル', 4: ''}
 
 
 class ExtIndexEntry(ExtConvert, idxr.IndexEntry):
@@ -593,14 +595,14 @@ class ExtIndexRack(ExtConvert, idxr.IndexRack):
 
         # 設定で用意されたかな文字情報の登録
         for rawword in builder.config.kana_text_word_list:
-            entry = ExtIndexEntry(rawword, 'list', 'WORD_LIST', '', 'conf.py', None)  # _cnfpy_
+            entry = ExtIndexEntry(rawword, 'list', 'WORD_LIST', '', '設定ファイル', None)  # _cnfpy_
             index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu['main'], iu.get_terms())
 
         # 設定ファイルで用意されたかな文字情報の登録
         for rawword in get_word_list_from_file(builder.config):
-            entry = ExtIndexEntry(rawword, 'list', 'WORD_FILE', '', 'rcfile', None)  # _rncmd_
+            entry = ExtIndexEntry(rawword, 'list', 'WORD_FILE', '', '辞書ファイル', None)  # _rncmd_
             index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu['main'], iu.get_terms())
@@ -631,6 +633,11 @@ class ExtIndexRack(ExtConvert, idxr.IndexRack):
 
     def put_in_kana_catalog(self, emphasis, terms):
         """KanaText用の処理"""
+
+        # indexディレクティブはカタログに登録しない.
+        if emphasis > CODE_UPPER_LIMIT:
+            return
+
         for term in terms:
             kana, ideo, ruby, spec = term.askana(), term.astext(), term['ruby'], term['option']
             if kana and ideo in self._kana_catalog:
@@ -697,6 +704,11 @@ class ExtIndexRack(ExtConvert, idxr.IndexRack):
         super().update_units()
 
     def update_term_with_kana_catalog(self, term):
+        # かな情報がインラインで記載されていれば、それに従う.
+        if term['kana']:
+            return 
+
+        # かな情報がインラインになければカタログから探す.
         if term.astext() in self._kana_catalog:
             term['kana'] = self._kana_catalog[term.astext()][1]
             term['ruby'] = self._kana_catalog[term.astext()][2]
