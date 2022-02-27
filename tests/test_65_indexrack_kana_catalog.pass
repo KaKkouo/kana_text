@@ -200,20 +200,25 @@ testcase05in = {
 'doc06': [('single','おお|拾拾拾; んん|拾拾拾','id-06','',None)],
 }
 
-testcase05out = [
+out05 = [
+('あ',
+  [('ああ|球球球',
+    [[], [('いい|球球球', [('', 'doc01.html#id-01')])], None]),
+   ('おお|拾拾拾',
+    [[], [('んん|拾拾拾', [('', 'doc06.html#id-06')])], None])]),
+('か',
+  [('かか|球球球',
+    [[], [('めめ|球球球', [])], None])]),
+('さ',
+  [('ささ|球球球',
+    [[], [('んん|球球球', [('', 'doc03.html#id-03')])], None])]),
+('た',
+  [('たた|拾拾拾',
+    [[], [('いい|拾拾拾', [])], None])]),
 ('な',
-  [('ねねね|拾拾拾',
-    [[],
-     [('see also 拾拾拾', []),
-      ('拾拾拾', [('', 'doc05.html#id-05'), ('', 'doc06.html#id-06')])],
-     None])]),
- ('ら',
-  [('るるる|球球球',
-    [[],
-     [('see 球球球', []),
-      ('球球球', [('', 'doc01.html#id-01'), ('', 'doc03.html#id-03')])],
-     None])])
- ]
+  [('なな|拾拾拾',
+    [[], [('めめ|拾拾拾', [('', 'doc05.html#id-05')])], None])]),
+]
 
 #-------------------------------------------------------------------
 
@@ -255,4 +260,18 @@ def test05_kana_catalog():
     bld.config.html_kana_text_on_genindex = True
     idx = IndexRack(bld)
     gidx = idx.create_index()
-    assert gidx == testcase05out
+    assert len(gidx) == len(out05)
+    assert gidx[0][0] == out05[0][0]
+    assert gidx[0][1][0][0] == out05[0][1][0][0]
+    assert gidx[0][1][0][1][1][0][0] == out05[0][1][0][1][1][0][0]
+    assert gidx[0][1][0][1][1][0] == out05[0][1][0][1][1][0]
+    assert gidx[0][1][0][1][1] == out05[0][1][0][1][1]
+    assert gidx[0][1][0][1] == out05[0][1][0][1]
+    assert gidx[0][1][0] == out05[0][1][0]
+    assert gidx[0][1][1] == out05[0][1][1]
+    assert gidx[0][1] == out05[0][1]
+    assert gidx[0] == out05[0]
+    assert gidx[1] == out05[1]
+    assert gidx[2] == out05[2]
+    assert gidx[3] == out05[3]
+    assert gidx[4] == out05[4]

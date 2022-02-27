@@ -142,15 +142,14 @@ def test06_first_letter_of_term():
     assert gidx[1][1][1][1] == [[], [('花見 男爵', [('', 'doc9.html#id-131')])], None]
     assert gidx[2][1][0][0] == 'ナナナ|太郎'
     assert gidx[2][1][0][1] == [[('', 'doc1.html#id-311')], [], None]
-    assert gidx[2][1][1][0] == 'ヌヌヌ|手紙'
-    assert gidx[2][1][1][1] == [[], [('狸と狐', [('', 'doc3.html#id-321')])], None]
-    assert gidx[2][1][2][0] == 'ネネネ|犬猫'
-    assert gidx[2][1][2][1] == [[], [('子鹿 急須', [('', 'doc4.html#id-331')])], None]
+    assert gidx[2][1][1][0] == 'ニニニ|はな子'
+    assert gidx[2][1][1][1] == [[], [('森の熊', [('main', 'doc2.html#id-343')])], None]
+    assert gidx[2][1][2][0] == 'ヌヌヌ|手紙'
+    assert gidx[2][1][2][1] == [[], [('狸と狐', [('', 'doc3.html#id-321')])], None]
+    assert gidx[2][1][3][0] == 'ネネネ|犬猫'
+    assert gidx[2][1][3][1] == [[], [('子鹿 急須', [('', 'doc4.html#id-331')])], None]
     assert gidx[3][1][0][0] == 'ぱなぱな|はな子'
-    assert gidx[3][1][0][1] == [[],
-                                [('野良熊', [('main', 'doc7.html#id-343')]),
-                                 ('森の熊', [('main', 'doc2.html#id-343')])],
-                                None]
+    assert gidx[3][1][0][1] == [[], [('野良熊', [('main', 'doc7.html#id-343')])], None]
     assert gidx[3][1][1][0] == 'ハハハ|子鹿'
     assert gidx[3][1][1][1] == [[], [('急須, 犬猫', [('', 'doc4.html#id-331')])], None]
     assert gidx[3][1][2][0] == 'ハハハ|狸と狐'
