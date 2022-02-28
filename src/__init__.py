@@ -595,14 +595,14 @@ class ExtIndexRack(ExtConvert, idxr.IndexRack):
 
         # 設定で用意されたかな文字情報の登録
         for rawword in builder.config.kana_text_word_list:
-            entry = ExtIndexEntry(rawword, 'list', 'WORD_LIST', '', '設定ファイル', None)  # _cnfpy_
+            entry = ExtIndexEntry(rawword, 'list', 'WORD_LIST', '', '設定ファイル', None)
             index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu['main'], iu.get_terms())
 
         # 設定ファイルで用意されたかな文字情報の登録
         for rawword in get_word_list_from_file(builder.config):
-            entry = ExtIndexEntry(rawword, 'list', 'WORD_FILE', '', '辞書ファイル', None)  # _rncmd_
+            entry = ExtIndexEntry(rawword, 'list', 'WORD_FILE', '', '辞書ファイル', None)
             index_units = entry.make_index_units()
             for iu in index_units:
                 self.put_in_kana_catalog(iu['main'], iu.get_terms())
@@ -622,7 +622,7 @@ class ExtIndexRack(ExtConvert, idxr.IndexRack):
 
     def append(self, unit):
         """
-        - 更新処理のための全てのunitから情報を収集する.
+        - 更新処理のための情報を全てのunitから収集する.
         """
         # かな情報の収集
         self.put_in_kana_catalog(unit['main'], unit.get_terms())
