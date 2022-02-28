@@ -1,5 +1,5 @@
 Sphinx == 4.4.0
-sphindexer == 0.12.1
+sphindexer >= 0.12.1
 pytest
 pytest-cov
 coverage
