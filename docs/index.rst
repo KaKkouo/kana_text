@@ -22,7 +22,7 @@ Kana Text Project
    :numbered: 3
 
    kana_text
-   sphindexer
+   hack
    idea
    tips
    others
