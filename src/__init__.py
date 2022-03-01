@@ -24,7 +24,7 @@ from sphindexer.rack import UNIT_TERM, UNIT_SBTM, Convert
 __copyright__ = 'Copyright (C) 2021 @koKkekoh'
 __license__ = 'BSD 2-Clause License'
 __author__  = '@koKekkoh'
-__version__ = '0.32.0' # 2022-02-28
+__version__ = '0.32.1' # 2022-03-02
 __url__     = 'https://qiita.com/tags/sphinxcotrib.kana_text'
 
 
@@ -609,17 +609,6 @@ class ExtIndexRack(ExtConvert, idxr.IndexRack):
 
         super().__init__(builder)
 
-    def create_index(self, entries=None, group_entries: bool = True,
-                     _fixre: Pattern = re.compile(r'(.*) ([(][^()]*[)])')
-                     ) -> List[Tuple[str, List[Tuple[str, Any]]]]:
-        """IndexEntriesクラス/create_indexメソッドを置き換える."""
-
-        # 入れ物の用意とリセット
-        self._kana_catalog_pre = self._kana_catalog  # (注)__init__がないと前回分が残る.
-        self._kana_catalog = {}  # {term: (emphasis, kana, ruby, option)}
-
-        return super().create_index(group_entries, _fixre)
-
     def append(self, unit):
         """
         - 更新処理のための情報を全てのunitから収集する.
@@ -682,9 +671,6 @@ class ExtIndexRack(ExtConvert, idxr.IndexRack):
 
     def update_units(self):
         """rackに格納されている全てのunitの更新を行う."""
-
-        # __init__で貯めた情報を追加する.
-        self._kana_catalog.update(self._kana_catalog_pre)
 
         # カタログ情報を使った更新/kana_text_change_tripleの反映
         for unit in self._rack:
