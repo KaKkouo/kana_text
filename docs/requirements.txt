@@ -3,3 +3,4 @@ sphinxcontrib.kana_text
 funcparserlib == 1.0.0a0
 sphinxcontrib-actdiag
 sphinxcontrib-seqdiag
+pillow>=10.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
